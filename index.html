@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="로지알 - 손으로 만드는 특별한 순간, 수공예의 아름다움" />
+  <title>로지알 | 수공예의 새로운 경험</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./styles.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            paperlogy: ['Paperlogy', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            },
+            accent: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          boxShadow: {
+            glow: '0 10px 50px rgba(249, 115, 22, 0.25)',
+            glowBlue: '0 10px 50px rgba(59, 130, 246, 0.25)',
+          },
+          animation: {
+            fadeIn: 'fadeIn 0.7s ease-in-out both',
+            slideUp: 'slideUp 0.8s ease-out both',
+            float: 'float 3s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(24px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-12px)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="bg-white font-paperlogy antialiased overflow-x-hidden">
+  <!-- Navigation -->
+  <nav id="navbar"
+    class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur border-b border-white/40 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 shadow-glow"></div>
+          <span class="text-2xl sm:text-3xl font-black text-gradient">로지알</span>
+        </div>
+        <div class="hidden md:flex items-center space-x-8 text-sm font-semibold text-gray-700">
+          <a href="#home" class="hover:text-primary-500 transition-colors">홈</a>
+          <a href="#about" class="hover:text-primary-500 transition-colors">소개</a>
+          <a href="#work-types" class="hover:text-primary-500 transition-colors">작업 종류</a>
+          <a href="#process" class="hover:text-primary-500 transition-colors">진행 순서</a>
+          <a href="#faq" class="hover:text-primary-500 transition-colors">FAQ</a>
+          <a href="#contact" class="hover:text-primary-500 transition-colors">문의</a>
+        </div>
+        <div class="hidden md:flex space-x-3">
+          <a href="#contact"
+            class="px-4 py-2 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold shadow-glow hover:shadow-xl transition-all duration-200">
+            제작 문의
+          </a>
+        </div>
+        <button id="mobile-menu-btn" class="md:hidden w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg">
+          <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 shadow-lg">
+      <div class="px-6 py-4 space-y-3 text-gray-700 font-semibold">
+        <a href="#home" class="block hover:text-primary-500">홈</a>
+        <a href="#about" class="block hover:text-primary-500">소개</a>
+        <a href="#work-types" class="block hover:text-primary-500">작업 종류</a>
+        <a href="#process" class="block hover:text-primary-500">진행 순서</a>
+        <a href="#faq" class="block hover:text-primary-500">FAQ</a>
+        <a href="#contact" class="block hover:text-primary-500">문의</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="home" class="relative min-h-screen flex items-center overflow-hidden pt-20">
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-100 via-white to-accent-100"></div>
+    <div class="absolute top-20 left-8 w-64 h-64 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+    <div class="absolute bottom-10 right-8 w-72 h-72 bg-accent-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"
+      style="animation-delay: 0.7s;"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-6 py-20">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <!-- Left: Text Content -->
+        <div class="space-y-8 text-center md:text-left">
+          <p class="inline-flex items-center px-4 py-2 rounded-full bg-white/70 text-primary-600 text-sm font-bold shadow-glow animate-fadeIn">
+            🏠 집에서 취미처럼, 즐겁게 돈 버는 수공예 손부업
+          </p>
+          <div>
+            <h1 class="text-4xl md:text-6xl font-black leading-tight text-gray-900 animate-slideUp mb-2">
+              <span class="text-gradient">집에서 즐겁게</span><br />
+              <span class="text-accent-600">돈 버는 수공예 손부업</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-700 mt-4 animate-slideUp" style="animation-delay: 0.15s;">
+              팔찌, 인형 포장, 볼펜 조립, 스티커, 뜨개질 가방 등<br />
+              손으로 하는 단순 작업을 집에서 편하게 진행하고, 완성품 검수 후 계좌로 정산 받는 정식 재택 부업입니다.
+            </p>
+          </div>
+          <div class="grid grid-cols-2 gap-4 animate-slideUp" style="animation-delay: 0.2s;">
+            <div class="p-4 bg-white/80 rounded-xl shadow-lg text-center">
+              <div class="text-2xl mb-2">🏠</div>
+              <p class="text-sm font-bold text-gray-800">재료 무료 배송</p>
+              <p class="text-xs text-gray-600">완성품 수거</p>
+            </div>
+            <div class="p-4 bg-white/80 rounded-xl shadow-lg text-center">
+              <div class="text-2xl mb-2">📦</div>
+              <p class="text-sm font-bold text-gray-800">단순 포장</p>
+              <p class="text-xs text-gray-600">조립 위주 작업</p>
+            </div>
+            <div class="p-4 bg-white/80 rounded-xl shadow-lg text-center">
+              <div class="text-2xl mb-2">💳</div>
+              <p class="text-sm font-bold text-gray-800">검수 후</p>
+              <p class="text-xs text-gray-600">안전 정산</p>
+            </div>
+            <div class="p-4 bg-white/80 rounded-xl shadow-lg text-center">
+              <div class="text-2xl mb-2">📞</div>
+              <p class="text-sm font-bold text-gray-800">한국인 담당자</p>
+              <p class="text-xs text-gray-600">1:1 안내</p>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-4 animate-slideUp" style="animation-delay: 0.3s;">
+            <a href="#contact"
+              class="px-8 py-4 rounded-full text-white font-semibold text-lg bg-gradient-to-r from-primary-500 to-primary-600 shadow-glow hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 text-center">
+              지금 상담 받고 시작하기
+            </a>
+            <a href="#work-types"
+              class="px-8 py-4 rounded-full text-primary-600 font-semibold text-lg border-2 border-primary-200 bg-white/80 hover:border-primary-400 hover:shadow-glow transform hover:scale-[1.02] transition-all duration-200 text-center">
+              가능한 작업 보기
+            </a>
+          </div>
+          <p class="text-sm text-gray-600 animate-slideUp" style="animation-delay: 0.4s;">
+            ⭐ 신청·교육·작업·정산까지 전 과정에 별도 비용이 들지 않습니다. 재료 보증금, 선입금, 수수료를 요구하지 않습니다.
+          </p>
+        </div>
+
+        <!-- Right: Image -->
+        <div class="relative animate-slideUp" style="animation-delay: 0.2s;">
+          <div class="relative rounded-3xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition-transform duration-300">
+            <img src="./images/h-1.png" alt="수공예 홈워커센터 - 집에서 즐겁게 돈 버는 정식 재택 부업" 
+              class="w-full h-auto object-cover rounded-3xl" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
+          </div>
+          <div class="absolute -bottom-4 -left-4 w-24 h-24 bg-primary-400 rounded-full mix-blend-multiply filter blur-2xl opacity-40"></div>
+          <div class="absolute -top-4 -right-4 w-32 h-32 bg-accent-400 rounded-full mix-blend-multiply filter blur-2xl opacity-40"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="py-20 md:py-24 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center space-y-4 mb-12">
+        <h2 class="text-4xl md:text-5xl font-black text-gray-900">수공예 손부업은 이렇게 진행돼요</h2>
+        <p class="text-gray-600 text-lg">정식 계약된 창고에서 재료를 보내 드리고, 집에서 제작·포장 후 다시 회수하여 검수·정산까지 책임지고 진행합니다.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-10 items-center">
+        <div class="space-y-6">
+          <h3 class="text-2xl font-bold text-primary-600">안전하고 투명한 프로세스</h3>
+          <p class="text-gray-700 leading-relaxed">
+            로지알은 수공예 재택부업을 안전하고 투명하게 운영합니다. 재료비나 보증금 없이 시작할 수 있으며,
+            모든 과정은 카카오톡·문자로 안내해 드립니다.
+          </p>
+          <p class="text-gray-700 leading-relaxed">
+            어려운 부분은 사진으로 확인하면서 도와드리며, 한국인 담당자가 1:1로 안내해 드립니다.
+            집에서 편안하게 여유 시간에 맞춰 작업하실 수 있습니다.
+          </p>
+          <div class="grid grid-cols-2 gap-4 text-sm font-semibold text-gray-800">
+            <div class="p-4 rounded-xl bg-primary-50 border border-primary-100 shadow-sm">
+              <div class="text-primary-600 font-bold mb-1">무료 재료 배송</div>
+              <div class="text-xs text-gray-600">재료비·보증금 없음</div>
+            </div>
+            <div class="p-4 rounded-xl bg-accent-50 border border-accent-100 shadow-sm">
+              <div class="text-accent-600 font-bold mb-1">안전한 정산</div>
+              <div class="text-xs text-gray-600">검수 후 계좌 입금</div>
+            </div>
+            <div class="p-4 rounded-xl bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-100 shadow-sm">
+              <div class="text-primary-600 font-bold mb-1">1:1 담당자</div>
+              <div class="text-xs text-gray-600">한국인 전문 안내</div>
+            </div>
+            <div class="p-4 rounded-xl bg-primary-50 border border-primary-100 shadow-sm">
+              <div class="text-primary-600 font-bold mb-1">자유로운 일정</div>
+              <div class="text-xs text-gray-600">집에서 편하게</div>
+            </div>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="aspect-[4/5] rounded-3xl bg-gradient-to-br from-primary-400 via-primary-500 to-accent-500 shadow-2xl rotate-2 overflow-hidden">
+            <img src="./images/h-2.png" alt="수공예 홈워커센터" 
+              class="w-full h-full object-cover rounded-3xl" />
+          </div>
+          <div class="absolute inset-6 rounded-3xl bg-white/80 backdrop-blur shadow-xl -rotate-2 flex items-center justify-center overflow-hidden">
+            <img src="./images/h-2.png" alt="수공예 홈워커센터 - 집에서 즐겁게 돈 버는 정식 재택 부업" 
+              class="w-full h-full object-cover rounded-3xl" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent rounded-3xl flex items-end justify-center pb-6">
+              <div class="text-center space-y-2 px-6 text-white">
+                <p class="text-sm uppercase tracking-[0.2em] text-white font-bold drop-shadow-lg">Rogial</p>
+                <p class="text-xl font-black drop-shadow-lg">수공예 홈워커센터</p>
+                <p class="text-sm drop-shadow-lg">집에서 즐겁게 돈 버는</p>
+                <p class="text-sm drop-shadow-lg">정식 재택 부업</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Work Types -->
+  <section id="work-types" class="py-20 md:py-24 bg-gradient-to-b from-accent-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center space-y-4 mb-12">
+        <h2 class="text-4xl md:text-5xl font-black text-gray-900">어떤 수공예 작업을 하게 되나요?</h2>
+        <p class="text-gray-600 text-lg">현재는 팔찌, 인형 포장, 볼펜 조립, 스티커, 뜨개질 가방 등 여러 가지 수공예 부업을 운영하고 있어요.</p>
+      </div>
+
+      <!-- Top 10 Work Types -->
+      <div class="mb-16">
+        <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">수공예 부업 TOP10</h3>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div class="p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all text-center border border-primary-100">
+            <div class="text-3xl mb-2">✨</div>
+            <p class="font-bold text-sm text-gray-800">레진아트</p>
+          </div>
+          <div class="p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all text-center border border-accent-100">
+            <div class="text-3xl mb-2">🕯️</div>
+            <p class="font-bold text-sm text-gray-800">캔들공예</p>
+          </div>
+          <div class="p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all text-center border border-primary-100">
+            <div class="text-3xl mb-2">🧼</div>
+            <p class="font-bold text-sm text-gray-800">천연비누</p>
+          </div>
+          <div class="p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all text-center border border-accent-100">
+            <div class="text-3xl mb-2">🎨</div>
+            <p class="font-bold text-sm text-gray-800">토퍼·레터링</p>
+          </div>
+          <div class="p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all text-center border border-primary-100">
+            <div class="text-3xl mb-2">👜</div>
+            <p class="font-bold text-sm text-gray-800">가죽공예</p>
+          </div>
+          <div class="p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all text-center border border-accent-100">
+            <div class="text-3xl mb-2">🪢</div>
+            <p class="font-bold text-sm text-gray-800">마크라메</p>
+          </div>
+          <div class="p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all text-center border border-primary-100">
+            <div class="text-3xl mb-2">💎</div>
+            <p class="font-bold text-sm text-gray-800">비즈공예</p>
+          </div>
+          <div class="p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all text-center border border-accent-100">
+            <div class="text-3xl mb-2">🧶</div>
+            <p class="font-bold text-sm text-gray-800">자이언트얀</p>
+          </div>
+          <div class="p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all text-center border border-primary-100">
+            <div class="text-3xl mb-2">🌿</div>
+            <p class="font-bold text-sm text-gray-800">라탄공예</p>
+          </div>
+          <div class="p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all text-center border border-accent-100">
+            <div class="text-3xl mb-2">🎀</div>
+            <p class="font-bold text-sm text-gray-800">리본공예</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Work Types -->
+      <div class="space-y-6">
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-primary-500">
+          <div class="flex items-start gap-4">
+            <div class="text-4xl">🧶</div>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-gray-900 mb-2">팔찌 수공예 · 개당 500원</h3>
+              <p class="text-gray-700 mb-3">알록달록한 구슬을 실에 끼워 팔찌를 만드는 작업입니다. 샘플 사진 그대로 따라 하실 수 있도록 단계별 안내를 드려요.</p>
+              <div class="grid md:grid-cols-4 gap-3 text-sm">
+                <div><span class="font-bold text-primary-600">단가:</span> 1개당 500원</div>
+                <div><span class="font-bold text-primary-600">기간:</span> 15일</div>
+                <div><span class="font-bold text-primary-600">추천 수량:</span> 900개</div>
+                <div><span class="font-bold text-primary-600">예상 급여:</span> 45만원</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-accent-500">
+          <div class="flex items-start gap-4">
+            <div class="text-4xl">🧸</div>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-gray-900 mb-2">인형 포장 · 개당 1,000원</h3>
+              <p class="text-gray-700 mb-3">완성된 인형을 상자에 넣고, 포장지·라벨·태그를 붙여 마무리하는 작업입니다. 선물용 제품이 많아 세심함이 필요한 대신 단가가 높은 편입니다.</p>
+              <div class="grid md:grid-cols-4 gap-3 text-sm">
+                <div><span class="font-bold text-accent-600">단가:</span> 1개당 1,000원</div>
+                <div><span class="font-bold text-accent-600">기간:</span> 15일</div>
+                <div><span class="font-bold text-accent-600">추천 수량:</span> 400개</div>
+                <div><span class="font-bold text-accent-600">예상 급여:</span> 40만원</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-primary-500">
+          <div class="flex items-start gap-4">
+            <div class="text-4xl">🌈</div>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-gray-900 mb-2">스티커 세트 · 개당 100원</h3>
+              <p class="text-gray-700 mb-3">작은 스티커들을 세트 구성대로 붙이거나, 지정된 수량만큼 포장 봉투에 담는 작업입니다. 난이도가 가장 낮아서 처음 해보시는 분들께 인기가 많아요.</p>
+              <div class="grid md:grid-cols-4 gap-3 text-sm">
+                <div><span class="font-bold text-primary-600">단가:</span> 1개당 100원</div>
+                <div><span class="font-bold text-primary-600">기간:</span> 15일</div>
+                <div><span class="font-bold text-primary-600">추천 수량:</span> 4,000개</div>
+                <div><span class="font-bold text-primary-600">예상 급여:</span> 40만원</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-accent-500">
+          <div class="flex items-start gap-4">
+            <div class="text-4xl">🖊️</div>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-gray-900 mb-2">볼펜 조립 · 개당 400원</h3>
+              <p class="text-gray-700 mb-3">볼펜 몸통·심·캡 등을 순서대로 끼워 완성하는 단순 조립 작업입니다. 부품이 크고 규칙적이라 리듬 타듯이 하실 수 있어요.</p>
+              <div class="grid md:grid-cols-4 gap-3 text-sm">
+                <div><span class="font-bold text-accent-600">단가:</span> 1개당 400원</div>
+                <div><span class="font-bold text-accent-600">기간:</span> 15일</div>
+                <div><span class="font-bold text-accent-600">추천 수량:</span> 1,000개</div>
+                <div><span class="font-bold text-accent-600">예상 급여:</span> 40만원</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-primary-500">
+          <div class="flex items-start gap-4">
+            <div class="text-4xl">🧺</div>
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-gray-900 mb-2">뜨개질 가방 · 개당 6,000원</h3>
+              <p class="text-gray-700 mb-3">코바늘이나 대바늘로 가방을 뜨는 작업으로, 기본 뜨개질 경험이 있는 분들께만 배정되는 난이도 높은 과제입니다. 그만큼 건당 단가와 총 급여가 높은 편이에요.</p>
+              <div class="grid md:grid-cols-4 gap-3 text-sm">
+                <div><span class="font-bold text-primary-600">단가:</span> 1개당 6,000원</div>
+                <div><span class="font-bold text-primary-600">기간:</span> 15일</div>
+                <div><span class="font-bold text-primary-600">추천 수량:</span> 100개</div>
+                <div><span class="font-bold text-primary-600">예상 급여:</span> 60만원</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-center text-gray-600 text-sm mt-8">
+        ※ 위 단가와 수량, 급여 금액은 이해를 돕기 위한 예시이며, 실제 배정 시기·난이도·브랜드에 따라 달라질 수 있습니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- Process Section -->
+  <section id="process" class="py-20 md:py-24 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center space-y-4 mb-12">
+        <h2 class="text-4xl md:text-5xl font-black text-gray-900">지원부터 정산까지, 이렇게 진행됩니다</h2>
+        <p class="text-gray-600 text-lg">모든 과정은 카카오톡·문자로 안내해 드리며, 어려운 부분은 사진으로 확인하면서 도와드립니다.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <div class="relative">
+          <div class="bg-gradient-to-br from-primary-100 to-primary-50 rounded-2xl p-6 shadow-lg border border-primary-200">
+            <div class="w-12 h-12 rounded-full bg-primary-500 text-white flex items-center justify-center font-black text-xl mb-4">1</div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">무료 상담 신청</h3>
+            <p class="text-gray-700 text-sm">아래 신청 버튼을 눌러 성함, 연락처, 거주 지역, 가능 시간대를 남겨 주세요. 담당자가 순차적으로 연락을 드립니다.</p>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="bg-gradient-to-br from-accent-100 to-accent-50 rounded-2xl p-6 shadow-lg border border-accent-200">
+            <div class="w-12 h-12 rounded-full bg-accent-500 text-white flex items-center justify-center font-black text-xl mb-4">2</div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">작업 안내 & 일정 조율</h3>
+            <p class="text-gray-700 text-sm">가능한 작업 종류·수량·진행 기간을 안내 드리고, 고객님 일정에 맞춰 첫 작업 일정을 조율합니다.</p>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="bg-gradient-to-br from-primary-100 to-primary-50 rounded-2xl p-6 shadow-lg border border-primary-200">
+            <div class="w-12 h-12 rounded-full bg-primary-500 text-white flex items-center justify-center font-black text-xl mb-4">3</div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">재료 발송 & 교육</h3>
+            <p class="text-gray-700 text-sm">창고에서 재료를 택배로 보내 드리고, 사진·영상으로 작업 순서 교육을 드립니다. 전화·카톡으로 추가 설명도 가능합니다.</p>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="bg-gradient-to-br from-accent-100 to-accent-50 rounded-2xl p-6 shadow-lg border border-accent-200">
+            <div class="w-12 h-12 rounded-full bg-accent-500 text-white flex items-center justify-center font-black text-xl mb-4">4</div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">집에서 제작·포장</h3>
+            <p class="text-gray-700 text-sm">안내받은 기간(보통 7~15일) 안에 여유 시간에 맞춰 작업해 주세요. 중간에 진행 상황을 사진으로 보내 주시면 검수에 도움이 됩니다.</p>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="bg-gradient-to-br from-primary-100 to-primary-50 rounded-2xl p-6 shadow-lg border border-primary-200">
+            <div class="w-12 h-12 rounded-full bg-primary-500 text-white flex items-center justify-center font-black text-xl mb-4">5</div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">완성품 수거·검수</h3>
+            <p class="text-gray-700 text-sm">지정 택배사를 통해 완성품을 수거해 가며, 창고에서 불량 여부와 수량을 꼼꼼히 검수합니다.</p>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="bg-gradient-to-br from-accent-100 to-accent-50 rounded-2xl p-6 shadow-lg border border-accent-200">
+            <div class="w-12 h-12 rounded-full bg-accent-500 text-white flex items-center justify-center font-black text-xl mb-4">6</div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">작업비 정산</h3>
+            <p class="text-gray-700 text-sm">합격 수량 기준으로 작업비를 계산해 전달해 주신 본인 명의 계좌로 입금해 드립니다. 정산 내역은 문자·카톡으로 투명하게 안내됩니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Income Structure -->
+  <section class="py-20 md:py-24 bg-gradient-to-b from-primary-50 to-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center space-y-4 mb-12">
+        <h2 class="text-4xl md:text-5xl font-black text-gray-900">수익 구조와 추천 대상</h2>
+        <p class="text-gray-600 text-lg">현실적인 기대 수익과, 어떤 분들께 특히 잘 맞는지 솔직하게 안내드립니다.</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-white rounded-2xl shadow-lg p-8 border border-primary-100">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">수익 구조</h3>
+          <p class="text-gray-700 mb-4">수공예 상품·굿즈를 제작하는 브랜드·공방에서 대량 작업이 필요한 부분을 저희 센터에 의뢰합니다. 센터는 회원님께 작업을 배정하고, 브랜드에서 받는 작업비 중 대부분을 직접 작업해 주신 분께 돌려드립니다.</p>
+          <ul class="space-y-2 text-gray-700">
+            <li class="flex items-start gap-2">
+              <span class="text-primary-500 font-bold">•</span>
+              <span>작업 단가는 난이도·재료·수량에 따라 사전 고지</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-primary-500 font-bold">•</span>
+              <span>예: 간단 포장 기준 1세트당 150~300원 선(예시)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-primary-500 font-bold">•</span>
+              <span>하루 2~3시간, 주 3~4회 진행 시 월 20만~40만원 수준을 목표</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-primary-500 font-bold">•</span>
+              <span>개인 능력·시간에 따라 실제 금액은 달라질 수 있습니다.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg p-8 border border-accent-100">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">이런 분들께 특히 추천드려요</h3>
+          <ul class="space-y-3">
+            <li class="flex items-start gap-3">
+              <span class="text-accent-500 text-xl">✓</span>
+              <span class="text-gray-700">집에서 조용히 손으로 하는 일을 좋아하시는 분</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-accent-500 text-xl">✓</span>
+              <span class="text-gray-700">육아·학업·본업 사이 시간에 틈틈이 부수입을 원하시는 분</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-accent-500 text-xl">✓</span>
+              <span class="text-gray-700">장시간 서서 하는 아르바이트가 체력적으로 힘드신 분</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-accent-500 text-xl">✓</span>
+              <span class="text-gray-700">손재주를 살려보고 싶지만 창업까지는 부담스러우신 분</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-accent-500 text-xl">✓</span>
+              <span class="text-gray-700">안정적인 업체와 정식 계약으로 안전하게 일하고 싶으신 분</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FAQ Section -->
+  <section id="faq" class="py-20 md:py-24 bg-white">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="text-center space-y-4 mb-12">
+        <h2 class="text-4xl md:text-5xl font-black text-gray-900">자주 묻는 질문</h2>
+        <p class="text-gray-600 text-lg">상담 시 많이 주시는 질문들을 먼저 정리해 드렸습니다.</p>
+      </div>
+
+      <div class="space-y-4">
+        <div class="faq-item bg-white border-2 border-primary-100 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+          <button class="faq-question w-full text-left flex items-center justify-between">
+            <span class="text-lg font-bold text-gray-900">Q. 재료비나 보증금을 먼저 내야 하나요?</span>
+            <span class="text-primary-500 text-2xl font-bold">+</span>
+          </button>
+          <div class="faq-answer hidden mt-4 text-gray-700">
+            <p>아닙니다. 재료는 창고에서 미리 준비한 것을 무료로 발송해 드리며, 별도의 재료비·보증금을 요구하지 않습니다. 다만 고의적인 분실·파손이 반복될 경우에는 배상 규정을 사전에 안내드립니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white border-2 border-accent-100 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+          <button class="faq-question w-full text-left flex items-center justify-between">
+            <span class="text-lg font-bold text-gray-900">Q. 불량이 나오면 수당에서 깎이나요?</span>
+            <span class="text-accent-500 text-2xl font-bold">+</span>
+          </button>
+          <div class="faq-answer hidden mt-4 text-gray-700">
+            <p>작업 초반에는 샘플 검수 기간을 두어 최대한 불이익 없이 피드백을 드립니다. 이후에도 안내된 기준에서 크게 벗어나는 불량분은 정산에서 제외될 수 있으며, 기준은 항상 사전에 공유해 드립니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white border-2 border-primary-100 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+          <button class="faq-question w-full text-left flex items-center justify-between">
+            <span class="text-lg font-bold text-gray-900">Q. 집이 너무 멀어도 참여할 수 있나요?</span>
+            <span class="text-primary-500 text-2xl font-bold">+</span>
+          </button>
+          <div class="faq-answer hidden mt-4 text-gray-700">
+            <p>네, 택배가 수거 가능한 지역이라면 전국 어디서나 가능합니다. 도서산간 지역의 경우 택배비 규정을 개별 안내해 드립니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white border-2 border-accent-100 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+          <button class="faq-question w-full text-left flex items-center justify-between">
+            <span class="text-lg font-bold text-gray-900">Q. 아이가 있어도 할 수 있을까요?</span>
+            <span class="text-accent-500 text-2xl font-bold">+</span>
+          </button>
+          <div class="faq-answer hidden mt-4 text-gray-700">
+            <p>많은 분들이 육아와 병행하고 계십니다. 다만 작은 부품이 있는 작업의 경우 아이 손이 닿지 않는 안전한 공간에서만 진행해 주셔야 합니다.</p>
+          </div>
+        </div>
+
+        <div class="faq-item bg-white border-2 border-primary-100 rounded-xl p-6 shadow-md hover:shadow-lg transition-all">
+          <button class="faq-question w-full text-left flex items-center justify-between">
+            <span class="text-lg font-bold text-gray-900">Q. 언제든 그만두어도 되나요?</span>
+            <span class="text-primary-500 text-2xl font-bold">+</span>
+          </button>
+          <div class="faq-answer hidden mt-4 text-gray-700">
+            <p>네. 진행 중인 작업을 마무리하고 검수·정산까지 끝낸 뒤에는 언제든 중단하실 수 있습니다. 별도의 위약금이나 가입비는 없습니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="py-20 md:py-24 bg-gradient-to-br from-primary-500 via-primary-600 to-accent-600 text-white">
+    <div class="max-w-5xl mx-auto px-6">
+      <div class="text-center space-y-3 mb-10">
+        <h2 class="text-4xl md:text-5xl font-black">지금, 첫 수공예 부업 상담부터 받아보세요</h2>
+        <p class="text-white/80 text-lg">어떤 작업이 가능한지, 우리 집까지 재료 발송이 되는지, 예상 수익은 어느 정도인지 담당자가 솔직하게 안내해 드립니다.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="space-y-4">
+          <div class="p-4 rounded-2xl bg-white/10 border border-white/20 backdrop-blur">
+            <p class="text-sm uppercase tracking-widest text-white/80 font-bold">Contact</p>
+            <p class="text-xl font-bold mt-2">contact@rogial.com</p>
+            <p class="text-white/80">02-1234-5678</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-white/10 border border-white/20 backdrop-blur">
+            <p class="text-sm uppercase tracking-widest text-white/80 font-bold">상담 시간</p>
+            <p class="text-white/80">평일 10:00 ~ 18:00</p>
+            <p class="text-white/80">(주말·공휴일 휴무)</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-white/10 border border-white/20 backdrop-blur">
+            <p class="text-sm text-white/80">📦 재료 무료 배송 · 완성품 수거</p>
+            <p class="text-sm text-white/80">💳 검수 후 계좌로 안전 정산</p>
+            <p class="text-sm text-white/80">📞 한국인 담당자 1:1 안내</p>
+          </div>
+        </div>
+        <form id="contact-form" class="space-y-4">
+          <input type="text" name="name" placeholder="성함" required
+            class="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/60" />
+          <input type="tel" name="phone" placeholder="연락처" required
+            class="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/60" />
+          <input type="text" name="region" placeholder="거주 지역" required
+            class="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/60" />
+          <select name="work-type" required
+            class="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-white/60">
+            <option value="" class="text-gray-800">신청 재료 (작업 종류) 선택</option>
+            <option value="팔찌" class="text-gray-800">팔찌 수공예 (단가 500원)</option>
+            <option value="인형포장" class="text-gray-800">인형 포장 (단가 1,000원)</option>
+            <option value="볼펜조립" class="text-gray-800">볼펜 조립 (단가 400원)</option>
+            <option value="스티커" class="text-gray-800">스티커 세트 (단가 100원)</option>
+            <option value="뜨개질" class="text-gray-800">뜨개질 가방 (단가 6,000원)</option>
+          </select>
+          <textarea name="message" rows="4" placeholder="문의 내용 (가능 시간대 등)"
+            class="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/60"></textarea>
+          <div class="flex items-start gap-2 text-sm text-white/90">
+            <input type="checkbox" id="privacy" required class="mt-1" />
+            <label for="privacy">개인정보 수집 및 이용에 동의합니다. 입력해 주신 정보는 부업 안내 및 상담, 작업 배정 안내 목적에만 사용되며 제3자에게 판매·공유되지 않습니다.</label>
+          </div>
+          <button type="submit"
+            class="w-full px-5 py-3 rounded-xl bg-white text-primary-600 font-bold shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition-all">
+            무료 상담·신청하기
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-white py-10">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div>
+        <p class="text-2xl font-black text-gradient">로지알</p>
+        <p class="text-gray-400 text-sm mt-1">손으로 만드는 따뜻한 순간</p>
+      </div>
+      <div class="flex items-center space-x-4 text-gray-400 text-sm">
+        <a href="#home" class="hover:text-primary-400">홈</a>
+        <a href="#about" class="hover:text-primary-400">소개</a>
+        <a href="#work-types" class="hover:text-primary-400">작업 종류</a>
+        <a href="#process" class="hover:text-primary-400">진행 순서</a>
+        <a href="#faq" class="hover:text-primary-400">FAQ</a>
+        <a href="#contact" class="hover:text-primary-400">문의</a>
+      </div>
+      <p class="text-gray-500 text-sm">© 2024 Rogial. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="./main.js"></script>
+</body>
+</html>
