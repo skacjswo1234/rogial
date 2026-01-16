@@ -80,7 +80,16 @@ if (form) {
         body: JSON.stringify(payload),
       });
 
+      // 응답 상태 확인
+      if (!response.ok) {
+        const errorResult = await response.json();
+        throw new Error(errorResult.error || `HTTP ${response.status}`);
+      }
+
       const result = await response.json();
+
+      // 디버깅 로그
+      console.log('API 응답:', result);
 
       if (result.success) {
         // 성공 시 모달 표시
