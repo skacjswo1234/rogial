@@ -52,7 +52,7 @@ revealElements.forEach((el) => observer.observe(el));
 // Form submit
 const form = document.getElementById('contact-form');
 if (form) {
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = new FormData(form);
     const payload = {
@@ -60,9 +60,30 @@ if (form) {
       phone: data.get('phone'),
       region: data.get('region'),
       workType: data.get('work-type'),
+      minQuantity: data.get('min-quantity') ? parseInt(data.get('min-quantity')) : null,
       message: data.get('message'),
     };
-    console.log('문의 전송', payload);
+
+    // 제출 버튼 비활성화
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = '전송 중...';
+
+    try {
+      // API 호출
+      const response = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // 성공 시 모달 표시
     
     // 작업 종류별 정보 매핑
     const workInfo = {
@@ -183,6 +204,12 @@ if (form) {
               <span class="text-gray-600 text-sm">신청 재료</span>
               <span class="text-gray-900 font-medium text-right">${selectedWork.name} (단가 ${selectedWork.price.toLocaleString()}원)</span>
             </div>
+            ${payload.minQuantity ? `
+            <div class="flex justify-between items-start">
+              <span class="text-gray-600 text-sm">최소 수량</span>
+              <span class="text-gray-900 font-medium text-right">${payload.minQuantity}개</span>
+            </div>
+            ` : ''}
           </div>
           
           <!-- Work Description -->
@@ -212,16 +239,28 @@ if (form) {
         </div>
       </div>
     `;
-    document.body.appendChild(modal);
-    
-    // 모달 배경 클릭 시 닫기
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.remove();
+        document.body.appendChild(modal);
+        
+        // 모달 배경 클릭 시 닫기
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.remove();
+          }
+        });
+        
+        form.reset();
+      } else {
+        // 실패 시 에러 메시지 표시
+        alert('문의 제출에 실패했습니다: ' + (result.error || '알 수 없는 오류'));
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
       }
-    });
-    
-    form.reset();
+    } catch (error) {
+      console.error('문의 제출 오류:', error);
+      alert('문의 제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      submitButton.disabled = false;
+      submitButton.textContent = originalText;
+    }
   });
 }
 

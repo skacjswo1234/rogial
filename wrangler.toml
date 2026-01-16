@@ -1,0 +1,16 @@
+# Cloudflare Pages Functions 설정
+# 이 파일은 Cloudflare Pages에서 D1 데이터베이스를 바인딩하기 위한 참고용입니다.
+# 실제 바인딩은 Cloudflare Dashboard에서 설정해야 합니다.
+
+name = "rogial"
+compatibility_date = "2024-01-01"
+
+# D1 데이터베이스 바인딩
+# Cloudflare Dashboard에서 설정 완료:
+# - Variable name: rogial-db
+# - Bind name: rogial-db
+# - Database ID: 7a4a1dac-1f3d-4807-bce5-91e11a6087be
+
+# 로컬 개발 시 사용할 D1 데이터베이스
+# wrangler d1 execute DB --file=./schema.sql
+
