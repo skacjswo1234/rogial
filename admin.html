@@ -5,64 +5,209 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>로지알 관리자 페이지</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            },
+            accent: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          boxShadow: {
+            glow: '0 10px 50px rgba(249, 115, 22, 0.25)',
+            glowBlue: '0 10px 50px rgba(59, 130, 246, 0.25)',
+          },
+        },
+      },
+    };
+  </script>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
+    .text-gradient {
+      background: linear-gradient(120deg, #f97316, #3b82f6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .mobile-sidebar {
+      transform: translateX(100%);
+      transition: transform 0.3s ease-in-out;
+    }
+    .mobile-sidebar.open {
+      transform: translateX(0);
+    }
+    .mobile-overlay {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    }
+    .mobile-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
   </style>
 </head>
 <body class="bg-gray-50">
+  <!-- 모바일 오버레이 -->
+  <div id="mobile-overlay" class="mobile-overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onclick="closeMobileSidebar()"></div>
+
+  <!-- 모바일 메뉴 버튼 (오른쪽 상단) -->
+  <button id="mobile-menu-btn" onclick="toggleMobileSidebar()" class="md:hidden fixed top-4 right-4 z-50 w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow hover:shadow-xl transition-all">
+    <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+    <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+
   <div class="flex h-screen overflow-hidden">
-    <!-- 왼쪽 사이드바 (탭) -->
-    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
-      <div class="p-6 border-b border-gray-200">
-        <h1 class="text-2xl font-bold text-gray-900">로지알 관리자</h1>
-        <p class="text-sm text-gray-500 mt-1">문의 관리 시스템</p>
+    <!-- 왼쪽 사이드바 (탭) - 데스크톱 -->
+    <aside class="hidden md:flex w-64 bg-white border-r border-gray-200 flex flex-col shadow-lg">
+      <div class="p-6 border-b border-gray-200 bg-gradient-to-br from-primary-50 to-accent-50">
+        <div class="flex items-center space-x-3 mb-3">
+          <div class="w-12 h-12 rounded-full overflow-hidden shadow-glow flex items-center justify-center bg-white">
+            <img src="./logo.PNG" alt="로지알 로고" class="w-full h-full object-contain" />
+          </div>
+          <h1 class="text-xl font-black text-gradient">주식회사 로지알</h1>
+        </div>
+        <p class="text-sm text-gray-600 font-semibold">문의 관리 시스템</p>
       </div>
       
       <nav class="flex-1 p-4 space-y-2">
         <button 
-          onclick="loadTab('all')" 
+          onclick="loadTab('all'); closeMobileSidebar();" 
           id="tab-all"
-          class="w-full text-left px-4 py-3 rounded-lg bg-primary-50 text-primary-700 font-semibold border border-primary-200 transition-colors">
+          class="w-full text-left px-4 py-3 rounded-lg bg-primary-50 text-primary-700 font-semibold border border-primary-200 transition-all hover:shadow-md">
           📋 전체 문의
         </button>
         <button 
-          onclick="loadTab('pending')" 
+          onclick="loadTab('pending'); closeMobileSidebar();" 
           id="tab-pending"
-          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200">
           ⏳ 대기 중
         </button>
         <button 
-          onclick="loadTab('contacted')" 
+          onclick="loadTab('contacted'); closeMobileSidebar();" 
           id="tab-contacted"
-          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-accent-50 hover:text-accent-600 transition-all border border-transparent hover:border-accent-200">
           📞 연락 완료
         </button>
         <button 
-          onclick="loadTab('processing')" 
+          onclick="loadTab('processing'); closeMobileSidebar();" 
           id="tab-processing"
-          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200">
           🔄 진행 중
         </button>
         <button 
-          onclick="loadTab('completed')" 
+          onclick="loadTab('completed'); closeMobileSidebar();" 
           id="tab-completed"
-          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all border border-transparent hover:border-green-200">
           ✅ 완료
         </button>
         <button 
-          onclick="loadTab('cancelled')" 
+          onclick="loadTab('cancelled'); closeMobileSidebar();" 
           id="tab-cancelled"
-          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all border border-transparent hover:border-red-200">
           ❌ 취소
         </button>
       </nav>
 
-      <div class="p-4 border-t border-gray-200">
+      <div class="p-4 border-t border-gray-200 bg-gradient-to-br from-gray-50 to-white">
         <button 
           onclick="refreshData()" 
-          class="w-full px-4 py-2 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-colors">
+          class="w-full px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-semibold hover:shadow-glow transition-all hover:scale-[1.02]">
+          🔄 새로고침
+        </button>
+      </div>
+    </aside>
+
+    <!-- 모바일 사이드바 (오른쪽에서 왼쪽으로) -->
+    <aside id="mobile-sidebar" class="mobile-sidebar fixed top-0 right-0 w-64 h-full bg-white shadow-2xl z-50 flex flex-col md:hidden">
+      <div class="p-6 border-b border-gray-200 bg-gradient-to-br from-primary-50 to-accent-50">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-3 flex-1">
+            <div class="w-12 h-12 rounded-full overflow-hidden shadow-glow flex items-center justify-center bg-white">
+              <img src="./logo.PNG" alt="로지알 로고" class="w-full h-full object-contain" />
+            </div>
+            <h1 class="text-xl font-black text-gradient">주식회사 로지알</h1>
+          </div>
+          <button onclick="closeMobileSidebar()" class="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-md hover:shadow-lg transition-all">
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <p class="text-sm text-gray-600 font-semibold">문의 관리 시스템</p>
+      </div>
+      
+      <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+        <button 
+          onclick="loadTab('all'); closeMobileSidebar();" 
+          id="mobile-tab-all"
+          class="w-full text-left px-4 py-3 rounded-lg bg-primary-50 text-primary-700 font-semibold border border-primary-200 transition-all">
+          📋 전체 문의
+        </button>
+        <button 
+          onclick="loadTab('pending'); closeMobileSidebar();" 
+          id="mobile-tab-pending"
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200">
+          ⏳ 대기 중
+        </button>
+        <button 
+          onclick="loadTab('contacted'); closeMobileSidebar();" 
+          id="mobile-tab-contacted"
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-accent-50 hover:text-accent-600 transition-all border border-transparent hover:border-accent-200">
+          📞 연락 완료
+        </button>
+        <button 
+          onclick="loadTab('processing'); closeMobileSidebar();" 
+          id="mobile-tab-processing"
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200">
+          🔄 진행 중
+        </button>
+        <button 
+          onclick="loadTab('completed'); closeMobileSidebar();" 
+          id="mobile-tab-completed"
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-green-50 hover:text-green-600 transition-all border border-transparent hover:border-green-200">
+          ✅ 완료
+        </button>
+        <button 
+          onclick="loadTab('cancelled'); closeMobileSidebar();" 
+          id="mobile-tab-cancelled"
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all border border-transparent hover:border-red-200">
+          ❌ 취소
+        </button>
+      </nav>
+
+      <div class="p-4 border-t border-gray-200 bg-gradient-to-br from-gray-50 to-white">
+        <button 
+          onclick="refreshData()" 
+          class="w-full px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-semibold hover:shadow-glow transition-all hover:scale-[1.02]">
           🔄 새로고침
         </button>
       </div>
@@ -70,11 +215,11 @@
 
     <!-- 오른쪽 콘텐츠 영역 -->
     <main class="flex-1 overflow-y-auto">
-      <div class="p-6">
+      <div class="p-4 md:p-6">
         <!-- 헤더 -->
-        <div class="mb-6">
-          <h2 id="content-title" class="text-3xl font-bold text-gray-900">전체 문의</h2>
-          <p id="content-subtitle" class="text-gray-600 mt-1">모든 문의 내역을 확인할 수 있습니다.</p>
+        <div class="mb-6 pt-4 md:pt-0">
+          <h2 id="content-title" class="text-2xl md:text-3xl font-black text-gray-900">전체 문의</h2>
+          <p id="content-subtitle" class="text-gray-600 mt-1 font-semibold">모든 문의 내역을 확인할 수 있습니다.</p>
         </div>
 
         <!-- 통계 카드 -->
@@ -83,18 +228,18 @@
         </div>
 
         <!-- 필터 및 검색 -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <div class="bg-white rounded-xl shadow-lg border-2 border-primary-100 p-4 mb-6">
           <div class="flex flex-col md:flex-row gap-4">
             <input 
               type="text" 
               id="search-input"
               placeholder="이름, 연락처, 지역으로 검색..." 
-              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              class="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
               onkeyup="handleSearch(event)"
             />
             <select 
               id="work-type-filter"
-              class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              class="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
               onchange="applyFilters()"
             >
               <option value="">모든 작업 종류</option>
@@ -128,11 +273,11 @@
 
   <!-- 문의 상세 모달 -->
   <div id="detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-primary-100">
       <div class="p-6">
         <div class="flex justify-between items-start mb-4">
-          <h3 class="text-2xl font-bold text-gray-900">문의 상세</h3>
-          <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
+          <h3 class="text-2xl font-black text-gray-900">문의 상세</h3>
+          <button onclick="closeDetailModal()" class="text-gray-400 hover:text-primary-500 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -182,6 +327,19 @@
       if (activeTab) {
         activeTab.classList.add('bg-primary-50', 'text-primary-700', 'border', 'border-primary-200', 'font-semibold');
         activeTab.classList.remove('text-gray-700', 'hover:bg-gray-50');
+      }
+
+      // 모바일 탭도 업데이트
+      const mobileTabId = status === 'all' ? 'mobile-tab-all' : `mobile-tab-${status}`;
+      const mobileActiveTab = document.getElementById(mobileTabId);
+      if (mobileActiveTab) {
+        // 모든 모바일 탭 초기화
+        document.querySelectorAll('[id^="mobile-tab-"]').forEach(btn => {
+          btn.classList.remove('bg-primary-50', 'text-primary-700', 'border-primary-200', 'font-semibold');
+          btn.classList.add('text-gray-700');
+        });
+        mobileActiveTab.classList.add('bg-primary-50', 'text-primary-700', 'border', 'border-primary-200', 'font-semibold');
+        mobileActiveTab.classList.remove('text-gray-700');
       }
 
       // 제목 업데이트
@@ -247,25 +405,25 @@
     // 통계 렌더링
     function renderStats(stats) {
       const statsHtml = `
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div class="text-sm text-gray-600">전체</div>
-          <div class="text-2xl font-bold text-gray-900">${stats.total}</div>
+        <div class="bg-gradient-to-br from-white to-primary-50 rounded-xl shadow-lg border-2 border-primary-200 p-4">
+          <div class="text-sm text-gray-600 font-semibold">전체</div>
+          <div class="text-2xl font-black text-primary-600">${stats.total}</div>
         </div>
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div class="text-sm text-gray-600">대기 중</div>
-          <div class="text-2xl font-bold text-yellow-600">${stats.pending}</div>
+        <div class="bg-gradient-to-br from-white to-yellow-50 rounded-xl shadow-lg border-2 border-yellow-200 p-4">
+          <div class="text-sm text-gray-600 font-semibold">대기 중</div>
+          <div class="text-2xl font-black text-yellow-600">${stats.pending}</div>
         </div>
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div class="text-sm text-gray-600">연락 완료</div>
-          <div class="text-2xl font-bold text-blue-600">${stats.contacted}</div>
+        <div class="bg-gradient-to-br from-white to-accent-50 rounded-xl shadow-lg border-2 border-accent-200 p-4">
+          <div class="text-sm text-gray-600 font-semibold">연락 완료</div>
+          <div class="text-2xl font-black text-accent-600">${stats.contacted}</div>
         </div>
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div class="text-sm text-gray-600">진행 중</div>
-          <div class="text-2xl font-bold text-purple-600">${stats.processing}</div>
+        <div class="bg-gradient-to-br from-white to-primary-50 rounded-xl shadow-lg border-2 border-primary-200 p-4">
+          <div class="text-sm text-gray-600 font-semibold">진행 중</div>
+          <div class="text-2xl font-black text-primary-600">${stats.processing}</div>
         </div>
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div class="text-sm text-gray-600">완료</div>
-          <div class="text-2xl font-bold text-green-600">${stats.completed}</div>
+        <div class="bg-gradient-to-br from-white to-green-50 rounded-xl shadow-lg border-2 border-green-200 p-4">
+          <div class="text-sm text-gray-600 font-semibold">완료</div>
+          <div class="text-2xl font-black text-green-600">${stats.completed}</div>
         </div>
       `;
       document.getElementById('stats').innerHTML = statsHtml;
@@ -280,13 +438,13 @@
       }
 
       const listHtml = inquiries.map(inquiry => `
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer" onclick="showDetail(${inquiry.id})">
+        <div class="bg-white rounded-xl shadow-lg border-2 border-gray-200 p-4 md:p-6 hover:shadow-xl hover:border-primary-300 transition-all cursor-pointer" onclick="showDetail(${inquiry.id})">
           <div class="flex justify-between items-start mb-4">
             <div>
-              <h3 class="text-lg font-bold text-gray-900">${escapeHtml(inquiry.name)}</h3>
-              <p class="text-sm text-gray-600 mt-1">${escapeHtml(inquiry.phone)}</p>
+              <h3 class="text-lg font-black text-gray-900">${escapeHtml(inquiry.name)}</h3>
+              <p class="text-sm text-gray-600 mt-1 font-semibold">${escapeHtml(inquiry.phone)}</p>
             </div>
-            <span class="px-3 py-1 rounded-full text-sm font-semibold ${statusColors[inquiry.status] || 'bg-gray-100 text-gray-800'}">
+            <span class="px-3 py-1 rounded-full text-sm font-bold ${statusColors[inquiry.status] || 'bg-gray-100 text-gray-800'}">
               ${statusLabels[inquiry.status] || inquiry.status}
             </span>
           </div>
@@ -327,7 +485,7 @@
       if (pagination.page > 1) {
         paginationHtml += `
           <button onclick="changePage(${pagination.page - 1})" 
-            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-primary-50 hover:border-primary-300 transition-all font-semibold">
             이전
           </button>
         `;
@@ -337,14 +495,14 @@
       for (let i = 1; i <= pagination.totalPages; i++) {
         if (i === pagination.page) {
           paginationHtml += `
-            <button class="px-4 py-2 bg-primary-500 text-white rounded-lg font-semibold">
+            <button class="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-bold shadow-glow">
               ${i}
             </button>
           `;
         } else {
           paginationHtml += `
             <button onclick="changePage(${i})" 
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+              class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-primary-50 hover:border-primary-300 transition-all font-semibold">
               ${i}
             </button>
           `;
@@ -355,7 +513,7 @@
       if (pagination.page < pagination.totalPages) {
         paginationHtml += `
           <button onclick="changePage(${pagination.page + 1})" 
-            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-primary-50 hover:border-primary-300 transition-all font-semibold">
             다음
           </button>
         `;
@@ -445,7 +603,7 @@
               ${Object.entries(statusLabels).map(([status, label]) => `
                 <button 
                   onclick="updateStatus(${inquiry.id}, '${status}')"
-                  class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 ${inquiry.status === status ? 'bg-primary-50 border-primary-300' : ''}">
+                  class="px-4 py-2 rounded-lg border-2 transition-all hover:shadow-md ${inquiry.status === status ? 'bg-primary-50 border-primary-300 text-primary-700 font-bold' : 'border-gray-300 hover:bg-gray-50'}">
                   ${label}
                 </button>
               `).join('')}
@@ -454,7 +612,7 @@
           <div class="pt-4 border-t border-gray-200">
             <button 
               onclick="deleteInquiry(${inquiry.id})"
-              class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold">
+              class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:shadow-lg font-bold transition-all hover:scale-[1.02]">
               삭제
             </button>
           </div>
@@ -569,6 +727,38 @@
         hour: '2-digit',
         minute: '2-digit'
       });
+    }
+
+    // 모바일 사이드바 토글
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('mobile-sidebar');
+      const overlay = document.getElementById('mobile-overlay');
+      const menuIcon = document.getElementById('menu-icon');
+      const closeIcon = document.getElementById('close-icon');
+      
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('show');
+      
+      if (sidebar.classList.contains('open')) {
+        menuIcon.classList.add('hidden');
+        closeIcon.classList.remove('hidden');
+      } else {
+        menuIcon.classList.remove('hidden');
+        closeIcon.classList.add('hidden');
+      }
+    }
+
+    // 모바일 사이드바 닫기
+    function closeMobileSidebar() {
+      const sidebar = document.getElementById('mobile-sidebar');
+      const overlay = document.getElementById('mobile-overlay');
+      const menuIcon = document.getElementById('menu-icon');
+      const closeIcon = document.getElementById('close-icon');
+      
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+      menuIcon.classList.remove('hidden');
+      closeIcon.classList.add('hidden');
     }
 
     // 초기 로드

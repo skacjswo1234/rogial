@@ -84,8 +84,7 @@ if (form) {
 
       if (result.success) {
         // 성공 시 모달 표시
-    
-    // 작업 종류별 정보 매핑
+        // 작업 종류별 정보 매핑
     const workInfo = {
       '장난감부품버클캡': {
         name: '장난감 부품 버클캡',
@@ -232,23 +231,35 @@ if (form) {
           </p>
           
           <!-- Close Button -->
-          <button onclick="this.closest('.fixed').remove()" 
+          <button id="modal-close-btn"
             class="w-full px-5 py-3 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold hover:shadow-lg transition-all">
             확인
           </button>
         </div>
       </div>
     `;
-        document.body.appendChild(modal);
-        
-        // 모달 배경 클릭 시 닫기
-        modal.addEventListener('click', (e) => {
-          if (e.target === modal) {
-            modal.remove();
-          }
-        });
-        
-        form.reset();
+    document.body.appendChild(modal);
+    
+    // 모달 닫기 함수
+    const closeModal = () => {
+      modal.remove();
+      // 버튼 상태 복구
+      submitButton.disabled = false;
+      submitButton.textContent = originalText;
+      // 폼 리셋
+      form.reset();
+    };
+    
+    // 확인 버튼 클릭 시
+    const closeBtn = modal.querySelector('#modal-close-btn');
+    closeBtn.addEventListener('click', closeModal);
+    
+    // 모달 배경 클릭 시 닫기
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
       } else {
         // 실패 시 에러 메시지 표시
         alert('문의 제출에 실패했습니다: ' + (result.error || '알 수 없는 오류'));

@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS inquiries (
   work_type TEXT NOT NULL,
   min_quantity INTEGER,
   message TEXT,
-  status TEXT NOT NULL DEFAULT 'pending', -- pending, contacted, processing, completed, cancelled
+  status TEXT NOT NULL DEFAULT 'pending', 
   notes TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT
