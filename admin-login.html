@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로지알 관리자 로그인</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            },
+            accent: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          boxShadow: {
+            glow: '0 10px 50px rgba(249, 115, 22, 0.25)',
+            glowBlue: '0 10px 50px rgba(59, 130, 246, 0.25)',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .text-gradient {
+      background: linear-gradient(120deg, #f97316, #3b82f6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-primary-50 via-white to-accent-50 min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <!-- 로고 및 제목 -->
+    <div class="text-center mb-8">
+      <div class="flex items-center justify-center gap-3 mb-4">
+        <div class="w-16 h-16 rounded-full overflow-hidden shadow-glow flex items-center justify-center bg-white">
+          <img src="./logo.PNG" alt="로지알 로고" class="w-full h-full object-contain" />
+        </div>
+        <h1 class="text-3xl font-black text-gradient">주식회사 로지알</h1>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">관리자 로그인</h2>
+      <p class="text-gray-600 text-sm">비밀번호를 입력해주세요</p>
+    </div>
+
+    <!-- 로그인 폼 -->
+    <div class="bg-white rounded-2xl shadow-xl border-2 border-primary-100 p-8">
+      <form id="login-form" class="space-y-6">
+        <div>
+          <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
+            비밀번호
+          </label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            required
+            autofocus
+            placeholder="비밀번호를 입력하세요"
+            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+          />
+        </div>
+
+        <div id="error-message" class="hidden p-3 rounded-lg bg-red-50 border-2 border-red-200 text-red-700 text-sm font-semibold">
+          비밀번호가 올바르지 않습니다.
+        </div>
+
+        <button 
+          type="submit"
+          id="login-button"
+          class="w-full px-5 py-3 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 text-white font-black shadow-glow hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+          로그인
+        </button>
+      </form>
+    </div>
+
+    <!-- 푸터 -->
+    <div class="text-center mt-6">
+      <p class="text-xs text-gray-500">로지알 문의 관리 시스템</p>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('login-form');
+    const passwordInput = document.getElementById('password');
+    const loginButton = document.getElementById('login-button');
+    const errorMessage = document.getElementById('error-message');
+
+    // 이미 로그인되어 있으면 관리자 페이지로 리다이렉트
+    if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+      window.location.href = './admin.html';
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const password = passwordInput.value.trim();
+      
+      if (!password) {
+        showError('비밀번호를 입력해주세요.');
+        return;
+      }
+
+      // 버튼 비활성화
+      loginButton.disabled = true;
+      loginButton.textContent = '로그인 중...';
+      errorMessage.classList.add('hidden');
+
+      try {
+        const response = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ password }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // 로그인 성공 - sessionStorage에 저장
+          sessionStorage.setItem('adminLoggedIn', 'true');
+          
+          // 관리자 페이지로 리다이렉트
+          window.location.href = './admin.html';
+        } else {
+          // 로그인 실패
+          showError(result.error || '비밀번호가 올바르지 않습니다.');
+          passwordInput.value = '';
+          passwordInput.focus();
+        }
+      } catch (error) {
+        console.error('로그인 오류:', error);
+        showError('로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = '로그인';
+      }
+    });
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.remove('hidden');
+    }
+
+    // Enter 키로 제출
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        loginForm.dispatchEvent(new Event('submit'));
+      }
+    });
+  </script>
+</body>
+</html>
+

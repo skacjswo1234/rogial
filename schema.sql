@@ -23,3 +23,13 @@ CREATE INDEX IF NOT EXISTS idx_inquiries_work_type ON inquiries(work_type);
 -- 상태 값 체크 제약조건 (SQLite는 CHECK 제약조건 지원)
 -- 참고: SQLite는 ENUM을 직접 지원하지 않으므로 애플리케이션 레벨에서 검증 필요
 
+-- 관리자 테이블 (단순 비밀번호 비교용)
+CREATE TABLE IF NOT EXISTS admins (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  password TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- 초기 관리자 비밀번호 설정 (예: 'admin123')
+-- INSERT INTO admins (password) VALUES ('admin123');
+-- 사용자가 직접 비밀번호를 설정할 수 있도록 주석 처리
