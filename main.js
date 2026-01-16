@@ -255,17 +255,80 @@ document.querySelectorAll('.faq-item').forEach((item) => {
 
 // Fixed buttons scroll behavior
 const topButton = document.getElementById('top-button');
-if (topButton) {
-  window.addEventListener('scroll', () => {
-    const scrolled = window.scrollY;
-    if (scrolled > 300) {
-      topButton.style.opacity = '1';
-      topButton.style.pointerEvents = 'auto';
-    } else {
-      topButton.style.opacity = '0.5';
-      topButton.style.pointerEvents = 'none';
+const topButtonMobile = document.getElementById('top-button-mobile');
+
+const updateTopButtons = () => {
+  const scrolled = window.scrollY;
+  const isVisible = scrolled > 300;
+  
+  if (topButton) {
+    topButton.style.opacity = isVisible ? '1' : '0.5';
+    topButton.style.pointerEvents = isVisible ? 'auto' : 'none';
+  }
+  
+  if (topButtonMobile) {
+    topButtonMobile.style.opacity = isVisible ? '1' : '0.5';
+    topButtonMobile.style.pointerEvents = isVisible ? 'auto' : 'none';
+  }
+};
+
+window.addEventListener('scroll', updateTopButtons);
+updateTopButtons(); // 초기 상태 설정
+
+// Video autoplay with Intersection Observer
+const videos = ['video-1', 'video-2', 'video-3', 'video-4'];
+const videoElements = videos.map(id => document.getElementById(id)).filter(v => v !== null);
+
+// 비디오 재생 함수
+const playVideo = (video) => {
+  if (video && video.readyState >= 2) {
+    video.play().catch((error) => {
+      // 자동재생이 막혔을 경우 무시 (muted이므로 대부분 허용됨)
+      console.log('비디오 자동재생:', error.message);
+    });
+  }
+};
+
+// 모든 비디오에 대해 재생 시도
+videoElements.forEach((video) => {
+  // 비디오 로드 완료 후 재생
+  if (video.readyState >= 2) {
+    playVideo(video);
+  } else {
+    video.addEventListener('loadeddata', () => playVideo(video), { once: true });
+    video.addEventListener('canplay', () => playVideo(video), { once: true });
+  }
+  
+  // 에러 처리
+  video.addEventListener('error', (e) => {
+    console.error('비디오 로드 오류:', e);
+  });
+  
+  // 일시정지 시 다시 재생 (무한 루프 보장)
+  video.addEventListener('pause', () => {
+    if (!video.ended) {
+      playVideo(video);
     }
   });
-}
+  
+  // 끝나면 다시 시작 (loop 속성 보완)
+  video.addEventListener('ended', () => {
+    video.currentTime = 0;
+    playVideo(video);
+  });
+});
+
+// Intersection Observer로 화면에 보일 때 재생
+const videoObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      playVideo(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+videoElements.forEach((video) => {
+  videoObserver.observe(video);
+});
 
 console.log('로지알 랜딩페이지 로드 완료');

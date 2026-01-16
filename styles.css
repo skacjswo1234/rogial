@@ -93,3 +93,29 @@ select option {
   background-color: white;
   color: #1f2937;
 }
+
+/* 단어 단위 줄바꿈 (모바일 최적화) */
+body, p, span, div, h1, h2, h3, h4, h5, h6, a, button, label {
+  word-break: keep-all;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* 긴 단어는 강제 줄바꿈 */
+@media (max-width: 768px) {
+  body, p, span, div, h1, h2, h3, h4, h5, h6, a, button, label {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  
+  /* 모바일에서 텍스트 가독성 향상 */
+  p, span, div {
+    line-height: 1.7;
+  }
+  
+  /* 모바일에서 긴 단어 처리 */
+  h1, h2, h3, h4, h5, h6 {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+}
