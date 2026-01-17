@@ -848,9 +848,29 @@
     function formatDate(dateString) {
       if (!dateString) return '-';
       
-      // 날짜 문자열을 Date 객체로 변환
-      // SQLite datetime 형식이면 그대로 파싱, ISO 형식이면 그대로 파싱
-      const date = new Date(dateString);
+      let date;
+      
+      // 날짜 문자열 형식에 따라 파싱
+      // "YYYY-MM-DD HH:mm:ss" 형식인 경우 (SQLite datetime 형식)
+      if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateString)) {
+        // 날짜 문자열을 UTC로 파싱 (DB에 저장된 시간을 한국 시간으로 가정)
+        // "2024-01-01 12:00:00" -> "2024-01-01T12:00:00+09:00" (한국 시간대)
+        date = new Date(dateString.replace(' ', 'T') + '+09:00');
+      } else if (dateString.includes('T') && !dateString.includes('+') && !dateString.includes('Z')) {
+        // ISO 형식이지만 시간대 정보가 없는 경우, 한국 시간으로 가정
+        date = new Date(dateString + '+09:00');
+      } else {
+        // ISO 형식이거나 이미 시간대 정보가 있는 경우
+        date = new Date(dateString);
+        
+        // UTC로 저장된 경우 한국 시간(UTC+9)으로 변환
+        if (dateString.includes('Z') || (dateString.includes('+') && !dateString.includes('+09'))) {
+          // UTC 시간을 한국 시간으로 변환
+          const utcTime = date.getTime();
+          const koreaOffset = 9 * 60 * 60 * 1000; // 한국은 UTC+9
+          date = new Date(utcTime + koreaOffset);
+        }
+      }
       
       // 한국 시간대(Asia/Seoul, UTC+9)로 포맷팅
       return date.toLocaleString('ko-KR', {
