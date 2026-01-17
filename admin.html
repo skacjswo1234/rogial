@@ -189,7 +189,7 @@
     <main class="flex-1 overflow-y-auto">
       <div class="p-4 md:p-6">
         <!-- 문의리스트 뷰 -->
-        <div id="inquiries-view" class="hidden">
+        <div id="inquiries-view">
           <!-- 헤더 -->
           <div class="mb-6 pt-4 md:pt-0">
             <h2 class="text-2xl md:text-3xl font-black text-gray-900">문의리스트</h2>
@@ -252,6 +252,52 @@
           <!-- 페이지네이션 -->
           <div id="pagination" class="mt-6 flex justify-center">
             <!-- 페이지네이션은 JavaScript로 동적 생성 -->
+          </div>
+        </div>
+
+        <!-- 링크 관리 뷰 -->
+        <div id="links-view" class="hidden">
+          <div class="max-w-2xl mx-auto">
+            <!-- 헤더 -->
+            <div class="mb-6 pt-4 md:pt-0">
+              <h2 class="text-2xl md:text-3xl font-black text-gray-900">링크 관리</h2>
+              <p class="text-gray-600 mt-1 font-semibold">카카오톡 채널 링크를 수정할 수 있습니다.</p>
+            </div>
+
+            <!-- 링크 수정 폼 -->
+            <div class="bg-white rounded-xl shadow-lg border-2 border-primary-100 p-6 md:p-8">
+              <form id="link-change-form" class="space-y-6">
+                <div>
+                  <label for="kakao-link" class="block text-sm font-semibold text-gray-700 mb-2">
+                    카카오톡 채널 링크 <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="url" 
+                    id="kakao-link" 
+                    name="kakao-link" 
+                    required
+                    placeholder="https://qr.kakao.com/talk/..."
+                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                  />
+                  <p class="text-xs text-gray-500 mt-2">히어로 섹션의 "지금 상담 받고 시작하기" 버튼과 모바일 하단 "바로문의하기" 버튼에 적용됩니다.</p>
+                </div>
+
+                <div id="link-error-message" class="hidden p-3 rounded-lg bg-red-50 border-2 border-red-200 text-red-700 text-sm font-semibold">
+                  링크 저장에 실패했습니다.
+                </div>
+
+                <div id="link-success-message" class="hidden p-3 rounded-lg bg-green-50 border-2 border-green-200 text-green-700 text-sm font-semibold">
+                  링크가 성공적으로 저장되었습니다.
+                </div>
+
+                <button 
+                  type="submit"
+                  id="link-change-button"
+                  class="w-full px-5 py-3 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 text-white font-black shadow-glow hover:shadow-xl hover:scale-[1.02] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+                  링크 저장
+                </button>
+              </form>
+            </div>
           </div>
         </div>
 
@@ -397,24 +443,31 @@
       }
 
       // 뷰 표시/숨김
+      const inquiriesView = document.getElementById('inquiries-view');
+      const linksView = document.getElementById('links-view');
+      const passwordView = document.getElementById('password-view');
+
       if (view === 'inquiries') {
-        document.getElementById('inquiries-view').classList.remove('hidden');
-        document.getElementById('links-view').classList.add('hidden');
-        document.getElementById('password-view').classList.add('hidden');
+        if (inquiriesView) inquiriesView.classList.remove('hidden');
+        if (linksView) linksView.classList.add('hidden');
+        if (passwordView) passwordView.classList.add('hidden');
         loadInquiries();
       } else if (view === 'links') {
-        document.getElementById('inquiries-view').classList.add('hidden');
-        document.getElementById('links-view').classList.remove('hidden');
-        document.getElementById('password-view').classList.add('hidden');
+        if (inquiriesView) inquiriesView.classList.add('hidden');
+        if (linksView) linksView.classList.remove('hidden');
+        if (passwordView) passwordView.classList.add('hidden');
         loadLink();
       } else if (view === 'password') {
-        document.getElementById('inquiries-view').classList.add('hidden');
-        document.getElementById('links-view').classList.add('hidden');
-        document.getElementById('password-view').classList.remove('hidden');
+        if (inquiriesView) inquiriesView.classList.add('hidden');
+        if (linksView) linksView.classList.add('hidden');
+        if (passwordView) passwordView.classList.remove('hidden');
         // 폼 리셋
-        document.getElementById('password-change-form').reset();
-        document.getElementById('password-error-message').classList.add('hidden');
-        document.getElementById('password-success-message').classList.add('hidden');
+        const passwordForm = document.getElementById('password-change-form');
+        const passwordError = document.getElementById('password-error-message');
+        const passwordSuccess = document.getElementById('password-success-message');
+        if (passwordForm) passwordForm.reset();
+        if (passwordError) passwordError.classList.add('hidden');
+        if (passwordSuccess) passwordSuccess.classList.add('hidden');
       }
     }
 
@@ -834,6 +887,104 @@
       overlay.classList.remove('show');
       menuIcon.classList.remove('hidden');
       closeIcon.classList.add('hidden');
+    }
+
+    // 링크 로드
+    async function loadLink() {
+      try {
+        const response = await fetch('/api/links/kakao');
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const kakaoLinkInput = document.getElementById('kakao-link');
+          if (kakaoLinkInput) {
+            kakaoLinkInput.value = result.data.url || '';
+          }
+        } else {
+          // 기본값 설정
+          const kakaoLinkInput = document.getElementById('kakao-link');
+          if (kakaoLinkInput) {
+            kakaoLinkInput.value = 'http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-';
+          }
+        }
+      } catch (error) {
+        console.error('링크 로드 오류:', error);
+        // 기본값 설정
+        const kakaoLinkInput = document.getElementById('kakao-link');
+        if (kakaoLinkInput) {
+          kakaoLinkInput.value = 'http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-';
+        }
+      }
+    }
+
+    // 링크 변경 폼 제출
+    const linkChangeForm = document.getElementById('link-change-form');
+    if (linkChangeForm) {
+      linkChangeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const kakaoLink = document.getElementById('kakao-link').value.trim();
+        const errorMessage = document.getElementById('link-error-message');
+        const successMessage = document.getElementById('link-success-message');
+        const submitButton = document.getElementById('link-change-button');
+        
+        // 메시지 초기화
+        if (errorMessage) errorMessage.classList.add('hidden');
+        if (successMessage) successMessage.classList.add('hidden');
+        
+        if (!kakaoLink) {
+          if (errorMessage) {
+            errorMessage.textContent = '링크를 입력해주세요.';
+            errorMessage.classList.remove('hidden');
+          }
+          return;
+        }
+
+        // 버튼 비활성화
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.textContent = '저장 중...';
+        }
+
+        try {
+          const response = await fetch('/api/links/kakao', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ url: kakaoLink }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // 성공
+            if (successMessage) {
+              successMessage.classList.remove('hidden');
+              setTimeout(() => {
+                successMessage.classList.add('hidden');
+              }, 3000);
+            }
+          } else {
+            // 실패
+            if (errorMessage) {
+              errorMessage.textContent = result.error || '링크 저장에 실패했습니다.';
+              errorMessage.classList.remove('hidden');
+            }
+          }
+        } catch (error) {
+          console.error('링크 저장 오류:', error);
+          if (errorMessage) {
+            errorMessage.textContent = '링크 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+            errorMessage.classList.remove('hidden');
+          }
+        } finally {
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = '링크 저장';
+          }
+        }
+      });
     }
 
     // 비밀번호 변경 폼 제출
