@@ -26,13 +26,18 @@ export async function onRequestPost(context) {
       );
     }
 
+    // 한국 시간대(UTC+9) 시간 생성
+    const now = new Date();
+    const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000) - (now.getTimezoneOffset() * 60 * 1000));
+    const koreaTimeString = koreaTime.toISOString().replace('T', ' ').substring(0, 19);
+    
     // D1 데이터베이스에 삽입
     const insertQuery = env['rogial-db'].prepare(
       `INSERT INTO inquiries (name, phone, region, work_type, min_quantity, message, status, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
+       VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
        RETURNING *`
     )
-      .bind(name, phone, region, workType, minQuantity || null, message || null);
+      .bind(name, phone, region, workType, minQuantity || null, message || null, koreaTimeString);
 
     const result = await insertQuery.first();
 

@@ -40,13 +40,18 @@ export async function onRequestPut(context) {
 
     // 상태 업데이트
     if (status) {
+      // 한국 시간대(UTC+9) 시간 생성
+      const now = new Date();
+      const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000) - (now.getTimezoneOffset() * 60 * 1000));
+      const koreaTimeString = koreaTime.toISOString().replace('T', ' ').substring(0, 19);
+      
       const result = await env['rogial-db'].prepare(
         `UPDATE inquiries 
-         SET status = ?, notes = ?, updated_at = datetime('now')
+         SET status = ?, notes = ?, updated_at = ?
          WHERE id = ?
          RETURNING *`
       )
-        .bind(status, notes || null, id)
+        .bind(status, notes || null, koreaTimeString, id)
         .first();
 
       if (!result) {
