@@ -390,4 +390,40 @@ videoElements.forEach((video) => {
   videoObserver.observe(video);
 });
 
+// 카카오톡 링크 로드
+async function loadKakaoLink() {
+  try {
+    const response = await fetch('/api/links/kakao');
+    const result = await response.json();
+
+    if (result.success && result.data && result.data.url) {
+      const kakaoUrl = result.data.url;
+      
+      // 히어로 섹션 버튼
+      const heroLink = document.getElementById('hero-kakao-link');
+      if (heroLink) {
+        heroLink.href = kakaoUrl;
+      }
+      
+      // 데스크톱 하단 버튼
+      const desktopLink = document.getElementById('desktop-kakao-link');
+      if (desktopLink) {
+        desktopLink.href = kakaoUrl;
+      }
+      
+      // 모바일 하단 버튼
+      const mobileLink = document.getElementById('mobile-kakao-link');
+      if (mobileLink) {
+        mobileLink.href = kakaoUrl;
+      }
+    }
+  } catch (error) {
+    console.error('카카오톡 링크 로드 오류:', error);
+    // 에러 발생 시 기본 링크 유지
+  }
+}
+
+// 페이지 로드 시 카카오톡 링크 로드
+loadKakaoLink();
+
 console.log('로지알 랜딩페이지 로드 완료');

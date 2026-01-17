@@ -33,3 +33,16 @@ CREATE TABLE IF NOT EXISTS admins (
 -- 초기 관리자 비밀번호 설정 (예: 'admin123')
 -- INSERT INTO admins (password) VALUES ('admin123');
 -- 사용자가 직접 비밀번호를 설정할 수 있도록 주석 처리
+
+-- 링크 관리 테이블
+CREATE TABLE IF NOT EXISTS links (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  key TEXT NOT NULL UNIQUE,
+  url TEXT NOT NULL,
+  description TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT
+);
+
+-- 기본 카카오톡 링크 설정
+-- INSERT INTO links (key, url, description) VALUES ('kakao', 'http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-', '카카오톡 채널 링크');

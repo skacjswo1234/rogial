@@ -114,6 +114,12 @@
           📋 문의리스트
         </button>
         <button 
+          onclick="switchView('links'); closeMobileSidebar();" 
+          id="tab-links"
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200">
+          🔗 링크 관리
+        </button>
+        <button 
           onclick="switchView('password'); closeMobileSidebar();" 
           id="tab-password"
           class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200">
@@ -155,6 +161,12 @@
           id="mobile-tab-inquiries"
           class="w-full text-left px-4 py-3 rounded-lg bg-primary-50 text-primary-700 font-semibold border border-primary-200 transition-all">
           📋 문의리스트
+        </button>
+        <button 
+          onclick="switchView('links'); closeMobileSidebar();" 
+          id="mobile-tab-links"
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200">
+          🔗 링크 관리
         </button>
         <button 
           onclick="switchView('password'); closeMobileSidebar();" 
@@ -336,7 +348,7 @@
       window.location.href = './admin-login.html';
     }
 
-    let currentView = 'inquiries'; // 'inquiries' or 'password'
+    let currentView = 'inquiries'; // 'inquiries', 'links', or 'password'
     let currentTab = 'all';
     let currentPage = 1;
     let allInquiries = [];
@@ -362,14 +374,14 @@
       currentView = view;
       
       // 탭 활성화 상태 업데이트
-      const tabButtons = document.querySelectorAll('#tab-inquiries, #tab-password, #mobile-tab-inquiries, #mobile-tab-password');
+      const tabButtons = document.querySelectorAll('#tab-inquiries, #tab-links, #tab-password, #mobile-tab-inquiries, #mobile-tab-links, #mobile-tab-password');
       tabButtons.forEach(btn => {
         btn.classList.remove('bg-primary-50', 'text-primary-700', 'border-primary-200', 'font-semibold');
         btn.classList.add('text-gray-700');
       });
       
       // 활성 탭 설정
-      const activeTabId = view === 'inquiries' ? 'tab-inquiries' : 'tab-password';
+      const activeTabId = view === 'inquiries' ? 'tab-inquiries' : (view === 'links' ? 'tab-links' : 'tab-password');
       const activeTab = document.getElementById(activeTabId);
       if (activeTab) {
         activeTab.classList.add('bg-primary-50', 'text-primary-700', 'border', 'border-primary-200', 'font-semibold');
@@ -377,7 +389,7 @@
       }
 
       // 모바일 탭도 업데이트
-      const mobileActiveTabId = view === 'inquiries' ? 'mobile-tab-inquiries' : 'mobile-tab-password';
+      const mobileActiveTabId = view === 'inquiries' ? 'mobile-tab-inquiries' : (view === 'links' ? 'mobile-tab-links' : 'mobile-tab-password');
       const mobileActiveTab = document.getElementById(mobileActiveTabId);
       if (mobileActiveTab) {
         mobileActiveTab.classList.add('bg-primary-50', 'text-primary-700', 'border', 'border-primary-200', 'font-semibold');
@@ -387,10 +399,17 @@
       // 뷰 표시/숨김
       if (view === 'inquiries') {
         document.getElementById('inquiries-view').classList.remove('hidden');
+        document.getElementById('links-view').classList.add('hidden');
         document.getElementById('password-view').classList.add('hidden');
         loadInquiries();
+      } else if (view === 'links') {
+        document.getElementById('inquiries-view').classList.add('hidden');
+        document.getElementById('links-view').classList.remove('hidden');
+        document.getElementById('password-view').classList.add('hidden');
+        loadLink();
       } else if (view === 'password') {
         document.getElementById('inquiries-view').classList.add('hidden');
+        document.getElementById('links-view').classList.add('hidden');
         document.getElementById('password-view').classList.remove('hidden');
         // 폼 리셋
         document.getElementById('password-change-form').reset();
