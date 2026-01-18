@@ -391,8 +391,120 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// 챗봇 문의 신청 폼 열기
+function openChatbotInquiryForm() {
+  const modal = document.getElementById('chatbot-inquiry-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    // 챗봇 창이 열려있으면 닫기
+    const chatbotWindow = document.getElementById('chatbot-window');
+    if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
+      chatbotWindow.classList.add('hidden');
+      const chatbotIcon = document.getElementById('chatbot-icon');
+      const chatbotCloseIcon = document.getElementById('chatbot-close-icon');
+      if (chatbotIcon) chatbotIcon.classList.remove('hidden');
+      if (chatbotCloseIcon) chatbotCloseIcon.classList.add('hidden');
+    }
+  }
+}
+
+// 챗봇 문의 신청 폼 닫기
+function closeChatbotInquiryForm() {
+  const modal = document.getElementById('chatbot-inquiry-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    const form = document.getElementById('chatbot-inquiry-form');
+    if (form) form.reset();
+    const errorDiv = document.getElementById('chatbot-inquiry-error');
+    const successDiv = document.getElementById('chatbot-inquiry-success');
+    if (errorDiv) errorDiv.classList.add('hidden');
+    if (successDiv) successDiv.classList.add('hidden');
+  }
+}
+
+// 챗봇 문의 폼 제출
+async function submitChatbotInquiry(event) {
+  event.preventDefault();
+  
+  const form = event.target;
+  const formData = new FormData(form);
+  const submitButton = document.getElementById('chatbot-inquiry-submit');
+  const errorDiv = document.getElementById('chatbot-inquiry-error');
+  const successDiv = document.getElementById('chatbot-inquiry-success');
+  
+  // 에러/성공 메시지 초기화
+  if (errorDiv) errorDiv.classList.add('hidden');
+  if (successDiv) successDiv.classList.add('hidden');
+  
+  // 버튼 비활성화
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = '제출 중...';
+  }
+  
+  try {
+    const response = await fetch('/api/inquiries', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.get('name'),
+        phone: formData.get('phone'),
+        region: formData.get('region'),
+        workType: formData.get('work-type'),
+        minQuantity: formData.get('min-quantity') || null,
+        message: formData.get('message') || null
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      // 성공 메시지 표시
+      if (successDiv) successDiv.classList.remove('hidden');
+      form.reset();
+      
+      // 2초 후 모달 닫기
+      setTimeout(() => {
+        closeChatbotInquiryForm();
+        // 챗봇에 성공 메시지 추가
+        addMessage('✅ 문의가 성공적으로 접수되었습니다!\n\n담당자가 순차적으로 연락을 드릴 예정입니다. 감사합니다!', 'bot');
+      }, 2000);
+    } else {
+      // 에러 메시지 표시
+      if (errorDiv) errorDiv.classList.remove('hidden');
+    }
+  } catch (error) {
+    console.error('문의 제출 오류:', error);
+    if (errorDiv) errorDiv.classList.remove('hidden');
+  } finally {
+    // 버튼 활성화
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = '제출하기';
+    }
+  }
+}
+
 // 챗봇 토글
 document.addEventListener('DOMContentLoaded', () => {
+  // 챗봇 문의 폼 이벤트 리스너
+  const chatbotInquiryForm = document.getElementById('chatbot-inquiry-form');
+  if (chatbotInquiryForm) {
+    chatbotInquiryForm.addEventListener('submit', submitChatbotInquiry);
+  }
+  
+  // 모달 배경 클릭 시 닫기
+  const chatbotInquiryModal = document.getElementById('chatbot-inquiry-modal');
+  if (chatbotInquiryModal) {
+    chatbotInquiryModal.addEventListener('click', (e) => {
+      if (e.target === chatbotInquiryModal) {
+        closeChatbotInquiryForm();
+      }
+    });
+  }
+  
   const toggleButton = document.getElementById('chatbot-toggle');
   const chatbotWindow = document.getElementById('chatbot-window');
   const chatbotIcon = document.getElementById('chatbot-icon');
@@ -442,4 +554,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // 전역 함수로 등록
   window.sendChatbotMessage = sendChatbotMessage;
+  window.openChatbotInquiryForm = openChatbotInquiryForm;
+  window.closeChatbotInquiryForm = closeChatbotInquiryForm;
 });
