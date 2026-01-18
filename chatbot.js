@@ -1,5 +1,16 @@
 // 로지알 AI 챗봇 - 규칙 기반 FAQ 챗봇
 
+// 문의 수집 상태
+let inquiryMode = false;
+let inquiryData = {
+  name: null,
+  phone: null,
+  region: null,
+  workType: null,
+  minQuantity: null,
+  message: null
+};
+
 // FAQ 데이터베이스
 const faqDatabase = {
   // 재료비/보증금 관련
@@ -68,8 +79,14 @@ const faqDatabase = {
     keywords: ['순서', '절차', '과정', '진행', '방법', '어떻게', '시작']
   },
   '시작': {
-    answer: '아래 "무료 상담·신청하기" 버튼을 눌러 성함, 연락처, 거주 지역, 가능 시간대를 남겨 주시면 담당자가 순차적으로 연락을 드립니다.',
-    keywords: ['시작', '신청', '참여', '가입', '어떻게', '방법', '절차']
+    answer: '무료 상담 신청을 도와드리겠습니다! 몇 가지 정보를 알려주시면 담당자가 연락을 드립니다.\n\n먼저 성함을 알려주세요.',
+    keywords: ['시작', '신청', '참여', '가입', '어떻게', '방법', '절차'],
+    triggerInquiry: true
+  },
+  '신청': {
+    answer: '무료 상담 신청을 도와드리겠습니다! 몇 가지 정보를 알려주시면 담당자가 연락을 드립니다.\n\n먼저 성함을 알려주세요.',
+    keywords: ['신청', '상담신청', '문의신청', '참여신청'],
+    triggerInquiry: true
   },
   
   // 시간 관련
@@ -103,14 +120,166 @@ const faqDatabase = {
   }
 };
 
+// 문의 수집 처리
+function handleInquiryCollection(userMessage) {
+  const lowerMessage = userMessage.toLowerCase();
+  
+  // 이름 수집
+  if (!inquiryData.name) {
+    // 이름 추출 (간단한 패턴)
+    const nameMatch = userMessage.match(/^[가-힣]{2,4}$/);
+    if (nameMatch) {
+      inquiryData.name = userMessage.trim();
+      return '감사합니다! 연락처를 알려주세요. (예: 010-1234-5678)';
+    } else if (userMessage.length > 1 && userMessage.length < 10) {
+      inquiryData.name = userMessage.trim();
+      return '감사합니다! 연락처를 알려주세요. (예: 010-1234-5678)';
+    } else {
+      return '성함을 알려주세요. (예: 홍길동)';
+    }
+  }
+  
+  // 연락처 수집
+  if (!inquiryData.phone) {
+    const phoneMatch = userMessage.match(/(\d{2,3})[-.\s]?(\d{3,4})[-.\s]?(\d{4})/);
+    if (phoneMatch) {
+      inquiryData.phone = userMessage.replace(/[-.\s]/g, '').trim();
+      return '거주 지역을 알려주세요. (예: 서울시 강남구)';
+    } else {
+      return '연락처를 정확히 입력해 주세요. (예: 010-1234-5678)';
+    }
+  }
+  
+  // 지역 수집
+  if (!inquiryData.region) {
+    if (userMessage.length > 1) {
+      inquiryData.region = userMessage.trim();
+      return '관심 있는 작업 종류를 선택해 주세요:\n\n1. 장난감 부품 버클캡\n2. 폰케이스 스티커\n3. 단추부자재\n4. 머리핀\n5. 커넥터\n6. 꽃꽂이\n7. 열쇠고리\n8. 스티커\n\n번호나 이름으로 알려주세요.';
+    } else {
+      return '거주 지역을 알려주세요. (예: 서울시 강남구)';
+    }
+  }
+  
+  // 작업 종류 수집
+  if (!inquiryData.workType) {
+    const workTypes = {
+      '1': '장난감부품버클캡',
+      '장난감': '장난감부품버클캡',
+      '버클캡': '장난감부품버클캡',
+      '2': '폰케이스스티커',
+      '폰케이스': '폰케이스스티커',
+      '3': '단추부자재',
+      '단추': '단추부자재',
+      '4': '머리핀',
+      '5': '커넥터',
+      '6': '꽃꽂이',
+      '꽃': '꽃꽂이',
+      '7': '열쇠고리',
+      '열쇠': '열쇠고리',
+      '8': '스티커'
+    };
+    
+    for (const [key, value] of Object.entries(workTypes)) {
+      if (lowerMessage.includes(key.toLowerCase())) {
+        inquiryData.workType = value;
+        return '추가로 문의하실 내용이나 가능한 시간대가 있으시면 알려주세요. (없으면 "없음"이라고 입력해 주세요)';
+      }
+    }
+    
+    return '작업 종류를 선택해 주세요:\n\n1. 장난감 부품 버클캡\n2. 폰케이스 스티커\n3. 단추부자재\n4. 머리핀\n5. 커넥터\n6. 꽃꽂이\n7. 열쇠고리\n8. 스티커';
+  }
+  
+  // 메시지 수집 및 제출
+  if (!inquiryData.message) {
+    inquiryData.message = userMessage.trim() === '없음' ? null : userMessage.trim();
+    
+    // 문의 제출
+    submitInquiry();
+    return '처리 중...';
+  }
+  
+  return null;
+}
+
+// 문의 제출
+async function submitInquiry() {
+  try {
+    const response = await fetch('/api/inquiries', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: inquiryData.name,
+        phone: inquiryData.phone,
+        region: inquiryData.region,
+        workType: inquiryData.workType,
+        minQuantity: inquiryData.minQuantity,
+        message: inquiryData.message
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      addMessage('✅ 문의가 성공적으로 접수되었습니다!\n\n담당자가 순차적으로 연락을 드릴 예정입니다. 감사합니다!', 'bot');
+      
+      // 문의 모드 종료 및 데이터 초기화
+      inquiryMode = false;
+      inquiryData = {
+        name: null,
+        phone: null,
+        region: null,
+        workType: null,
+        minQuantity: null,
+        message: null
+      };
+    } else {
+      addMessage('❌ 문의 접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주시거나 카카오톡 채널을 통해 문의해 주세요.', 'bot');
+    }
+  } catch (error) {
+    console.error('문의 제출 오류:', error);
+    addMessage('❌ 문의 접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주시거나 카카오톡 채널을 통해 문의해 주세요.', 'bot');
+  }
+}
+
 // 키워드 매칭 함수
 function findAnswer(userMessage) {
   const lowerMessage = userMessage.toLowerCase();
+  
+  // 문의 신청 의도 감지
+  const inquiryKeywords = ['신청', '참여', '가입', '상담신청', '문의신청', '참여하고', '신청하고', '시작하고'];
+  for (const keyword of inquiryKeywords) {
+    if (lowerMessage.includes(keyword)) {
+      inquiryMode = true;
+      inquiryData = {
+        name: null,
+        phone: null,
+        region: null,
+        workType: null,
+        minQuantity: null,
+        message: null
+      };
+      return '무료 상담 신청을 도와드리겠습니다! 몇 가지 정보를 알려주시면 담당자가 연락을 드립니다.\n\n먼저 성함을 알려주세요.';
+    }
+  }
   
   // 정확한 키워드 매칭
   for (const [key, data] of Object.entries(faqDatabase)) {
     for (const keyword of data.keywords) {
       if (lowerMessage.includes(keyword.toLowerCase())) {
+        // 문의 모드 트리거
+        if (data.triggerInquiry) {
+          inquiryMode = true;
+          inquiryData = {
+            name: null,
+            phone: null,
+            region: null,
+            workType: null,
+            minQuantity: null,
+            message: null
+          };
+        }
         return data.answer;
       }
     }
@@ -122,6 +291,17 @@ function findAnswer(userMessage) {
     for (const [key, data] of Object.entries(faqDatabase)) {
       for (const keyword of data.keywords) {
         if (word.includes(keyword.toLowerCase()) || keyword.toLowerCase().includes(word)) {
+          if (data.triggerInquiry) {
+            inquiryMode = true;
+            inquiryData = {
+              name: null,
+              phone: null,
+              region: null,
+              workType: null,
+              minQuantity: null,
+              message: null
+            };
+          }
           return data.answer;
         }
       }
@@ -129,7 +309,7 @@ function findAnswer(userMessage) {
   }
   
   // 기본 응답
-  return '죄송합니다. 질문을 정확히 이해하지 못했습니다. 좀 더 구체적으로 질문해 주시거나 아래와 같이 질문해 보세요:\n\n• 재료비나 보증금이 필요한가요?\n• 어떤 작업을 하나요?\n• 수익은 얼마나 되나요?\n• 어떻게 시작하나요?\n\n또는 카카오톡 채널을 통해 직접 문의해 주세요!';
+  return '죄송합니다. 질문을 정확히 이해하지 못했습니다. 좀 더 구체적으로 질문해 주시거나 아래와 같이 질문해 보세요:\n\n• 재료비나 보증금이 필요한가요?\n• 어떤 작업을 하나요?\n• 수익은 얼마나 되나요?\n• 어떻게 시작하나요?\n\n또는 "신청하고 싶어요"라고 말씀해 주시면 문의 신청을 도와드리겠습니다!';
 }
 
 // 챗봇 메시지 전송
@@ -150,7 +330,19 @@ function sendChatbotMessage() {
   
   // 응답 생성 (약간의 딜레이로 자연스러운 느낌)
   setTimeout(() => {
-    const answer = findAnswer(message);
+    let answer;
+    
+    // 문의 수집 모드인 경우
+    if (inquiryMode) {
+      answer = handleInquiryCollection(message);
+      if (!answer) {
+        answer = '처리 중입니다...';
+      }
+    } else {
+      // 일반 FAQ 응답
+      answer = findAnswer(message);
+    }
+    
     addMessage(answer, 'bot');
     sendButton.disabled = false;
     sendButton.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
@@ -207,6 +399,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatbotCloseIcon = document.getElementById('chatbot-close-icon');
   const minimizeButton = document.getElementById('chatbot-minimize');
   
+  // 문의 모드 초기화 함수
+  function resetInquiryMode() {
+    inquiryMode = false;
+    inquiryData = {
+      name: null,
+      phone: null,
+      region: null,
+      workType: null,
+      minQuantity: null,
+      message: null
+    };
+  }
+  
   if (toggleButton && chatbotWindow) {
     toggleButton.addEventListener('click', () => {
       const isHidden = chatbotWindow.classList.contains('hidden');
@@ -219,6 +424,8 @@ document.addEventListener('DOMContentLoaded', () => {
         chatbotWindow.classList.add('hidden');
         chatbotIcon.classList.remove('hidden');
         chatbotCloseIcon.classList.add('hidden');
+        // 챗봇 닫을 때 문의 모드 초기화
+        resetInquiryMode();
       }
     });
   }
@@ -228,6 +435,8 @@ document.addEventListener('DOMContentLoaded', () => {
       chatbotWindow.classList.add('hidden');
       chatbotIcon.classList.remove('hidden');
       chatbotCloseIcon.classList.add('hidden');
+      // 챗봇 닫을 때 문의 모드 초기화
+      resetInquiryMode();
     });
   }
   
