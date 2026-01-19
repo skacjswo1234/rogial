@@ -70,6 +70,10 @@
       opacity: 1;
       visibility: visible;
     }
+    .touch-manipulation {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
   </style>
 </head>
 <body class="bg-gray-50 font-paperlogy antialiased">
@@ -1395,14 +1399,14 @@
             const result = await response.json();
             if (result.success) {
               const headerDiv = document.createElement('div');
-              headerDiv.className = 'flex items-center justify-between';
+              headerDiv.className = 'flex items-center justify-between gap-2';
               headerDiv.innerHTML = `
                 <div class="flex-1 min-w-0">
                   <h3 class="font-bold text-gray-900 text-sm md:text-base truncate">${escapeHtml(result.data.name)}</h3>
                   <p class="text-xs text-gray-600 truncate">${escapeHtml(result.data.phone)} · ${escapeHtml(result.data.region)}</p>
                 </div>
                 <button 
-                  class="delete-room-btn px-2 md:px-3 py-1 md:py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 active:bg-red-700 transition-all font-semibold flex-shrink-0 ml-2"
+                  class="delete-room-btn px-3 py-2 md:px-3 md:py-1.5 bg-red-500 text-white text-sm md:text-xs rounded-lg hover:bg-red-600 active:bg-red-700 transition-all font-semibold flex-shrink-0 touch-manipulation"
                   data-room-id="${escapeHtml(String(inquiryId))}"
                   title="대화방 삭제">
                   삭제
@@ -1419,25 +1423,59 @@
               // 세션 ID인 경우 메시지에서 고객 이름 가져오기
               const firstMessage = allMessages.find(m => m.inquiry_id == inquiryId && m.sender_type === 'customer');
               const customerName = firstMessage ? firstMessage.sender_name : '고객';
-              chatHeader.innerHTML = `<p class="text-gray-900 font-bold">${escapeHtml(customerName)}님과의 대화</p>`;
+              const headerDiv = document.createElement('div');
+              headerDiv.className = 'flex items-center justify-between gap-2';
+              headerDiv.innerHTML = `
+                <p class="text-gray-900 font-bold text-sm md:text-base flex-1 min-w-0 truncate">${escapeHtml(customerName)}님과의 대화</p>
+                <button 
+                  class="delete-room-btn px-3 py-2 md:px-3 md:py-1.5 bg-red-500 text-white text-sm md:text-xs rounded-lg hover:bg-red-600 active:bg-red-700 transition-all font-semibold flex-shrink-0 touch-manipulation"
+                  data-room-id="${escapeHtml(String(inquiryId))}"
+                  title="대화방 삭제">
+                  삭제
+                </button>
+              `;
+              // 삭제 버튼 이벤트 리스너 추가
+              const deleteBtn = headerDiv.querySelector('.delete-room-btn');
+              if (deleteBtn) {
+                deleteBtn.addEventListener('click', () => deleteChatRoom(inquiryId));
+              }
+              chatHeader.innerHTML = '';
+              chatHeader.appendChild(headerDiv);
             }
           } catch (error) {
             console.error('문의 정보 로드 오류:', error);
             // 세션 ID인 경우 메시지에서 고객 이름 가져오기
             const firstMessage = allMessages.find(m => m.inquiry_id == inquiryId && m.sender_type === 'customer');
             const customerName = firstMessage ? firstMessage.sender_name : '고객';
-            chatHeader.innerHTML = `<p class="text-gray-900 font-bold">${escapeHtml(customerName)}님과의 대화</p>`;
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'flex items-center justify-between gap-2';
+            headerDiv.innerHTML = `
+              <p class="text-gray-900 font-bold text-sm md:text-base flex-1 min-w-0 truncate">${escapeHtml(customerName)}님과의 대화</p>
+              <button 
+                class="delete-room-btn px-3 py-2 md:px-3 md:py-1.5 bg-red-500 text-white text-sm md:text-xs rounded-lg hover:bg-red-600 active:bg-red-700 transition-all font-semibold flex-shrink-0 touch-manipulation"
+                data-room-id="${escapeHtml(String(inquiryId))}"
+                title="대화방 삭제">
+                삭제
+              </button>
+            `;
+            // 삭제 버튼 이벤트 리스너 추가
+            const deleteBtn = headerDiv.querySelector('.delete-room-btn');
+            if (deleteBtn) {
+              deleteBtn.addEventListener('click', () => deleteChatRoom(inquiryId));
+            }
+            chatHeader.innerHTML = '';
+            chatHeader.appendChild(headerDiv);
           }
         } else {
           // 세션 ID인 경우 (chat_로 시작하거나 문자열)
           const firstMessage = allMessages.find(m => m.inquiry_id == inquiryId && m.sender_type === 'customer');
           const customerName = firstMessage ? firstMessage.sender_name : '고객';
           const headerDiv = document.createElement('div');
-          headerDiv.className = 'flex items-center justify-between';
+          headerDiv.className = 'flex items-center justify-between gap-2';
           headerDiv.innerHTML = `
             <p class="text-gray-900 font-bold text-sm md:text-base flex-1 min-w-0 truncate">${escapeHtml(customerName)}님과의 대화</p>
             <button 
-              class="delete-room-btn px-2 md:px-3 py-1 md:py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 active:bg-red-700 transition-all font-semibold flex-shrink-0 ml-2"
+              class="delete-room-btn px-3 py-2 md:px-3 md:py-1.5 bg-red-500 text-white text-sm md:text-xs rounded-lg hover:bg-red-600 active:bg-red-700 transition-all font-semibold flex-shrink-0 touch-manipulation"
               data-room-id="${escapeHtml(String(inquiryId))}"
               title="대화방 삭제">
               삭제
@@ -1902,7 +1940,8 @@
         return;
       }
 
-      if (!confirm('정말 이 대화방을 삭제하시겠습니까?\n모든 메시지가 영구적으로 삭제됩니다.')) {
+      const confirmMessage = '정말 이 대화방을 삭제하시겠습니까?\n모든 메시지가 영구적으로 삭제됩니다.';
+      if (!confirm(confirmMessage)) {
         return;
       }
 
@@ -1922,9 +1961,24 @@
           if (String(currentChatInquiryId) === targetId) {
             currentChatInquiryId = null;
             currentChatMessages = [];
-            document.getElementById('chat-header').innerHTML = '<p class="text-gray-500 text-sm text-center">대화를 선택해주세요</p>';
-            document.getElementById('chat-messages').innerHTML = '';
-            document.getElementById('chat-input-area').classList.add('hidden');
+            const chatHeader = document.getElementById('chat-header');
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInputArea = document.getElementById('chat-input-area');
+            
+            if (chatHeader) {
+              chatHeader.innerHTML = '<p class="text-gray-500 text-xs md:text-sm text-center">대화를 선택해주세요</p>';
+            }
+            if (chatMessages) {
+              chatMessages.innerHTML = '';
+            }
+            if (chatInputArea) {
+              chatInputArea.classList.add('hidden');
+            }
+            
+            // 모바일에서 삭제 후 목록으로 돌아가기
+            if (window.innerWidth < 768) {
+              showMobileChatList();
+            }
           }
 
           // allMessages에서 삭제
