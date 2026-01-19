@@ -471,6 +471,7 @@
     let lastMessageId = 0;
     let allMessages = [];
     let currentChatMessages = []; // 현재 채팅방의 메시지 목록 (항상 유지)
+    let inquiryInfoCache = {}; // 문의 정보 캐시 (고객 구분용)
 
     const statusLabels = {
       'pending': '⏳ 대기 중',
@@ -1201,16 +1202,19 @@
             messagesByInquiry[key].push(msg);
           });
           
-          renderMessagesList(messagesByInquiry);
-          updateUnreadCount();
+          await renderMessagesList(messagesByInquiry);
+          // 카운트 업데이트는 별도로 호출 (다른 곳에서도 호출하므로)
         }
       } catch (error) {
         console.error('메시지 목록 로드 오류:', error);
+      } finally {
+        // 항상 카운트 업데이트
+        updateUnreadCount();
       }
     }
 
     // 메시지 목록 렌더링
-    function renderMessagesList(messagesByInquiry) {
+    async function renderMessagesList(messagesByInquiry) {
       const listContainer = document.getElementById('messages-list');
       
       if (Object.keys(messagesByInquiry).length === 0) {
@@ -1223,6 +1227,7 @@
       // inquiry_id별로 대화 목록 생성
       for (const [inquiryId, messages] of Object.entries(messagesByInquiry)) {
         const latestMessage = messages[messages.length - 1];
+        const firstMessage = messages[0];
         const unreadCount = messages.filter(m => m.sender_type === 'customer' && !m.is_read).length;
         const customerName = latestMessage.sender_name || '고객';
         const preview = latestMessage.message.length > 30 
@@ -1230,8 +1235,58 @@
           : latestMessage.message;
         const time = formatTime(latestMessage.created_at);
         
+        // 고객 정보 추출
+        let customerInfo = {
+          name: customerName,
+          phone: null,
+          region: null,
+          sessionId: null
+        };
+        
+        // inquiry_id가 숫자면 문의 정보 가져오기
+        if (inquiryId && inquiryId !== 'general' && !isNaN(inquiryId) && !inquiryId.toString().startsWith('chat_')) {
+          // 캐시 확인
+          if (inquiryInfoCache[inquiryId]) {
+            customerInfo = inquiryInfoCache[inquiryId];
+          } else {
+            try {
+              const response = await fetch(`/api/inquiries/${inquiryId}`);
+              const result = await response.json();
+              if (result.success) {
+                customerInfo.name = result.data.name;
+                customerInfo.phone = result.data.phone;
+                customerInfo.region = result.data.region;
+                inquiryInfoCache[inquiryId] = customerInfo;
+              }
+            } catch (error) {
+              console.error('문의 정보 로드 오류:', error);
+            }
+          }
+        } else if (inquiryId && inquiryId.toString().startsWith('chat_')) {
+          // 세션 ID인 경우
+          customerInfo.sessionId = inquiryId;
+          // 메시지에서 전화번호나 지역 정보 추출 시도 (메시지 내용에서)
+          // 또는 세션 ID 일부 표시
+        }
+        
         // inquiryId가 'general'이면 null로, 숫자면 그대로, 아니면 문자열로 처리
         const chatId = inquiryId === 'general' ? null : (isNaN(inquiryId) ? `'${inquiryId}'` : inquiryId);
+        
+        // 고객 식별 정보 구성
+        let customerIdentifier = customerInfo.name;
+        if (customerInfo.phone) {
+          customerIdentifier += ` · ${customerInfo.phone}`;
+        }
+        if (customerInfo.region) {
+          customerIdentifier += ` · ${customerInfo.region}`;
+        }
+        if (customerInfo.sessionId) {
+          // 세션 ID의 마지막 8자리만 표시
+          const sessionShort = customerInfo.sessionId.length > 8 
+            ? customerInfo.sessionId.substring(customerInfo.sessionId.length - 8)
+            : customerInfo.sessionId;
+          customerIdentifier += ` · [${sessionShort}]`;
+        }
         
         html += `
           <div 
@@ -1242,10 +1297,20 @@
                 : 'bg-white border-gray-200 hover:border-primary-200'
             }">
             <div class="flex items-start justify-between mb-1">
-              <div class="font-bold text-gray-900 text-sm">${escapeHtml(customerName)}</div>
-              ${unreadCount > 0 ? `<span class="w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">${unreadCount}</span>` : ''}
+              <div class="flex-1 min-w-0">
+                <div class="font-bold text-gray-900 text-sm truncate">${escapeHtml(customerInfo.name)}</div>
+                ${customerInfo.phone || customerInfo.region || customerInfo.sessionId ? `
+                  <div class="text-xs text-gray-500 mt-0.5 truncate">
+                    ${customerInfo.phone ? escapeHtml(customerInfo.phone) : ''}
+                    ${customerInfo.phone && customerInfo.region ? ' · ' : ''}
+                    ${customerInfo.region ? escapeHtml(customerInfo.region) : ''}
+                    ${customerInfo.sessionId ? ` [${escapeHtml(customerInfo.sessionId.substring(customerInfo.sessionId.length - 8))}]` : ''}
+                  </div>
+                ` : ''}
+              </div>
+              ${unreadCount > 0 ? `<span class="w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold flex-shrink-0 ml-2">${unreadCount}</span>` : ''}
             </div>
-            <p class="text-xs text-gray-600 truncate mb-1">${escapeHtml(preview)}</p>
+            <p class="text-xs text-gray-600 truncate mb-1 mt-1">${escapeHtml(preview)}</p>
             <p class="text-xs text-gray-400">${time}</p>
           </div>
         `;
@@ -1343,8 +1408,8 @@
       // 메시지 로드
       await loadChatMessages(inquiryId);
       
-      // 읽지 않은 메시지 읽음 처리
-      markMessagesAsRead(inquiryId);
+      // 읽지 않은 메시지 읽음 처리 (채팅방을 열었을 때)
+      await markMessagesAsRead(inquiryId);
     }
 
     // 채팅 메시지 로드
@@ -1473,6 +1538,11 @@
               }
             }
             
+            // 상담원이 메시지를 보냈을 때 해당 채팅방의 모든 고객 메시지를 읽음 처리
+            if (inquiryId) {
+              await markMessagesAsRead(inquiryId);
+            }
+            
             // 메시지 목록 새로고침
             loadMessagesList();
           }
@@ -1493,54 +1563,56 @@
       messageEventSource = new EventSource(streamUrl);
 
       messageEventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          
-          if (data.type === 'message' && data.data) {
-            const message = data.data;
-            lastMessageId = Math.max(lastMessageId, message.id);
+        (async () => {
+          try {
+            const data = JSON.parse(event.data);
             
-            // allMessages에 추가 (중복 체크)
-            const existingIndex = allMessages.findIndex(m => m.id === message.id);
-            if (existingIndex === -1) {
-              allMessages.push(message);
-            } else {
-              allMessages[existingIndex] = message;
-            }
-            
-            // 현재 열려있는 채팅이면 메시지 추가
-            const currentId = (currentChatInquiryId === 'general' || currentChatInquiryId === null) ? null : String(currentChatInquiryId);
-            const messageInquiryId = message.inquiry_id ? String(message.inquiry_id) : null;
-            
-            if (currentId == messageInquiryId) {
-              // currentChatMessages에 추가 (중복 체크)
-              const existingIndex = currentChatMessages.findIndex(m => m.id === message.id);
+            if (data.type === 'message' && data.data) {
+              const message = data.data;
+              lastMessageId = Math.max(lastMessageId, message.id);
+              
+              // allMessages에 추가 (중복 체크)
+              const existingIndex = allMessages.findIndex(m => m.id === message.id);
               if (existingIndex === -1) {
-                currentChatMessages.push(message);
-                // 시간순 정렬
-                currentChatMessages.sort((a, b) => {
-                  const timeA = new Date(a.created_at.replace(' ', 'T') + '+09:00');
-                  const timeB = new Date(b.created_at.replace(' ', 'T') + '+09:00');
-                  return timeA - timeB;
-                });
+                allMessages.push(message);
               } else {
-                currentChatMessages[existingIndex] = message;
+                allMessages[existingIndex] = message;
               }
               
-              renderChatMessages(currentChatMessages);
+              // 현재 열려있는 채팅이면 메시지 추가
+              const currentId = (currentChatInquiryId === 'general' || currentChatInquiryId === null) ? null : String(currentChatInquiryId);
+              const messageInquiryId = message.inquiry_id ? String(message.inquiry_id) : null;
               
-              // 읽음 처리
-              if (message.sender_type === 'customer') {
-                markMessageAsRead(message.id);
+              if (currentId == messageInquiryId) {
+                // currentChatMessages에 추가 (중복 체크)
+                const existingChatIndex = currentChatMessages.findIndex(m => m.id === message.id);
+                if (existingChatIndex === -1) {
+                  currentChatMessages.push(message);
+                  // 시간순 정렬
+                  currentChatMessages.sort((a, b) => {
+                    const timeA = new Date(a.created_at.replace(' ', 'T') + '+09:00');
+                    const timeB = new Date(b.created_at.replace(' ', 'T') + '+09:00');
+                    return timeA - timeB;
+                  });
+                } else {
+                  currentChatMessages[existingChatIndex] = message;
+                }
+                
+                renderChatMessages(currentChatMessages);
+                
+                // 읽음 처리 (고객 메시지인 경우)
+                if (message.sender_type === 'customer') {
+                  await markMessageAsRead(message.id);
+                }
               }
+              
+              // 메시지 목록 새로고침 및 카운트 업데이트
+              loadMessagesList();
             }
-            
-            // 메시지 목록 새로고침
-            loadMessagesList();
+          } catch (error) {
+            console.error('메시지 파싱 오류:', error);
           }
-        } catch (error) {
-          console.error('메시지 파싱 오류:', error);
-        }
+        })();
       };
 
       messageEventSource.onerror = (error) => {
@@ -1556,11 +1628,28 @@
     // 메시지 읽음 처리
     async function markMessageAsRead(messageId) {
       try {
-        await fetch(`/api/messages/${messageId}`, {
+        const response = await fetch(`/api/messages/${messageId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ is_read: 1 })
         });
+        
+        if (response.ok) {
+          // allMessages 배열 업데이트
+          const index = allMessages.findIndex(m => m.id === messageId);
+          if (index !== -1) {
+            allMessages[index].is_read = 1;
+          }
+          
+          // currentChatMessages도 업데이트
+          const chatIndex = currentChatMessages.findIndex(m => m.id === messageId);
+          if (chatIndex !== -1) {
+            currentChatMessages[chatIndex].is_read = 1;
+          }
+          
+          // 읽지 않은 메시지 카운트 업데이트
+          updateUnreadCount();
+        }
       } catch (error) {
         console.error('읽음 처리 오류:', error);
       }
@@ -1578,15 +1667,11 @@
         
         for (const msg of unreadMessages) {
           await markMessageAsRead(msg.id);
-          // allMessages 업데이트
-          const index = allMessages.findIndex(m => m.id === msg.id);
-          if (index !== -1) {
-            allMessages[index].is_read = 1;
-          }
         }
         
-        // 목록 새로고침
+        // 목록 새로고침 및 카운트 업데이트
         loadMessagesList();
+        updateUnreadCount();
       } catch (error) {
         console.error('읽음 처리 오류:', error);
       }
