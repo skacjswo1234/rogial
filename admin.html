@@ -318,47 +318,63 @@
         <!-- 실시간 메시지 뷰 -->
         <div id="messages-view" class="hidden">
           <!-- 헤더 -->
-          <div class="mb-6 pt-4 md:pt-0">
-            <h2 class="text-2xl md:text-3xl font-black text-gray-900">실시간 메시지</h2>
-            <p class="text-gray-600 mt-1 font-semibold">고객과 실시간으로 채팅할 수 있습니다.</p>
+          <div class="mb-4 md:mb-6 pt-2 md:pt-4 md:pt-0">
+            <h2 class="text-xl md:text-2xl lg:text-3xl font-black text-gray-900">실시간 메시지</h2>
+            <p class="text-gray-600 mt-1 text-sm md:text-base font-semibold">고객과 실시간으로 채팅할 수 있습니다.</p>
           </div>
 
-          <div class="grid md:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+          <!-- 모바일: 목록/채팅 토글 버튼 -->
+          <div id="mobile-chat-toggle" class="md:hidden mb-3 flex gap-2">
+            <button 
+              id="show-list-btn"
+              onclick="showMobileChatList()"
+              class="flex-1 px-4 py-2 rounded-lg bg-primary-500 text-white font-semibold text-sm transition-all">
+              대화 목록
+            </button>
+            <button 
+              id="show-chat-btn"
+              onclick="showMobileChat()"
+              class="flex-1 px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold text-sm transition-all hidden">
+              채팅
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 h-[calc(100vh-180px)] md:h-[calc(100vh-200px)]">
             <!-- 메시지 목록 (왼쪽) -->
-            <div class="md:col-span-1 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden">
-              <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50">
-                <h3 class="font-bold text-gray-900">대화 목록</h3>
+            <div id="messages-list-container" class="col-span-1 md:col-span-1 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden">
+              <div class="p-3 md:p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50">
+                <h3 class="font-bold text-gray-900 text-sm md:text-base">대화 목록</h3>
               </div>
-              <div id="messages-list" class="flex-1 overflow-y-auto p-2 space-y-2">
+              <div id="messages-list" class="flex-1 overflow-y-auto p-2 md:p-2 space-y-2">
                 <!-- 메시지 목록은 JavaScript로 동적 생성 -->
                 <div class="text-center py-8 text-gray-500 text-sm">로딩 중...</div>
               </div>
             </div>
 
             <!-- 채팅 영역 (오른쪽) -->
-            <div class="md:col-span-2 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden">
-              <div id="chat-header" class="p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50">
-                <p class="text-gray-500 text-sm text-center">대화를 선택해주세요</p>
+            <div id="chat-container" class="hidden md:flex col-span-1 md:col-span-2 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden">
+              <div id="chat-header" class="p-3 md:p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50">
+                <p class="text-gray-500 text-xs md:text-sm text-center">대화를 선택해주세요</p>
               </div>
               
               <!-- 메시지 표시 영역 -->
-              <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+              <div id="chat-messages" class="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 bg-gray-50">
                 <!-- 메시지는 JavaScript로 동적 생성 -->
               </div>
 
               <!-- 메시지 입력 영역 -->
-              <div id="chat-input-area" class="hidden p-4 border-t border-gray-200 bg-white">
+              <div id="chat-input-area" class="hidden p-3 md:p-4 border-t border-gray-200 bg-white">
                 <form id="message-form" class="flex gap-2">
                   <input 
                     type="text" 
                     id="message-input"
                     placeholder="메시지를 입력하세요..."
-                    class="flex-1 px-4 py-2 rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                    class="flex-1 px-3 md:px-4 py-2 text-sm md:text-base rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
                     required
                   />
                   <button 
                     type="submit"
-                    class="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white flex items-center justify-center hover:shadow-lg transition-all">
+                    class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white flex items-center justify-center hover:shadow-lg transition-all flex-shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                     </svg>
@@ -1291,14 +1307,14 @@
         html += `
           <div 
             onclick="openChat(${chatId === null ? 'null' : chatId})"
-            class="p-3 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
+            class="p-2.5 md:p-3 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md active:scale-[0.98] ${
               currentChatInquiryId == inquiryId 
                 ? 'bg-primary-50 border-primary-300' 
                 : 'bg-white border-gray-200 hover:border-primary-200'
             }">
             <div class="flex items-start justify-between mb-1">
               <div class="flex-1 min-w-0">
-                <div class="font-bold text-gray-900 text-sm truncate">${escapeHtml(customerInfo.name)}</div>
+                <div class="font-bold text-gray-900 text-xs md:text-sm truncate">${escapeHtml(customerInfo.name)}</div>
                 ${customerInfo.phone || customerInfo.region || customerInfo.sessionId ? `
                   <div class="text-xs text-gray-500 mt-0.5 truncate">
                     ${customerInfo.phone ? escapeHtml(customerInfo.phone) : ''}
@@ -1329,9 +1345,15 @@
       currentChatInquiryId = inquiryId;
       currentChatMessages = []; // 채팅방 변경 시 메시지 목록 초기화
       
+      // 모바일에서 채팅 열기
+      if (window.innerWidth < 768) {
+        showMobileChat();
+      }
+      
       // 채팅 헤더 업데이트
       const chatHeader = document.getElementById('chat-header');
       const chatInputArea = document.getElementById('chat-input-area');
+      const chatContainer = document.getElementById('chat-container');
       
       // inquiryId가 숫자면 문의 정보 조회, 세션 ID면 고객 이름만 표시
       if (inquiryId && inquiryId !== 'general') {
@@ -1345,12 +1367,12 @@
               const headerDiv = document.createElement('div');
               headerDiv.className = 'flex items-center justify-between';
               headerDiv.innerHTML = `
-                <div>
-                  <h3 class="font-bold text-gray-900">${escapeHtml(result.data.name)}</h3>
-                  <p class="text-xs text-gray-600">${escapeHtml(result.data.phone)} · ${escapeHtml(result.data.region)}</p>
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-bold text-gray-900 text-sm md:text-base truncate">${escapeHtml(result.data.name)}</h3>
+                  <p class="text-xs text-gray-600 truncate">${escapeHtml(result.data.phone)} · ${escapeHtml(result.data.region)}</p>
                 </div>
                 <button 
-                  class="delete-room-btn px-3 py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-all font-semibold"
+                  class="delete-room-btn px-2 md:px-3 py-1 md:py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 active:bg-red-700 transition-all font-semibold flex-shrink-0 ml-2"
                   data-room-id="${escapeHtml(String(inquiryId))}"
                   title="대화방 삭제">
                   삭제
@@ -1383,9 +1405,9 @@
           const headerDiv = document.createElement('div');
           headerDiv.className = 'flex items-center justify-between';
           headerDiv.innerHTML = `
-            <p class="text-gray-900 font-bold">${escapeHtml(customerName)}님과의 대화</p>
+            <p class="text-gray-900 font-bold text-sm md:text-base flex-1 min-w-0 truncate">${escapeHtml(customerName)}님과의 대화</p>
             <button 
-              class="delete-room-btn px-3 py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-all font-semibold"
+              class="delete-room-btn px-2 md:px-3 py-1 md:py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 active:bg-red-700 transition-all font-semibold flex-shrink-0 ml-2"
               data-room-id="${escapeHtml(String(inquiryId))}"
               title="대화방 삭제">
               삭제
@@ -1400,16 +1422,70 @@
           chatHeader.appendChild(headerDiv);
         }
       } else {
-        chatHeader.innerHTML = '<p class="text-gray-900 font-bold">일반 문의</p>';
+        chatHeader.innerHTML = '<p class="text-gray-500 text-xs md:text-sm text-center">대화를 선택해주세요</p>';
       }
       
       chatInputArea.classList.remove('hidden');
+      
+      // 데스크톱에서만 채팅 컨테이너 표시
+      if (window.innerWidth >= 768) {
+        chatContainer.classList.remove('hidden');
+        chatContainer.classList.add('flex');
+      } else {
+        // 모바일에서는 채팅 보기로 전환
+        showMobileChat();
+      }
       
       // 메시지 로드
       await loadChatMessages(inquiryId);
       
       // 읽지 않은 메시지 읽음 처리 (채팅방을 열었을 때)
       await markMessagesAsRead(inquiryId);
+    }
+
+    // 모바일: 대화 목록 보기
+    function showMobileChatList() {
+      const listContainer = document.getElementById('messages-list-container');
+      const chatContainer = document.getElementById('chat-container');
+      const showListBtn = document.getElementById('show-list-btn');
+      const showChatBtn = document.getElementById('show-chat-btn');
+      
+      listContainer.classList.remove('hidden');
+      chatContainer.classList.add('hidden');
+      chatContainer.classList.remove('flex');
+      
+      showListBtn.classList.add('bg-primary-500', 'text-white');
+      showListBtn.classList.remove('bg-gray-200', 'text-gray-700');
+      showChatBtn.classList.remove('bg-primary-500', 'text-white');
+      showChatBtn.classList.add('bg-gray-200', 'text-gray-700');
+      showChatBtn.classList.remove('hidden');
+    }
+
+    // 모바일: 채팅 보기
+    function showMobileChat() {
+      const listContainer = document.getElementById('messages-list-container');
+      const chatContainer = document.getElementById('chat-container');
+      const showListBtn = document.getElementById('show-list-btn');
+      const showChatBtn = document.getElementById('show-chat-btn');
+      
+      if (!currentChatInquiryId && window.innerWidth < 768) {
+        // 모바일에서만 알림 표시
+        return;
+      }
+      
+      if (window.innerWidth < 768) {
+        listContainer.classList.add('hidden');
+        chatContainer.classList.remove('hidden');
+        chatContainer.classList.add('flex');
+        
+        if (showListBtn && showChatBtn) {
+          showListBtn.classList.remove('bg-primary-500', 'text-white');
+          showListBtn.classList.add('bg-gray-200', 'text-gray-700');
+          showChatBtn.classList.add('bg-primary-500', 'text-white');
+          showChatBtn.classList.remove('bg-gray-200', 'text-gray-700');
+          showChatBtn.classList.remove('hidden');
+        }
+      }
     }
 
     // 채팅 메시지 로드
@@ -1451,20 +1527,20 @@
         const time = formatTime(msg.created_at);
         
         html += `
-          <div class="flex items-start gap-3 ${isCustomer ? 'flex-row-reverse' : ''}">
+          <div class="flex items-start gap-2 md:gap-3 ${isCustomer ? 'flex-row-reverse' : ''}">
             ${!isCustomer ? `
-              <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
+              <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-xs md:text-sm">
                 상
               </div>
             ` : ''}
-            <div class="flex-1 max-w-[70%]">
-              <div class="${isCustomer ? 'bg-primary-500 text-white' : 'bg-white border border-gray-200'} rounded-2xl ${isCustomer ? 'rounded-tr-none' : 'rounded-tl-none'} p-3 shadow-sm">
-                <p class="text-sm whitespace-pre-wrap">${escapeHtml(msg.message)}</p>
+            <div class="flex-1 max-w-[75%] md:max-w-[70%]">
+              <div class="${isCustomer ? 'bg-primary-500 text-white' : 'bg-white border border-gray-200'} rounded-2xl ${isCustomer ? 'rounded-tr-none' : 'rounded-tl-none'} p-2.5 md:p-3 shadow-sm">
+                <p class="text-xs md:text-sm whitespace-pre-wrap break-words">${escapeHtml(msg.message)}</p>
               </div>
-              <p class="text-xs text-gray-500 mt-1 ${isCustomer ? 'text-right mr-2' : 'ml-2'}">${time}</p>
+              <p class="text-xs text-gray-500 mt-1 ${isCustomer ? 'text-right mr-1 md:mr-2' : 'ml-1 md:ml-2'}">${time}</p>
             </div>
             ${isCustomer ? `
-              <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0 text-gray-700 font-bold text-sm">
+              <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0 text-gray-700 font-bold text-xs md:text-sm">
                 고
               </div>
             ` : ''}
@@ -1773,6 +1849,24 @@
     window.deleteChatRoom = deleteChatRoom;
     window.openChat = openChat;
     window.closeMobileSidebar = closeMobileSidebar;
+    window.showMobileChatList = showMobileChatList;
+    window.showMobileChat = showMobileChat;
+    
+    // 윈도우 리사이즈 시 모바일/데스크톱 전환 처리
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 768) {
+        // 데스크톱: 둘 다 표시
+        const listContainer = document.getElementById('messages-list-container');
+        const chatContainer = document.getElementById('chat-container');
+        if (listContainer) listContainer.classList.remove('hidden');
+        if (chatContainer && currentChatInquiryId) {
+          chatContainer.classList.remove('hidden');
+          chatContainer.classList.add('flex');
+        }
+      } else {
+        // 모바일: 현재 상태 유지
+      }
+    });
 
     // 초기 로드
     switchView('inquiries');
