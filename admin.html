@@ -352,7 +352,7 @@
             </div>
 
             <!-- 채팅 영역 (오른쪽) -->
-            <div id="chat-container" class="hidden md:flex col-span-1 md:col-span-2 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden">
+            <div id="chat-container" class="hidden col-span-1 md:col-span-2 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden">
               <div id="chat-header" class="p-3 md:p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50">
                 <p class="text-gray-500 text-xs md:text-sm text-center">대화를 선택해주세요</p>
               </div>
@@ -568,6 +568,18 @@
         if (messagesView) messagesView.classList.remove('hidden');
         loadMessagesList();
         connectMessageStream();
+        
+        // 모바일 초기 상태: 목록 보기 (채팅이 열려있지 않으면)
+        if (window.innerWidth < 768 && !currentChatInquiryId) {
+          setTimeout(() => {
+            showMobileChatList();
+          }, 100);
+        } else if (window.innerWidth < 768 && currentChatInquiryId) {
+          // 채팅이 이미 열려있으면 채팅 화면 표시
+          setTimeout(() => {
+            showMobileChat();
+          }, 100);
+        }
       } else if (view === 'links') {
         if (linksView) linksView.classList.remove('hidden');
         // SSE 연결 종료
@@ -1345,15 +1357,15 @@
       currentChatInquiryId = inquiryId;
       currentChatMessages = []; // 채팅방 변경 시 메시지 목록 초기화
       
-      // 모바일에서 채팅 열기
-      if (window.innerWidth < 768) {
-        showMobileChat();
-      }
-      
       // 채팅 헤더 업데이트
       const chatHeader = document.getElementById('chat-header');
       const chatInputArea = document.getElementById('chat-input-area');
       const chatContainer = document.getElementById('chat-container');
+      
+      if (!chatHeader || !chatInputArea || !chatContainer) {
+        console.error('채팅 요소를 찾을 수 없습니다.');
+        return;
+      }
       
       // inquiryId가 숫자면 문의 정보 조회, 세션 ID면 고객 이름만 표시
       if (inquiryId && inquiryId !== 'general') {
@@ -1427,12 +1439,13 @@
       
       chatInputArea.classList.remove('hidden');
       
-      // 데스크톱에서만 채팅 컨테이너 표시
+      // 채팅 컨테이너 표시
       if (window.innerWidth >= 768) {
+        // 데스크톱: 둘 다 표시
         chatContainer.classList.remove('hidden');
         chatContainer.classList.add('flex');
       } else {
-        // 모바일에서는 채팅 보기로 전환
+        // 모바일: 채팅 화면으로 전환
         showMobileChat();
       }
       
@@ -1450,15 +1463,34 @@
       const showListBtn = document.getElementById('show-list-btn');
       const showChatBtn = document.getElementById('show-chat-btn');
       
-      listContainer.classList.remove('hidden');
-      chatContainer.classList.add('hidden');
-      chatContainer.classList.remove('flex');
+      if (!listContainer || !chatContainer) return;
       
-      showListBtn.classList.add('bg-primary-500', 'text-white');
-      showListBtn.classList.remove('bg-gray-200', 'text-gray-700');
-      showChatBtn.classList.remove('bg-primary-500', 'text-white');
-      showChatBtn.classList.add('bg-gray-200', 'text-gray-700');
-      showChatBtn.classList.remove('hidden');
+      if (window.innerWidth < 768) {
+        // 모바일: 목록 표시하고 채팅 숨기기
+        listContainer.classList.remove('hidden');
+        chatContainer.classList.add('hidden');
+        chatContainer.classList.remove('flex');
+        
+        if (showListBtn && showChatBtn) {
+          showListBtn.classList.add('bg-primary-500', 'text-white');
+          showListBtn.classList.remove('bg-gray-200', 'text-gray-700');
+          showChatBtn.classList.remove('bg-primary-500', 'text-white');
+          showChatBtn.classList.add('bg-gray-200', 'text-gray-700');
+          // 채팅이 열려있으면 채팅 버튼 표시
+          if (currentChatInquiryId) {
+            showChatBtn.classList.remove('hidden');
+          } else {
+            showChatBtn.classList.add('hidden');
+          }
+        }
+      } else {
+        // 데스크톱: 둘 다 표시
+        listContainer.classList.remove('hidden');
+        if (currentChatInquiryId) {
+          chatContainer.classList.remove('hidden');
+          chatContainer.classList.add('flex');
+        }
+      }
     }
 
     // 모바일: 채팅 보기
@@ -1468,12 +1500,19 @@
       const showListBtn = document.getElementById('show-list-btn');
       const showChatBtn = document.getElementById('show-chat-btn');
       
+      if (!listContainer || !chatContainer) {
+        console.error('채팅 요소를 찾을 수 없습니다.');
+        return;
+      }
+      
+      // 채팅이 열려있지 않으면 목록으로 돌아가기
       if (!currentChatInquiryId && window.innerWidth < 768) {
-        // 모바일에서만 알림 표시
+        showMobileChatList();
         return;
       }
       
       if (window.innerWidth < 768) {
+        // 모바일: 목록 숨기고 채팅 표시
         listContainer.classList.add('hidden');
         chatContainer.classList.remove('hidden');
         chatContainer.classList.add('flex');
@@ -1484,6 +1523,13 @@
           showChatBtn.classList.add('bg-primary-500', 'text-white');
           showChatBtn.classList.remove('bg-gray-200', 'text-gray-700');
           showChatBtn.classList.remove('hidden');
+        }
+      } else {
+        // 데스크톱: 둘 다 표시
+        listContainer.classList.remove('hidden');
+        if (currentChatInquiryId) {
+          chatContainer.classList.remove('hidden');
+          chatContainer.classList.add('flex');
         }
       }
     }
@@ -1854,17 +1900,25 @@
     
     // 윈도우 리사이즈 시 모바일/데스크톱 전환 처리
     window.addEventListener('resize', () => {
+      const listContainer = document.getElementById('messages-list-container');
+      const chatContainer = document.getElementById('chat-container');
+      
+      if (!listContainer || !chatContainer) return;
+      
       if (window.innerWidth >= 768) {
         // 데스크톱: 둘 다 표시
-        const listContainer = document.getElementById('messages-list-container');
-        const chatContainer = document.getElementById('chat-container');
-        if (listContainer) listContainer.classList.remove('hidden');
-        if (chatContainer && currentChatInquiryId) {
+        listContainer.classList.remove('hidden');
+        if (currentChatInquiryId) {
           chatContainer.classList.remove('hidden');
           chatContainer.classList.add('flex');
         }
       } else {
-        // 모바일: 현재 상태 유지
+        // 모바일: 채팅이 열려있으면 채팅 화면, 아니면 목록 화면
+        if (currentChatInquiryId) {
+          showMobileChat();
+        } else {
+          showMobileChatList();
+        }
       }
     });
 
