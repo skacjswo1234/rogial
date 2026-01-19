@@ -46,3 +46,24 @@ CREATE TABLE IF NOT EXISTS links (
 
 -- 기본 카카오톡 링크 설정
 -- INSERT INTO links (key, url, description) VALUES ('kakao', 'http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-', '카카오톡 채널 링크');
+
+-- 실시간 메신저 메시지 테이블
+CREATE TABLE IF NOT EXISTS messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  inquiry_id INTEGER, -- 문의 ID (선택적)
+  sender_type TEXT NOT NULL, -- 'customer' 또는 'admin'
+  sender_name TEXT NOT NULL,
+  message TEXT NOT NULL,
+  is_read INTEGER DEFAULT 0, -- 0: 읽지 않음, 1: 읽음
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (inquiry_id) REFERENCES inquiries(id) ON DELETE SET NULL
+);
+
+-- 메시지 인덱스 생성
+CREATE INDEX IF NOT EXISTS idx_messages_inquiry_id ON messages(inquiry_id);
+CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_is_read ON messages(is_read);
+CREATE INDEX IF NOT EXISTS idx_messages_sender_type ON messages(sender_type);
+
+-- 메시지 읽음 상태 업데이트를 위한 인덱스
+CREATE INDEX IF NOT EXISTS idx_messages_unread ON messages(is_read, created_at DESC);

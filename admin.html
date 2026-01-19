@@ -114,6 +114,13 @@
           📋 문의리스트
         </button>
         <button 
+          onclick="switchView('messages'); closeMobileSidebar();" 
+          id="tab-messages"
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200 relative">
+          💬 실시간 메시지
+          <span id="unread-count" class="hidden absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">0</span>
+        </button>
+        <button 
           onclick="switchView('links'); closeMobileSidebar();" 
           id="tab-links"
           class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200">
@@ -161,6 +168,13 @@
           id="mobile-tab-inquiries"
           class="w-full text-left px-4 py-3 rounded-lg bg-primary-50 text-primary-700 font-semibold border border-primary-200 transition-all">
           📋 문의리스트
+        </button>
+        <button 
+          onclick="switchView('messages'); closeMobileSidebar();" 
+          id="mobile-tab-messages"
+          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200 relative">
+          💬 실시간 메시지
+          <span id="mobile-unread-count" class="hidden absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">0</span>
         </button>
         <button 
           onclick="switchView('links'); closeMobileSidebar();" 
@@ -301,6 +315,60 @@
           </div>
         </div>
 
+        <!-- 실시간 메시지 뷰 -->
+        <div id="messages-view" class="hidden">
+          <!-- 헤더 -->
+          <div class="mb-6 pt-4 md:pt-0">
+            <h2 class="text-2xl md:text-3xl font-black text-gray-900">실시간 메시지</h2>
+            <p class="text-gray-600 mt-1 font-semibold">고객과 실시간으로 채팅할 수 있습니다.</p>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+            <!-- 메시지 목록 (왼쪽) -->
+            <div class="md:col-span-1 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden">
+              <div class="p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50">
+                <h3 class="font-bold text-gray-900">대화 목록</h3>
+              </div>
+              <div id="messages-list" class="flex-1 overflow-y-auto p-2 space-y-2">
+                <!-- 메시지 목록은 JavaScript로 동적 생성 -->
+                <div class="text-center py-8 text-gray-500 text-sm">로딩 중...</div>
+              </div>
+            </div>
+
+            <!-- 채팅 영역 (오른쪽) -->
+            <div class="md:col-span-2 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden">
+              <div id="chat-header" class="p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50">
+                <p class="text-gray-500 text-sm text-center">대화를 선택해주세요</p>
+              </div>
+              
+              <!-- 메시지 표시 영역 -->
+              <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                <!-- 메시지는 JavaScript로 동적 생성 -->
+              </div>
+
+              <!-- 메시지 입력 영역 -->
+              <div id="chat-input-area" class="hidden p-4 border-t border-gray-200 bg-white">
+                <form id="message-form" class="flex gap-2">
+                  <input 
+                    type="text" 
+                    id="message-input"
+                    placeholder="메시지를 입력하세요..."
+                    class="flex-1 px-4 py-2 rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                    required
+                  />
+                  <button 
+                    type="submit"
+                    class="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white flex items-center justify-center hover:shadow-lg transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 비밀번호 변경 뷰 -->
         <div id="password-view" class="hidden">
           <div class="max-w-2xl mx-auto">
@@ -394,10 +462,14 @@
       window.location.href = './admin-login.html';
     }
 
-    let currentView = 'inquiries'; // 'inquiries', 'links', or 'password'
+    let currentView = 'inquiries'; // 'inquiries', 'messages', 'links', or 'password'
     let currentTab = 'all';
     let currentPage = 1;
     let allInquiries = [];
+    let currentChatInquiryId = null;
+    let messageEventSource = null;
+    let lastMessageId = 0;
+    let allMessages = [];
 
     const statusLabels = {
       'pending': '⏳ 대기 중',
@@ -420,14 +492,20 @@
       currentView = view;
       
       // 탭 활성화 상태 업데이트
-      const tabButtons = document.querySelectorAll('#tab-inquiries, #tab-links, #tab-password, #mobile-tab-inquiries, #mobile-tab-links, #mobile-tab-password');
+      const tabButtons = document.querySelectorAll('#tab-inquiries, #tab-messages, #tab-links, #tab-password, #mobile-tab-inquiries, #mobile-tab-inquiries, #mobile-tab-messages, #mobile-tab-links, #mobile-tab-password');
       tabButtons.forEach(btn => {
         btn.classList.remove('bg-primary-50', 'text-primary-700', 'border-primary-200', 'font-semibold');
         btn.classList.add('text-gray-700');
       });
       
       // 활성 탭 설정
-      const activeTabId = view === 'inquiries' ? 'tab-inquiries' : (view === 'links' ? 'tab-links' : 'tab-password');
+      const activeTabMap = {
+        'inquiries': 'tab-inquiries',
+        'messages': 'tab-messages',
+        'links': 'tab-links',
+        'password': 'tab-password'
+      };
+      const activeTabId = activeTabMap[view];
       const activeTab = document.getElementById(activeTabId);
       if (activeTab) {
         activeTab.classList.add('bg-primary-50', 'text-primary-700', 'border', 'border-primary-200', 'font-semibold');
@@ -435,7 +513,13 @@
       }
 
       // 모바일 탭도 업데이트
-      const mobileActiveTabId = view === 'inquiries' ? 'mobile-tab-inquiries' : (view === 'links' ? 'mobile-tab-links' : 'mobile-tab-password');
+      const mobileActiveTabMap = {
+        'inquiries': 'mobile-tab-inquiries',
+        'messages': 'mobile-tab-messages',
+        'links': 'mobile-tab-links',
+        'password': 'mobile-tab-password'
+      };
+      const mobileActiveTabId = mobileActiveTabMap[view];
       const mobileActiveTab = document.getElementById(mobileActiveTabId);
       if (mobileActiveTab) {
         mobileActiveTab.classList.add('bg-primary-50', 'text-primary-700', 'border', 'border-primary-200', 'font-semibold');
@@ -444,23 +528,43 @@
 
       // 뷰 표시/숨김
       const inquiriesView = document.getElementById('inquiries-view');
+      const messagesView = document.getElementById('messages-view');
       const linksView = document.getElementById('links-view');
       const passwordView = document.getElementById('password-view');
 
+      // 모든 뷰 숨기기
+      if (inquiriesView) inquiriesView.classList.add('hidden');
+      if (messagesView) messagesView.classList.add('hidden');
+      if (linksView) linksView.classList.add('hidden');
+      if (passwordView) passwordView.classList.add('hidden');
+
       if (view === 'inquiries') {
         if (inquiriesView) inquiriesView.classList.remove('hidden');
-        if (linksView) linksView.classList.add('hidden');
-        if (passwordView) passwordView.classList.add('hidden');
+        // SSE 연결 종료
+        if (messageEventSource) {
+          messageEventSource.close();
+          messageEventSource = null;
+        }
         loadInquiries();
+      } else if (view === 'messages') {
+        if (messagesView) messagesView.classList.remove('hidden');
+        loadMessagesList();
+        connectMessageStream();
       } else if (view === 'links') {
-        if (inquiriesView) inquiriesView.classList.add('hidden');
         if (linksView) linksView.classList.remove('hidden');
-        if (passwordView) passwordView.classList.add('hidden');
+        // SSE 연결 종료
+        if (messageEventSource) {
+          messageEventSource.close();
+          messageEventSource = null;
+        }
         loadLink();
       } else if (view === 'password') {
-        if (inquiriesView) inquiriesView.classList.add('hidden');
-        if (linksView) linksView.classList.add('hidden');
         if (passwordView) passwordView.classList.remove('hidden');
+        // SSE 연결 종료
+        if (messageEventSource) {
+          messageEventSource.close();
+          messageEventSource = null;
+        }
         // 폼 리셋
         const passwordForm = document.getElementById('password-change-form');
         const passwordError = document.getElementById('password-error-message');
@@ -1072,6 +1176,338 @@
           submitButton.textContent = '비밀번호 변경';
         }
       });
+    }
+
+    // ========== 실시간 메시지 기능 ==========
+    
+    // 메시지 목록 로드
+    async function loadMessagesList() {
+      try {
+        const response = await fetch('/api/messages?sender_type=customer&limit=100');
+        const result = await response.json();
+        
+        if (result.success) {
+          allMessages = result.data || [];
+          
+          // inquiry_id별로 그룹화
+          const messagesByInquiry = {};
+          allMessages.forEach(msg => {
+            const key = msg.inquiry_id || 'general';
+            if (!messagesByInquiry[key]) {
+              messagesByInquiry[key] = [];
+            }
+            messagesByInquiry[key].push(msg);
+          });
+          
+          renderMessagesList(messagesByInquiry);
+          updateUnreadCount();
+        }
+      } catch (error) {
+        console.error('메시지 목록 로드 오류:', error);
+      }
+    }
+
+    // 메시지 목록 렌더링
+    function renderMessagesList(messagesByInquiry) {
+      const listContainer = document.getElementById('messages-list');
+      
+      if (Object.keys(messagesByInquiry).length === 0) {
+        listContainer.innerHTML = '<div class="text-center py-8 text-gray-500 text-sm">메시지가 없습니다.</div>';
+        return;
+      }
+
+      let html = '';
+      
+      // inquiry_id별로 대화 목록 생성
+      for (const [inquiryId, messages] of Object.entries(messagesByInquiry)) {
+        const latestMessage = messages[messages.length - 1];
+        const unreadCount = messages.filter(m => m.sender_type === 'customer' && !m.is_read).length;
+        const customerName = latestMessage.sender_name || '고객';
+        const preview = latestMessage.message.length > 30 
+          ? latestMessage.message.substring(0, 30) + '...' 
+          : latestMessage.message;
+        const time = formatTime(latestMessage.created_at);
+        
+        html += `
+          <div 
+            onclick="openChat(${inquiryId || 'null'})"
+            class="p-3 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
+              currentChatInquiryId == inquiryId 
+                ? 'bg-primary-50 border-primary-300' 
+                : 'bg-white border-gray-200 hover:border-primary-200'
+            }">
+            <div class="flex items-start justify-between mb-1">
+              <div class="font-bold text-gray-900 text-sm">${escapeHtml(customerName)}</div>
+              ${unreadCount > 0 ? `<span class="w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">${unreadCount}</span>` : ''}
+            </div>
+            <p class="text-xs text-gray-600 truncate mb-1">${escapeHtml(preview)}</p>
+            <p class="text-xs text-gray-400">${time}</p>
+          </div>
+        `;
+      }
+      
+      listContainer.innerHTML = html;
+    }
+
+    // 채팅 열기
+    async function openChat(inquiryId) {
+      currentChatInquiryId = inquiryId;
+      
+      // 채팅 헤더 업데이트
+      const chatHeader = document.getElementById('chat-header');
+      const chatInputArea = document.getElementById('chat-input-area');
+      
+      if (inquiryId) {
+        // 문의 정보 가져오기
+        try {
+          const response = await fetch(`/api/inquiries/${inquiryId}`);
+          const result = await response.json();
+          if (result.success) {
+            chatHeader.innerHTML = `
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-bold text-gray-900">${escapeHtml(result.data.name)}</h3>
+                  <p class="text-xs text-gray-600">${escapeHtml(result.data.phone)} · ${escapeHtml(result.data.region)}</p>
+                </div>
+              </div>
+            `;
+          }
+        } catch (error) {
+          chatHeader.innerHTML = '<p class="text-gray-900 font-bold">고객과의 대화</p>';
+        }
+      } else {
+        chatHeader.innerHTML = '<p class="text-gray-900 font-bold">일반 문의</p>';
+      }
+      
+      chatInputArea.classList.remove('hidden');
+      
+      // 메시지 로드
+      await loadChatMessages(inquiryId);
+      
+      // 읽지 않은 메시지 읽음 처리
+      markMessagesAsRead(inquiryId);
+    }
+
+    // 채팅 메시지 로드
+    async function loadChatMessages(inquiryId) {
+      try {
+        const url = `/api/messages?limit=100${inquiryId ? `&inquiry_id=${inquiryId}` : ''}`;
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (result.success) {
+          const messages = result.data || [];
+          lastMessageId = messages.length > 0 ? Math.max(...messages.map(m => m.id)) : 0;
+          
+          renderChatMessages(messages);
+        }
+      } catch (error) {
+        console.error('채팅 메시지 로드 오류:', error);
+      }
+    }
+
+    // 채팅 메시지 렌더링
+    function renderChatMessages(messages) {
+      const chatContainer = document.getElementById('chat-messages');
+      
+      if (messages.length === 0) {
+        chatContainer.innerHTML = '<div class="text-center py-8 text-gray-500 text-sm">메시지가 없습니다.</div>';
+        return;
+      }
+
+      let html = '';
+      messages.forEach(msg => {
+        const isCustomer = msg.sender_type === 'customer';
+        const time = formatTime(msg.created_at);
+        
+        html += `
+          <div class="flex items-start gap-3 ${isCustomer ? 'flex-row-reverse' : ''}">
+            ${!isCustomer ? `
+              <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
+                상
+              </div>
+            ` : ''}
+            <div class="flex-1 max-w-[70%]">
+              <div class="${isCustomer ? 'bg-primary-500 text-white' : 'bg-white border border-gray-200'} rounded-2xl ${isCustomer ? 'rounded-tr-none' : 'rounded-tl-none'} p-3 shadow-sm">
+                <p class="text-sm whitespace-pre-wrap">${escapeHtml(msg.message)}</p>
+              </div>
+              <p class="text-xs text-gray-500 mt-1 ${isCustomer ? 'text-right mr-2' : 'ml-2'}">${time}</p>
+            </div>
+            ${isCustomer ? `
+              <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0 text-gray-700 font-bold text-sm">
+                고
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+      
+      chatContainer.innerHTML = html;
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // 메시지 전송
+    const messageForm = document.getElementById('message-form');
+    if (messageForm) {
+      messageForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const input = document.getElementById('message-input');
+        const message = input.value.trim();
+        
+        if (!message || !currentChatInquiryId) return;
+        
+        try {
+          const response = await fetch('/api/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              inquiry_id: currentChatInquiryId,
+              sender_type: 'admin',
+              sender_name: '상담원',
+              message: message
+            }),
+          });
+
+          const result = await response.json();
+          
+          if (result.success) {
+            input.value = '';
+            lastMessageId = Math.max(lastMessageId, result.data.id);
+            // 메시지 목록 새로고침
+            loadMessagesList();
+            // 채팅 메시지 새로고침
+            await loadChatMessages(currentChatInquiryId);
+          }
+        } catch (error) {
+          console.error('메시지 전송 오류:', error);
+          alert('메시지 전송에 실패했습니다.');
+        }
+      });
+    }
+
+    // SSE 연결 (실시간 메시지 수신)
+    function connectMessageStream() {
+      if (messageEventSource) {
+        messageEventSource.close();
+      }
+
+      const streamUrl = `/api/messages/stream?last_message_id=${lastMessageId}`;
+      messageEventSource = new EventSource(streamUrl);
+
+      messageEventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          
+          if (data.type === 'message' && data.data) {
+            const message = data.data;
+            lastMessageId = Math.max(lastMessageId, message.id);
+            
+            // 현재 열려있는 채팅이면 메시지 추가
+            if (currentChatInquiryId == message.inquiry_id || (!currentChatInquiryId && !message.inquiry_id)) {
+              const messages = allMessages.filter(m => 
+                (currentChatInquiryId ? m.inquiry_id == currentChatInquiryId : !m.inquiry_id)
+              );
+              messages.push(message);
+              renderChatMessages(messages);
+              
+              // 읽음 처리
+              if (message.sender_type === 'customer') {
+                markMessageAsRead(message.id);
+              }
+            }
+            
+            // 메시지 목록 새로고침
+            loadMessagesList();
+          }
+        } catch (error) {
+          console.error('메시지 파싱 오류:', error);
+        }
+      };
+
+      messageEventSource.onerror = (error) => {
+        console.error('SSE 연결 오류:', error);
+        setTimeout(() => {
+          if (messageEventSource && messageEventSource.readyState === EventSource.CLOSED) {
+            connectMessageStream();
+          }
+        }, 5000);
+      };
+    }
+
+    // 메시지 읽음 처리
+    async function markMessageAsRead(messageId) {
+      try {
+        await fetch(`/api/messages/${messageId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_read: 1 })
+        });
+      } catch (error) {
+        console.error('읽음 처리 오류:', error);
+      }
+    }
+
+    // 모든 메시지 읽음 처리
+    async function markMessagesAsRead(inquiryId) {
+      try {
+        const unreadMessages = allMessages.filter(m => 
+          m.sender_type === 'customer' && 
+          !m.is_read && 
+          (inquiryId ? m.inquiry_id == inquiryId : !m.inquiry_id)
+        );
+        
+        for (const msg of unreadMessages) {
+          await markMessageAsRead(msg.id);
+        }
+        
+        // 목록 새로고침
+        loadMessagesList();
+      } catch (error) {
+        console.error('읽음 처리 오류:', error);
+      }
+    }
+
+    // 읽지 않은 메시지 카운트 업데이트
+    function updateUnreadCount() {
+      const unreadCount = allMessages.filter(m => m.sender_type === 'customer' && !m.is_read).length;
+      
+      const unreadBadge = document.getElementById('unread-count');
+      const mobileUnreadBadge = document.getElementById('mobile-unread-count');
+      
+      if (unreadCount > 0) {
+        if (unreadBadge) {
+          unreadBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+          unreadBadge.classList.remove('hidden');
+        }
+        if (mobileUnreadBadge) {
+          mobileUnreadBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+          mobileUnreadBadge.classList.remove('hidden');
+        }
+      } else {
+        if (unreadBadge) unreadBadge.classList.add('hidden');
+        if (mobileUnreadBadge) mobileUnreadBadge.classList.add('hidden');
+      }
+    }
+
+    // 시간 포맷팅 (간단한 버전)
+    function formatTime(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString.replace(' ', 'T') + '+09:00');
+      const now = new Date();
+      const diff = now - date;
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      
+      if (minutes < 1) return '방금';
+      if (minutes < 60) return `${minutes}분 전`;
+      if (hours < 24) return `${hours}시간 전`;
+      if (days < 7) return `${days}일 전`;
+      
+      return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
     }
 
     // 초기 로드

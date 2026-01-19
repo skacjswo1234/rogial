@@ -1,319 +1,18 @@
-// 로지알 AI 챗봇 - 규칙 기반 FAQ 챗봇
+// 로지알 실시간 상담 채팅
 
-// 문의 수집 상태
-let inquiryMode = false;
-let inquiryData = {
-  name: null,
-  phone: null,
-  region: null,
-  workType: null,
-  minQuantity: null,
-  message: null
+// 현재 채팅 세션 정보
+let chatSession = {
+  customerName: null,
+  customerPhone: null,
+  inquiryId: null,
+  lastMessageId: 0
 };
 
-// FAQ 데이터베이스
-const faqDatabase = {
-  // 재료비/보증금 관련
-  '재료비': {
-    answer: '아닙니다. 재료는 창고에서 미리 준비한 것을 무료로 발송해 드리며, 별도의 재료비·보증금을 요구하지 않습니다. 다만 고의적인 분실·파손이 반복될 경우에는 배상 규정을 사전에 안내드립니다.',
-    keywords: ['재료비', '보증금', '선입금', '비용', '돈', '무료', '무료배송']
-  },
-  '보증금': {
-    answer: '재료비나 보증금은 전혀 필요하지 않습니다. 재료는 무료로 배송해 드리며, 별도의 보증금이나 선입금을 요구하지 않습니다.',
-    keywords: ['보증금', '재료비', '선입금', '입금', '보증']
-  },
-  
-  // 불량 관련
-  '불량': {
-    answer: '작업 초반에는 샘플 검수 기간을 두어 최대한 불이익 없이 피드백을 드립니다. 이후에도 안내된 기준에서 크게 벗어나는 불량분은 정산에서 제외될 수 있으며, 기준은 항상 사전에 공유해 드립니다.',
-    keywords: ['불량', '잘못', '실수', '오류', '수당', '깎', '차감', '정산']
-  },
-  
-  // 거리/배송 관련
-  '거리': {
-    answer: '저희는 전용차로 배송 및 수거를 진행합니다. 작업 완료 후 급여 지급이 완료됩니다. 거리가 멀어도 참여하실 수 있습니다.',
-    keywords: ['거리', '멀', '배송', '수거', '택배', '지역', '위치', '도시']
-  },
-  '배송': {
-    answer: '재료는 무료로 배송해 드리며, 완성품은 전용차로 수거해 갑니다. 거리와 상관없이 전국 어디서나 참여 가능합니다.',
-    keywords: ['배송', '수거', '택배', '배달', '전용차', '무료배송']
-  },
-  
-  // 육아 관련
-  '아이': {
-    answer: '많은 분들이 육아와 병행하고 계십니다. 다만 작은 부품이 있는 작업의 경우 아이 손이 닿지 않는 안전한 공간에서만 진행해 주셔야 합니다.',
-    keywords: ['아이', '육아', '아기', '자녀', '어린이', '임신', '출산']
-  },
-  '육아': {
-    answer: '육아와 병행하시는 분들이 많이 계십니다. 집에서 여유 시간에 맞춰 작업하실 수 있어 육아와 함께 하기 좋은 부업입니다.',
-    keywords: ['육아', '아이', '아기', '자녀', '엄마', '주부']
-  },
-  
-  // 중단/위약금 관련
-  '그만': {
-    answer: '네. 진행 중인 작업을 마무리하고 검수·정산까지 끝낸 뒤에는 언제든 중단하실 수 있습니다. 별도의 위약금이나 가입비는 없습니다.',
-    keywords: ['그만', '중단', '그만두', '위약금', '가입비', '비용', '나가', '탈퇴']
-  },
-  '위약금': {
-    answer: '위약금이나 가입비는 전혀 없습니다. 언제든지 자유롭게 중단하실 수 있으며, 진행 중인 작업만 마무리해 주시면 됩니다.',
-    keywords: ['위약금', '가입비', '비용', '중단', '그만']
-  },
-  
-  // 작업 종류 관련
-  '작업': {
-    answer: '팔찌, 인형 포장, 볼펜 조립, 스티커, 뜨개질 가방 등 다양한 수공예 작업을 하실 수 있습니다. 장난감 부품 버클캡, 폰케이스 스티커, 단추부자재, 머리핀, 커넥터, 꽃꽂이, 열쇠고리, 스티커 등 8가지 작업 종류가 있습니다.',
-    keywords: ['작업', '일', '종류', '어떤', '무엇', '제품', '상품']
-  },
-  '단가': {
-    answer: '작업 종류에 따라 단가가 다릅니다. 장난감 부품 버클캡 100원, 폰케이스 스티커 1,000원, 단추부자재 300원, 머리핀 200원, 커넥터 400원, 꽃꽂이 200원, 열쇠고리 200원, 스티커 100원 등입니다. 실제 배정 시기·난이도·브랜드에 따라 달라질 수 있습니다.',
-    keywords: ['단가', '가격', '돈', '수당', '급여', '정산', '얼마', '비용']
-  },
-  '수익': {
-    answer: '하루 2~3시간, 주 3~4회 진행 시 월 20만~40만원 수준을 목표로 할 수 있습니다. 개인 능력·시간에 따라 실제 금액은 달라질 수 있습니다.',
-    keywords: ['수익', '수입', '급여', '정산', '돈', '얼마', '월급', '부수입']
-  },
-  
-  // 진행 순서 관련
-  '순서': {
-    answer: '1) 무료 상담 신청 2) 작업 안내 & 일정 조율 3) 재료 발송 & 교육 4) 집에서 제작·포장 5) 완성품 수거·검수 6) 작업비 정산 순서로 진행됩니다.',
-    keywords: ['순서', '절차', '과정', '진행', '방법', '어떻게', '시작']
-  },
-  '시작': {
-    answer: '무료 상담 신청을 도와드리겠습니다! 몇 가지 정보를 알려주시면 담당자가 연락을 드립니다.\n\n먼저 성함을 알려주세요.',
-    keywords: ['시작', '신청', '참여', '가입', '어떻게', '방법', '절차'],
-    triggerInquiry: true
-  },
-  '신청': {
-    answer: '무료 상담 신청을 도와드리겠습니다! 몇 가지 정보를 알려주시면 담당자가 연락을 드립니다.\n\n먼저 성함을 알려주세요.',
-    keywords: ['신청', '상담신청', '문의신청', '참여신청'],
-    triggerInquiry: true
-  },
-  
-  // 시간 관련
-  '시간': {
-    answer: '여유 시간에 맞춰 집에서 편하게 작업하실 수 있습니다. 하루 2~3시간, 주 3~4회 정도 진행하시면 됩니다. 자유로운 일정으로 진행 가능합니다.',
-    keywords: ['시간', '일정', '언제', '몇시', '자유', '여유', '언제든']
-  },
-  '기간': {
-    answer: '안내받은 기간(보통 7~15일) 안에 여유 시간에 맞춰 작업해 주시면 됩니다. 중간에 진행 상황을 사진으로 보내 주시면 검수에 도움이 됩니다.',
-    keywords: ['기간', '일정', '언제까지', '몇일', '기한', '마감']
-  },
-  
-  // 문의/연락 관련
-  '연락': {
-    answer: '카카오톡 채널을 통해 문의하시거나, 하단 문의 폼을 작성해 주시면 담당자가 연락을 드립니다. 상담 시간은 10:00 ~ 20:00 (연중무휴)입니다.',
-    keywords: ['연락', '문의', '상담', '전화', '카톡', '연락처', '이메일']
-  },
-  '상담': {
-    answer: '무료 상담을 받으실 수 있습니다. 카카오톡 채널이나 하단 문의 폼을 통해 신청해 주시면 담당자가 순차적으로 연락을 드립니다. 상담 시간은 10:00 ~ 20:00 (연중무휴)입니다.',
-    keywords: ['상담', '문의', '연락', '신청', '무료상담']
-  },
-  
-  // 일반 인사
-  '안녕': {
-    answer: '안녕하세요! 로지알 AI 상담입니다. 수공예 손부업에 대해 궁금한 점을 물어보세요!',
-    keywords: ['안녕', '하이', '헬로', '반가', '시작']
-  },
-  '도움': {
-    answer: '수공예 손부업에 대한 모든 질문에 답변해 드립니다. 재료비, 불량, 거리, 육아, 작업 종류, 수익, 진행 순서 등 무엇이든 물어보세요!',
-    keywords: ['도움', '도와', '질문', '궁금', '알려', '설명']
-  }
-};
+// 실시간 메시지 스트림 연결
+let messageEventSource = null;
 
-// 문의 수집 처리
-function handleInquiryCollection(userMessage) {
-  const lowerMessage = userMessage.toLowerCase();
-  
-  // 이름 수집
-  if (!inquiryData.name) {
-    // 이름 추출 (간단한 패턴)
-    const nameMatch = userMessage.match(/^[가-힣]{2,4}$/);
-    if (nameMatch) {
-      inquiryData.name = userMessage.trim();
-      return '감사합니다! 연락처를 알려주세요. (예: 010-1234-5678)';
-    } else if (userMessage.length > 1 && userMessage.length < 10) {
-      inquiryData.name = userMessage.trim();
-      return '감사합니다! 연락처를 알려주세요. (예: 010-1234-5678)';
-    } else {
-      return '성함을 알려주세요. (예: 홍길동)';
-    }
-  }
-  
-  // 연락처 수집
-  if (!inquiryData.phone) {
-    const phoneMatch = userMessage.match(/(\d{2,3})[-.\s]?(\d{3,4})[-.\s]?(\d{4})/);
-    if (phoneMatch) {
-      inquiryData.phone = userMessage.replace(/[-.\s]/g, '').trim();
-      return '거주 지역을 알려주세요. (예: 서울시 강남구)';
-    } else {
-      return '연락처를 정확히 입력해 주세요. (예: 010-1234-5678)';
-    }
-  }
-  
-  // 지역 수집
-  if (!inquiryData.region) {
-    if (userMessage.length > 1) {
-      inquiryData.region = userMessage.trim();
-      return '관심 있는 작업 종류를 선택해 주세요:\n\n1. 장난감 부품 버클캡\n2. 폰케이스 스티커\n3. 단추부자재\n4. 머리핀\n5. 커넥터\n6. 꽃꽂이\n7. 열쇠고리\n8. 스티커\n\n번호나 이름으로 알려주세요.';
-    } else {
-      return '거주 지역을 알려주세요. (예: 서울시 강남구)';
-    }
-  }
-  
-  // 작업 종류 수집
-  if (!inquiryData.workType) {
-    const workTypes = {
-      '1': '장난감부품버클캡',
-      '장난감': '장난감부품버클캡',
-      '버클캡': '장난감부품버클캡',
-      '2': '폰케이스스티커',
-      '폰케이스': '폰케이스스티커',
-      '3': '단추부자재',
-      '단추': '단추부자재',
-      '4': '머리핀',
-      '5': '커넥터',
-      '6': '꽃꽂이',
-      '꽃': '꽃꽂이',
-      '7': '열쇠고리',
-      '열쇠': '열쇠고리',
-      '8': '스티커'
-    };
-    
-    for (const [key, value] of Object.entries(workTypes)) {
-      if (lowerMessage.includes(key.toLowerCase())) {
-        inquiryData.workType = value;
-        return '추가로 문의하실 내용이나 가능한 시간대가 있으시면 알려주세요. (없으면 "없음"이라고 입력해 주세요)';
-      }
-    }
-    
-    return '작업 종류를 선택해 주세요:\n\n1. 장난감 부품 버클캡\n2. 폰케이스 스티커\n3. 단추부자재\n4. 머리핀\n5. 커넥터\n6. 꽃꽂이\n7. 열쇠고리\n8. 스티커';
-  }
-  
-  // 메시지 수집 및 제출
-  if (!inquiryData.message) {
-    inquiryData.message = userMessage.trim() === '없음' ? null : userMessage.trim();
-    
-    // 문의 제출
-    submitInquiry();
-    return '처리 중...';
-  }
-  
-  return null;
-}
-
-// 문의 제출
-async function submitInquiry() {
-  try {
-    const response = await fetch('/api/inquiries', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: inquiryData.name,
-        phone: inquiryData.phone,
-        region: inquiryData.region,
-        workType: inquiryData.workType,
-        minQuantity: inquiryData.minQuantity,
-        message: inquiryData.message
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      addMessage('✅ 문의가 성공적으로 접수되었습니다!\n\n담당자가 순차적으로 연락을 드릴 예정입니다. 감사합니다!', 'bot');
-      
-      // 문의 모드 종료 및 데이터 초기화
-      inquiryMode = false;
-      inquiryData = {
-        name: null,
-        phone: null,
-        region: null,
-        workType: null,
-        minQuantity: null,
-        message: null
-      };
-    } else {
-      addMessage('❌ 문의 접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주시거나 카카오톡 채널을 통해 문의해 주세요.', 'bot');
-    }
-  } catch (error) {
-    console.error('문의 제출 오류:', error);
-    addMessage('❌ 문의 접수 중 오류가 발생했습니다. 잠시 후 다시 시도해 주시거나 카카오톡 채널을 통해 문의해 주세요.', 'bot');
-  }
-}
-
-// 키워드 매칭 함수
-function findAnswer(userMessage) {
-  const lowerMessage = userMessage.toLowerCase();
-  
-  // 문의 신청 의도 감지
-  const inquiryKeywords = ['신청', '참여', '가입', '상담신청', '문의신청', '참여하고', '신청하고', '시작하고'];
-  for (const keyword of inquiryKeywords) {
-    if (lowerMessage.includes(keyword)) {
-      inquiryMode = true;
-      inquiryData = {
-        name: null,
-        phone: null,
-        region: null,
-        workType: null,
-        minQuantity: null,
-        message: null
-      };
-      return '무료 상담 신청을 도와드리겠습니다! 몇 가지 정보를 알려주시면 담당자가 연락을 드립니다.\n\n먼저 성함을 알려주세요.';
-    }
-  }
-  
-  // 정확한 키워드 매칭
-  for (const [key, data] of Object.entries(faqDatabase)) {
-    for (const keyword of data.keywords) {
-      if (lowerMessage.includes(keyword.toLowerCase())) {
-        // 문의 모드 트리거
-        if (data.triggerInquiry) {
-          inquiryMode = true;
-          inquiryData = {
-            name: null,
-            phone: null,
-            region: null,
-            workType: null,
-            minQuantity: null,
-            message: null
-          };
-        }
-        return data.answer;
-      }
-    }
-  }
-  
-  // 부분 매칭 (더 유연한 검색)
-  const words = lowerMessage.split(/\s+/);
-  for (const word of words) {
-    for (const [key, data] of Object.entries(faqDatabase)) {
-      for (const keyword of data.keywords) {
-        if (word.includes(keyword.toLowerCase()) || keyword.toLowerCase().includes(word)) {
-          if (data.triggerInquiry) {
-            inquiryMode = true;
-            inquiryData = {
-              name: null,
-              phone: null,
-              region: null,
-              workType: null,
-              minQuantity: null,
-              message: null
-            };
-          }
-          return data.answer;
-        }
-      }
-    }
-  }
-  
-  // 기본 응답
-  return '죄송합니다. 질문을 정확히 이해하지 못했습니다. 좀 더 구체적으로 질문해 주시거나 아래와 같이 질문해 보세요:\n\n• 재료비나 보증금이 필요한가요?\n• 어떤 작업을 하나요?\n• 수익은 얼마나 되나요?\n• 어떻게 시작하나요?\n\n또는 "신청하고 싶어요"라고 말씀해 주시면 문의 신청을 도와드리겠습니다!';
-}
-
-// 챗봇 메시지 전송
-function sendChatbotMessage() {
+// 실시간 메시지 전송
+async function sendChatbotMessage() {
   const input = document.getElementById('chatbot-input');
   const message = input.value.trim();
   
@@ -328,29 +27,46 @@ function sendChatbotMessage() {
   sendButton.disabled = true;
   sendButton.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>';
   
-  // 응답 생성 (약간의 딜레이로 자연스러운 느낌)
-  setTimeout(() => {
-    let answer;
+  try {
+    // 실시간 메시지 전송
+    const response = await fetch('/api/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        inquiry_id: chatSession.inquiryId,
+        sender_type: 'customer',
+        sender_name: chatSession.customerName || '고객',
+        message: message
+      }),
+    });
+
+    const result = await response.json();
     
-    // 문의 수집 모드인 경우
-    if (inquiryMode) {
-      answer = handleInquiryCollection(message);
-      if (!answer) {
-        answer = '처리 중입니다...';
+    if (result.success) {
+      chatSession.lastMessageId = Math.max(chatSession.lastMessageId, result.data.id);
+      
+      // 첫 메시지인 경우 상담원 연결 안내
+      if (!chatSession.customerName) {
+        setTimeout(() => {
+          addMessage('상담원이 연결되었습니다. 잠시만 기다려 주세요...', 'bot', '상담원');
+        }, 1000);
       }
     } else {
-      // 일반 FAQ 응답
-      answer = findAnswer(message);
+      addMessage('메시지 전송에 실패했습니다. 잠시 후 다시 시도해 주세요.', 'bot', '시스템');
     }
-    
-    addMessage(answer, 'bot');
+  } catch (error) {
+    console.error('메시지 전송 오류:', error);
+    addMessage('메시지 전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', 'bot', '시스템');
+  } finally {
     sendButton.disabled = false;
     sendButton.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>';
-  }, 500);
+  }
 }
 
 // 메시지 추가
-function addMessage(text, type) {
+function addMessage(text, type, senderName = null) {
   const messagesContainer = document.getElementById('chatbot-messages');
   const messageDiv = document.createElement('div');
   messageDiv.className = `flex items-start gap-3 ${type === 'user' ? 'flex-row-reverse' : ''}`;
@@ -367,15 +83,16 @@ function addMessage(text, type) {
       </div>
     `;
   } else {
+    const displayName = senderName || '상담원';
     messageDiv.innerHTML = `
       <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
-        <img src="./images/ai.png" alt="AI" class="w-full h-full object-contain p-1.5" />
+        <img src="./images/ai.png" alt="상담원" class="w-full h-full object-contain p-1.5" />
       </div>
       <div class="flex-1">
         <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-200">
           <p class="text-gray-800 text-sm whitespace-pre-wrap">${escapeHtml(text)}</p>
         </div>
-        <p class="text-xs text-gray-500 mt-1 ml-2">${time}</p>
+        <p class="text-xs text-gray-500 mt-1 ml-2">${displayName} · ${time}</p>
       </div>
     `;
   }
@@ -391,138 +108,84 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// 챗봇 문의 신청 폼 열기
-function openChatbotInquiryForm() {
-  const modal = document.getElementById('chatbot-inquiry-modal');
-  if (modal) {
-    modal.classList.remove('hidden');
-    // 챗봇 창이 열려있으면 닫기
-    const chatbotWindow = document.getElementById('chatbot-window');
-    if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
-      chatbotWindow.classList.add('hidden');
-      const chatbotIcon = document.getElementById('chatbot-icon');
-      const chatbotCloseIcon = document.getElementById('chatbot-close-icon');
-      if (chatbotIcon) chatbotIcon.classList.remove('hidden');
-      if (chatbotCloseIcon) chatbotCloseIcon.classList.add('hidden');
-    }
+// 실시간 메시지 스트림 연결 (SSE)
+function connectMessageStream() {
+  // 기존 연결이 있으면 닫기
+  if (messageEventSource) {
+    messageEventSource.close();
   }
-}
 
-// 챗봇 문의 신청 폼 닫기
-function closeChatbotInquiryForm() {
-  const modal = document.getElementById('chatbot-inquiry-modal');
-  if (modal) {
-    modal.classList.add('hidden');
-    const form = document.getElementById('chatbot-inquiry-form');
-    if (form) form.reset();
-    const errorDiv = document.getElementById('chatbot-inquiry-error');
-    const successDiv = document.getElementById('chatbot-inquiry-success');
-    if (errorDiv) errorDiv.classList.add('hidden');
-    if (successDiv) successDiv.classList.add('hidden');
-  }
-}
+  // SSE 연결
+  const streamUrl = `/api/messages/stream?last_message_id=${chatSession.lastMessageId}${chatSession.inquiryId ? `&inquiry_id=${chatSession.inquiryId}` : ''}`;
+  messageEventSource = new EventSource(streamUrl);
 
-// 챗봇 문의 폼 제출
-async function submitChatbotInquiry(event) {
-  event.preventDefault();
-  
-  const form = event.target;
-  const formData = new FormData(form);
-  const submitButton = document.getElementById('chatbot-inquiry-submit');
-  const errorDiv = document.getElementById('chatbot-inquiry-error');
-  const successDiv = document.getElementById('chatbot-inquiry-success');
-  
-  // 에러/성공 메시지 초기화
-  if (errorDiv) errorDiv.classList.add('hidden');
-  if (successDiv) successDiv.classList.add('hidden');
-  
-  // 버튼 비활성화
-  if (submitButton) {
-    submitButton.disabled = true;
-    submitButton.textContent = '제출 중...';
-  }
-  
-  try {
-    const response = await fetch('/api/inquiries', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: formData.get('name'),
-        phone: formData.get('phone'),
-        region: formData.get('region'),
-        workType: formData.get('work-type'),
-        minQuantity: formData.get('min-quantity') || null,
-        message: formData.get('message') || null
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      // 성공 메시지 표시
-      if (successDiv) successDiv.classList.remove('hidden');
-      form.reset();
+  messageEventSource.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
       
-      // 2초 후 모달 닫기
-      setTimeout(() => {
-        closeChatbotInquiryForm();
-        // 챗봇에 성공 메시지 추가
-        addMessage('✅ 문의가 성공적으로 접수되었습니다!\n\n담당자가 순차적으로 연락을 드릴 예정입니다. 감사합니다!', 'bot');
-      }, 2000);
-    } else {
-      // 에러 메시지 표시
-      if (errorDiv) errorDiv.classList.remove('hidden');
+      if (data.type === 'message' && data.data) {
+        const message = data.data;
+        chatSession.lastMessageId = Math.max(chatSession.lastMessageId, message.id);
+        
+        // 챗봇 창이 열려있고, 상담원 메시지인 경우에만 표시
+        const chatbotWindow = document.getElementById('chatbot-window');
+        if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
+          if (message.sender_type === 'admin') {
+            addMessage(message.message, 'bot', message.sender_name || '상담원');
+          }
+        }
+      } else if (data.type === 'connected') {
+        console.log('실시간 메시지 스트림 연결됨');
+      } else if (data.type === 'error') {
+        console.error('메시지 스트림 오류:', data.error);
+      }
+    } catch (error) {
+      console.error('메시지 파싱 오류:', error);
+    }
+  };
+
+  messageEventSource.onerror = (error) => {
+    console.error('SSE 연결 오류:', error);
+    // 5초 후 재연결 시도
+    setTimeout(() => {
+      if (messageEventSource && messageEventSource.readyState === EventSource.CLOSED) {
+        connectMessageStream();
+      }
+    }, 5000);
+  };
+}
+
+// 기존 메시지 로드
+async function loadChatHistory() {
+  try {
+    const url = `/api/messages?limit=50${chatSession.inquiryId ? `&inquiry_id=${chatSession.inquiryId}` : ''}`;
+    const response = await fetch(url);
+    const result = await response.json();
+    
+    if (result.success && result.data && result.data.length > 0) {
+      const messagesContainer = document.getElementById('chatbot-messages');
+      // 초기 안내 메시지 제거
+      messagesContainer.innerHTML = '';
+      
+      // 기존 메시지 표시
+      result.data.forEach(message => {
+        chatSession.lastMessageId = Math.max(chatSession.lastMessageId, message.id);
+        const type = message.sender_type === 'customer' ? 'user' : 'bot';
+        addMessage(message.message, type, message.sender_name);
+      });
     }
   } catch (error) {
-    console.error('문의 제출 오류:', error);
-    if (errorDiv) errorDiv.classList.remove('hidden');
-  } finally {
-    // 버튼 활성화
-    if (submitButton) {
-      submitButton.disabled = false;
-      submitButton.textContent = '제출하기';
-    }
+    console.error('메시지 로드 오류:', error);
   }
 }
 
-// 챗봇 토글
+// 챗봇 초기화
 document.addEventListener('DOMContentLoaded', () => {
-  // 챗봇 문의 폼 이벤트 리스너
-  const chatbotInquiryForm = document.getElementById('chatbot-inquiry-form');
-  if (chatbotInquiryForm) {
-    chatbotInquiryForm.addEventListener('submit', submitChatbotInquiry);
-  }
-  
-  // 모달 배경 클릭 시 닫기
-  const chatbotInquiryModal = document.getElementById('chatbot-inquiry-modal');
-  if (chatbotInquiryModal) {
-    chatbotInquiryModal.addEventListener('click', (e) => {
-      if (e.target === chatbotInquiryModal) {
-        closeChatbotInquiryForm();
-      }
-    });
-  }
-  
   const toggleButton = document.getElementById('chatbot-toggle');
   const chatbotWindow = document.getElementById('chatbot-window');
   const chatbotIcon = document.getElementById('chatbot-icon');
   const chatbotCloseIcon = document.getElementById('chatbot-close-icon');
   const minimizeButton = document.getElementById('chatbot-minimize');
-  
-  // 문의 모드 초기화 함수
-  function resetInquiryMode() {
-    inquiryMode = false;
-    inquiryData = {
-      name: null,
-      phone: null,
-      region: null,
-      workType: null,
-      minQuantity: null,
-      message: null
-    };
-  }
   
   if (toggleButton && chatbotWindow) {
     toggleButton.addEventListener('click', () => {
@@ -532,12 +195,20 @@ document.addEventListener('DOMContentLoaded', () => {
         chatbotWindow.classList.remove('hidden');
         chatbotIcon.classList.add('hidden');
         chatbotCloseIcon.classList.remove('hidden');
+        
+        // 챗봇 열 때 기존 메시지 로드 및 스트림 연결
+        loadChatHistory();
+        connectMessageStream();
       } else {
         chatbotWindow.classList.add('hidden');
         chatbotIcon.classList.remove('hidden');
         chatbotCloseIcon.classList.add('hidden');
-        // 챗봇 닫을 때 문의 모드 초기화
-        resetInquiryMode();
+        
+        // 스트림 연결 종료
+        if (messageEventSource) {
+          messageEventSource.close();
+          messageEventSource = null;
+        }
       }
     });
   }
@@ -547,13 +218,15 @@ document.addEventListener('DOMContentLoaded', () => {
       chatbotWindow.classList.add('hidden');
       chatbotIcon.classList.remove('hidden');
       chatbotCloseIcon.classList.add('hidden');
-      // 챗봇 닫을 때 문의 모드 초기화
-      resetInquiryMode();
+      
+      // 스트림 연결 종료
+      if (messageEventSource) {
+        messageEventSource.close();
+        messageEventSource = null;
+      }
     });
   }
   
   // 전역 함수로 등록
   window.sendChatbotMessage = sendChatbotMessage;
-  window.openChatbotInquiryForm = openChatbotInquiryForm;
-  window.closeChatbotInquiryForm = closeChatbotInquiryForm;
 });
