@@ -1378,9 +1378,10 @@
       const chatHeader = document.getElementById('chat-header');
       const chatInputArea = document.getElementById('chat-input-area');
       const chatContainer = document.getElementById('chat-container');
+      const listContainer = document.getElementById('messages-list-container');
       
-      if (!chatHeader || !chatInputArea || !chatContainer) {
-        console.error('채팅 요소를 찾을 수 없습니다.');
+      if (!chatHeader || !chatInputArea || !chatContainer || !listContainer) {
+        console.error('채팅 요소를 찾을 수 없습니다:', { chatHeader, chatInputArea, chatContainer, listContainer });
         return;
       }
       
@@ -1462,10 +1463,32 @@
         chatContainer.classList.remove('hidden');
         chatContainer.classList.add('flex');
       } else {
-        // 모바일: 채팅 화면으로 전환 (약간의 지연을 두어 DOM 업데이트 보장)
-        setTimeout(() => {
-          showMobileChat();
-        }, 50);
+        // 모바일: 채팅 화면으로 전환
+        listContainer.classList.add('hidden');
+        listContainer.classList.remove('flex');
+        listContainer.style.display = 'none';
+        listContainer.style.zIndex = '0';
+        
+        chatContainer.classList.remove('hidden');
+        chatContainer.classList.add('flex');
+        chatContainer.style.zIndex = '10';
+        chatContainer.style.display = 'flex';
+        chatContainer.style.position = 'absolute';
+        chatContainer.style.top = '0';
+        chatContainer.style.left = '0';
+        chatContainer.style.right = '0';
+        chatContainer.style.bottom = '0';
+        
+        // 버튼 상태 업데이트
+        const showListBtn = document.getElementById('show-list-btn');
+        const showChatBtn = document.getElementById('show-chat-btn');
+        if (showListBtn && showChatBtn) {
+          showListBtn.classList.remove('bg-primary-500', 'text-white');
+          showListBtn.classList.add('bg-gray-200', 'text-gray-700');
+          showChatBtn.classList.add('bg-primary-500', 'text-white');
+          showChatBtn.classList.remove('bg-gray-200', 'text-gray-700');
+          showChatBtn.classList.remove('hidden');
+        }
       }
       
       // 메시지 로드
@@ -1490,9 +1513,18 @@
       if (window.innerWidth < 768) {
         // 모바일: 목록 표시하고 채팅 숨기기
         listContainer.classList.remove('hidden');
+        listContainer.classList.add('flex');
+        listContainer.style.display = 'flex';
         listContainer.style.zIndex = '0';
+        listContainer.style.position = 'absolute';
+        listContainer.style.top = '0';
+        listContainer.style.left = '0';
+        listContainer.style.right = '0';
+        listContainer.style.bottom = '0';
+        
         chatContainer.classList.add('hidden');
         chatContainer.classList.remove('flex');
+        chatContainer.style.display = 'none';
         chatContainer.style.zIndex = '';
         
         if (showListBtn && showChatBtn) {
@@ -1542,9 +1574,18 @@
         // 모바일: 목록 숨기고 채팅 표시
         listContainer.classList.add('hidden');
         listContainer.classList.remove('flex');
+        listContainer.style.zIndex = '0';
+        listContainer.style.display = 'none';
+        
         chatContainer.classList.remove('hidden');
         chatContainer.classList.add('flex');
         chatContainer.style.zIndex = '10';
+        chatContainer.style.display = 'flex';
+        chatContainer.style.position = 'absolute';
+        chatContainer.style.top = '0';
+        chatContainer.style.left = '0';
+        chatContainer.style.right = '0';
+        chatContainer.style.bottom = '0';
         
         if (showListBtn && showChatBtn) {
           showListBtn.classList.remove('bg-primary-500', 'text-white');
@@ -1559,6 +1600,7 @@
         listContainer.classList.add('flex');
         listContainer.style.zIndex = '';
         chatContainer.style.zIndex = '';
+        chatContainer.style.display = '';
         if (currentChatInquiryId) {
           chatContainer.classList.remove('hidden');
           chatContainer.classList.add('flex');
