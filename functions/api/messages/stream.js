@@ -3,7 +3,7 @@ export async function onRequestGet(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   const inquiry_id = url.searchParams.get('inquiry_id');
-  const last_message_id = parseInt(url.searchParams.get('last_message_id') || '0');
+  let last_message_id = parseInt(url.searchParams.get('last_message_id') || '0');
 
   if (!env || !env['rogial-db']) {
     return new Response(
