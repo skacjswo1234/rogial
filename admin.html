@@ -470,6 +470,7 @@
     let messageEventSource = null;
     let lastMessageId = 0;
     let allMessages = [];
+    let currentChatMessages = []; // 현재 채팅방의 메시지 목록 (항상 유지)
 
     const statusLabels = {
       'pending': '⏳ 대기 중',
@@ -1261,6 +1262,7 @@
       }
       
       currentChatInquiryId = inquiryId;
+      currentChatMessages = []; // 채팅방 변경 시 메시지 목록 초기화
       
       // 채팅 헤더 업데이트
       const chatHeader = document.getElementById('chat-header');
@@ -1276,12 +1278,18 @@
             const result = await response.json();
             if (result.success) {
               chatHeader.innerHTML = `
-                <div class="flex items-center justify-between">
-                  <div>
-                    <h3 class="font-bold text-gray-900">${escapeHtml(result.data.name)}</h3>
-                    <p class="text-xs text-gray-600">${escapeHtml(result.data.phone)} · ${escapeHtml(result.data.region)}</p>
-                  </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-bold text-gray-900">${escapeHtml(result.data.name)}</h3>
+                  <p class="text-xs text-gray-600">${escapeHtml(result.data.phone)} · ${escapeHtml(result.data.region)}</p>
                 </div>
+                <button 
+                  onclick="deleteChatRoom('${inquiryId}')"
+                  class="px-3 py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-all font-semibold"
+                  title="대화방 삭제">
+                  삭제
+                </button>
+              </div>
               `;
             } else {
               // 세션 ID인 경우 메시지에서 고객 이름 가져오기
@@ -1300,7 +1308,17 @@
           // 세션 ID인 경우 (chat_로 시작하거나 문자열)
           const firstMessage = allMessages.find(m => m.inquiry_id == inquiryId && m.sender_type === 'customer');
           const customerName = firstMessage ? firstMessage.sender_name : '고객';
-          chatHeader.innerHTML = `<p class="text-gray-900 font-bold">${escapeHtml(customerName)}님과의 대화</p>`;
+          chatHeader.innerHTML = `
+            <div class="flex items-center justify-between">
+              <p class="text-gray-900 font-bold">${escapeHtml(customerName)}님과의 대화</p>
+              <button 
+                onclick="deleteChatRoom('${inquiryId}')"
+                class="px-3 py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-all font-semibold"
+                title="대화방 삭제">
+                삭제
+              </button>
+            </div>
+          `;
         }
       } else {
         chatHeader.innerHTML = '<p class="text-gray-900 font-bold">일반 문의</p>';
@@ -1327,9 +1345,12 @@
         
         if (result.success) {
           const messages = result.data || [];
-          lastMessageId = messages.length > 0 ? Math.max(...messages.map(m => m.id)) : 0;
+          lastMessageId = messages.length > 0 ? Math.max(...messages.map(m => m.id)) : 0);
           
-          renderChatMessages(messages);
+          // 현재 채팅방 메시지 목록에 저장 (항상 유지)
+          currentChatMessages = messages;
+          
+          renderChatMessages(currentChatMessages);
         }
       } catch (error) {
         console.error('채팅 메시지 로드 오류:', error);
@@ -1413,12 +1434,33 @@
             lastMessageId = Math.max(lastMessageId, result.data.id);
             
             // allMessages에 추가
-            allMessages.push(result.data);
+            const existingIndex = allMessages.findIndex(m => m.id === result.data.id);
+            if (existingIndex === -1) {
+              allMessages.push(result.data);
+            } else {
+              allMessages[existingIndex] = result.data;
+            }
+            
+            // currentChatMessages에 추가 (현재 채팅방이면)
+            const currentId = (currentChatInquiryId === 'general' || currentChatInquiryId === null) ? null : String(currentChatInquiryId);
+            const messageInquiryId = result.data.inquiry_id ? String(result.data.inquiry_id) : null;
+            
+            if (currentId == messageInquiryId) {
+              const existingChatIndex = currentChatMessages.findIndex(m => m.id === result.data.id);
+              if (existingChatIndex === -1) {
+                currentChatMessages.push(result.data);
+                // 시간순 정렬
+                currentChatMessages.sort((a, b) => {
+                  const timeA = new Date(a.created_at.replace(' ', 'T') + '+09:00');
+                  const timeB = new Date(b.created_at.replace(' ', 'T') + '+09:00');
+                  return timeA - timeB;
+                });
+                renderChatMessages(currentChatMessages);
+              }
+            }
             
             // 메시지 목록 새로고침
             loadMessagesList();
-            // 채팅 메시지 새로고침
-            await loadChatMessages(currentChatInquiryId);
           }
         } catch (error) {
           console.error('메시지 전송 오류:', error);
@@ -1453,21 +1495,25 @@
             }
             
             // 현재 열려있는 채팅이면 메시지 추가
-            const currentId = (currentChatInquiryId === 'general' || currentChatInquiryId === null) ? null : currentChatInquiryId;
-            const messageInquiryId = message.inquiry_id || null;
+            const currentId = (currentChatInquiryId === 'general' || currentChatInquiryId === null) ? null : String(currentChatInquiryId);
+            const messageInquiryId = message.inquiry_id ? String(message.inquiry_id) : null;
             
             if (currentId == messageInquiryId) {
-              const messages = allMessages.filter(m => {
-                const mInquiryId = m.inquiry_id || null;
-                return currentId === null ? mInquiryId === null : mInquiryId == currentId;
-              });
+              // currentChatMessages에 추가 (중복 체크)
+              const existingIndex = currentChatMessages.findIndex(m => m.id === message.id);
+              if (existingIndex === -1) {
+                currentChatMessages.push(message);
+                // 시간순 정렬
+                currentChatMessages.sort((a, b) => {
+                  const timeA = new Date(a.created_at.replace(' ', 'T') + '+09:00');
+                  const timeB = new Date(b.created_at.replace(' ', 'T') + '+09:00');
+                  return timeA - timeB;
+                });
+              } else {
+                currentChatMessages[existingIndex] = message;
+              }
               
-              // 중복 제거 (id 기준)
-              const uniqueMessages = messages.filter((m, index, self) => 
-                index === self.findIndex(msg => msg.id === m.id)
-              );
-              
-              renderChatMessages(uniqueMessages);
+              renderChatMessages(currentChatMessages);
               
               // 읽음 처리
               if (message.sender_type === 'customer') {
@@ -1551,6 +1597,49 @@
       } else {
         if (unreadBadge) unreadBadge.classList.add('hidden');
         if (mobileUnreadBadge) mobileUnreadBadge.classList.add('hidden');
+      }
+    }
+
+    // 대화방 삭제
+    async function deleteChatRoom(inquiryId) {
+      if (!confirm('정말 이 대화방을 삭제하시겠습니까?\n모든 메시지가 영구적으로 삭제됩니다.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/messages/room/${encodeURIComponent(inquiryId)}`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // 현재 채팅방이 삭제된 경우 채팅창 닫기
+          if (currentChatInquiryId == inquiryId) {
+            currentChatInquiryId = null;
+            currentChatMessages = [];
+            document.getElementById('chat-header').innerHTML = '<p class="text-gray-500 text-sm text-center">대화를 선택해주세요</p>';
+            document.getElementById('chat-messages').innerHTML = '';
+            document.getElementById('chat-input-area').classList.add('hidden');
+          }
+
+          // allMessages에서 삭제
+          allMessages = allMessages.filter(m => {
+            const mInquiryId = m.inquiry_id ? String(m.inquiry_id) : null;
+            const targetId = inquiryId ? String(inquiryId) : null;
+            return mInquiryId !== targetId;
+          });
+
+          // 메시지 목록 새로고침
+          loadMessagesList();
+          
+          alert('대화방이 삭제되었습니다.');
+        } else {
+          alert('대화방 삭제에 실패했습니다: ' + (result.error || '알 수 없는 오류'));
+        }
+      } catch (error) {
+        console.error('대화방 삭제 오류:', error);
+        alert('대화방 삭제 중 오류가 발생했습니다.');
       }
     }
 
