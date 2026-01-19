@@ -239,7 +239,8 @@ function adjustChatbotHeight() {
   const chatbotWindow = document.getElementById('chatbot-window');
   const chatbotInput = document.getElementById('chatbot-input');
   
-  if (!chatbotWindow || window.innerWidth >= 768) return;
+  // 챗봇 창이 없거나 숨겨져 있으면 처리하지 않음
+  if (!chatbotWindow || chatbotWindow.classList.contains('hidden') || window.innerWidth >= 768) return;
   
   // 모바일에서만 처리
   if (window.visualViewport) {
@@ -281,19 +282,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const minimizeButton = document.getElementById('chatbot-minimize');
   const chatbotInput = document.getElementById('chatbot-input');
   
-  // 모바일 키보드 이벤트 처리
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', adjustChatbotHeight);
-    window.visualViewport.addEventListener('scroll', adjustChatbotHeight);
+  // 초기 상태 확인: 챗봇 창이 숨겨져 있는지 확인
+  if (chatbotWindow) {
+    chatbotWindow.classList.add('hidden');
   }
   
-  // 입력 필드 포커스/블러 이벤트
+  // 모바일 키보드 이벤트 처리 (챗봇이 열려있을 때만)
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
+        adjustChatbotHeight();
+      }
+    });
+    window.visualViewport.addEventListener('scroll', () => {
+      if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
+        adjustChatbotHeight();
+      }
+    });
+  }
+  
+  // 입력 필드 포커스/블러 이벤트 (챗봇이 열려있을 때만)
   if (chatbotInput) {
     chatbotInput.addEventListener('focus', () => {
-      setTimeout(adjustChatbotHeight, 300);
+      if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
+        setTimeout(adjustChatbotHeight, 300);
+      }
     });
     chatbotInput.addEventListener('blur', () => {
-      setTimeout(adjustChatbotHeight, 300);
+      if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
+        setTimeout(adjustChatbotHeight, 300);
+      }
     });
   }
   
