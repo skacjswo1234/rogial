@@ -10,9 +10,16 @@ export async function onRequestPatch(context) {
       );
     }
 
-    const messageId = params.id;
+    const messageId = parseInt(params.id);
     const body = await request.json();
     const { is_read } = body;
+
+    if (isNaN(messageId)) {
+      return new Response(
+        JSON.stringify({ error: '올바르지 않은 메시지 ID입니다.' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (is_read === undefined) {
       return new Response(
@@ -21,18 +28,13 @@ export async function onRequestPatch(context) {
       );
     }
 
-    // 한국 시간대 시간 생성
-    const now = new Date();
-    const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000) - (now.getTimezoneOffset() * 60 * 1000));
-    const koreaTimeString = koreaTime.toISOString().replace('T', ' ').substring(0, 19);
-
-    // 메시지 읽음 상태 업데이트
+    // 메시지 읽음 상태 업데이트 (messages 테이블에는 updated_at 컬럼이 없음)
     const updateQuery = env['rogial-db'].prepare(
       `UPDATE messages 
-       SET is_read = ?, updated_at = ?
+       SET is_read = ?
        WHERE id = ?
        RETURNING *`
-    ).bind(is_read ? 1 : 0, koreaTimeString, messageId);
+    ).bind(is_read ? 1 : 0, messageId);
 
     const result = await updateQuery.first();
 
