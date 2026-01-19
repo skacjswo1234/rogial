@@ -119,3 +119,25 @@ body, p, span, div, h1, h2, h3, h4, h5, h6, a, button, label {
     overflow-wrap: break-word;
   }
 }
+
+/* 터치 최적화 */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 챗봇 입력 영역 모바일 최적화 */
+#chatbot-input {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+#chatbot-window {
+  box-sizing: border-box;
+}
+
+/* 챗봇 입력 영역 flex 최적화 */
+#chatbot-window > div:last-child {
+  max-width: 100%;
+  overflow: hidden;
+}

@@ -1020,20 +1020,20 @@
       </div>
 
       <!-- 입력 영역 -->
-      <div class="p-3 md:p-4 border-t border-gray-200 bg-white flex-shrink-0">
-        <div class="flex gap-2">
+      <div class="p-2 md:p-4 border-t border-gray-200 bg-white flex-shrink-0 max-w-full overflow-hidden">
+        <div class="flex gap-2 items-center min-w-0 w-full max-w-full">
           <input 
             type="text" 
             id="chatbot-input" 
             placeholder="메시지를 입력하세요..."
-            class="flex-1 px-3 md:px-4 py-2 rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+            class="flex-1 min-w-0 max-w-full px-2 md:px-4 py-2 rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm overflow-hidden"
             onkeypress="if(event.key === 'Enter') sendChatbotMessage()"
           />
           <button 
             id="chatbot-send"
             onclick="sendChatbotMessage()"
-            class="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white flex items-center justify-center hover:shadow-lg transition-all flex-shrink-0">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white flex items-center justify-center hover:shadow-lg transition-all flex-shrink-0 touch-manipulation">
+            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
             </svg>
           </button>
