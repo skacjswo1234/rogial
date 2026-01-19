@@ -234,6 +234,44 @@ async function loadChatHistory() {
   }
 }
 
+// 모바일 키보드 대응: 챗봇 창 높이 조정
+function adjustChatbotHeight() {
+  const chatbotWindow = document.getElementById('chatbot-window');
+  const chatbotInput = document.getElementById('chatbot-input');
+  
+  if (!chatbotWindow || window.innerWidth >= 768) return;
+  
+  // 모바일에서만 처리
+  if (window.visualViewport) {
+    // visualViewport 사용 (모던 브라우저)
+    const viewportHeight = window.visualViewport.height;
+    const windowHeight = window.innerHeight;
+    const keyboardHeight = windowHeight - viewportHeight;
+    
+    if (keyboardHeight > 150) {
+      // 키보드가 올라온 경우
+      const newHeight = viewportHeight - 100; // 상단 여백 100px
+      chatbotWindow.style.height = `${newHeight}px`;
+      chatbotWindow.style.maxHeight = `${newHeight}px`;
+    } else {
+      // 키보드가 내려간 경우
+      chatbotWindow.style.height = '';
+      chatbotWindow.style.maxHeight = '';
+    }
+  } else {
+    // visualViewport 미지원 브라우저: 더 작은 높이 사용
+    chatbotWindow.style.height = 'calc(100dvh - 200px)';
+    chatbotWindow.style.maxHeight = 'calc(100dvh - 200px)';
+  }
+  
+  // 입력 필드가 보이도록 스크롤
+  if (chatbotInput && document.activeElement === chatbotInput) {
+    setTimeout(() => {
+      chatbotInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 300);
+  }
+}
+
 // 챗봇 초기화
 document.addEventListener('DOMContentLoaded', () => {
   const toggleButton = document.getElementById('chatbot-toggle');
@@ -241,6 +279,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatbotIcon = document.getElementById('chatbot-icon');
   const chatbotCloseIcon = document.getElementById('chatbot-close-icon');
   const minimizeButton = document.getElementById('chatbot-minimize');
+  const chatbotInput = document.getElementById('chatbot-input');
+  
+  // 모바일 키보드 이벤트 처리
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', adjustChatbotHeight);
+    window.visualViewport.addEventListener('scroll', adjustChatbotHeight);
+  }
+  
+  // 입력 필드 포커스/블러 이벤트
+  if (chatbotInput) {
+    chatbotInput.addEventListener('focus', () => {
+      setTimeout(adjustChatbotHeight, 300);
+    });
+    chatbotInput.addEventListener('blur', () => {
+      setTimeout(adjustChatbotHeight, 300);
+    });
+  }
   
   if (toggleButton && chatbotWindow) {
     toggleButton.addEventListener('click', () => {
@@ -256,6 +311,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 기존 메시지 로드 (메시지가 없으면 안내 메시지만 표시)
         loadChatHistory();
+        
+        // 높이 조정
+        setTimeout(adjustChatbotHeight, 100);
       } else {
         chatbotWindow.classList.add('hidden');
         chatbotIcon.classList.remove('hidden');
@@ -281,6 +339,10 @@ document.addEventListener('DOMContentLoaded', () => {
         messageEventSource.close();
         messageEventSource = null;
       }
+      
+      // 높이 초기화
+      chatbotWindow.style.height = '';
+      chatbotWindow.style.maxHeight = '';
     });
   }
   

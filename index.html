@@ -985,7 +985,7 @@
     </button>
 
     <!-- 챗봇 창 (모바일: 전체 화면, 데스크톱: 고정 크기) -->
-    <div id="chatbot-window" class="hidden fixed md:absolute bottom-0 md:bottom-20 right-0 md:right-0 w-full md:w-96 h-[calc(100vh-80px)] md:h-[600px] bg-white rounded-t-2xl md:rounded-2xl shadow-2xl border-2 border-primary-100 flex flex-col overflow-hidden md:max-h-[600px]">
+    <div id="chatbot-window" class="hidden fixed md:absolute bottom-0 md:bottom-20 right-0 md:right-0 w-full md:w-96 h-[calc(100dvh-100px)] max-h-[calc(100dvh-100px)] md:h-[600px] bg-white rounded-t-2xl md:rounded-2xl shadow-2xl border-2 border-primary-100 flex flex-col overflow-hidden md:max-h-[600px]">
       <!-- 헤더 -->
       <div class="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-3 md:p-4 flex items-center justify-between flex-shrink-0">
         <div class="flex items-center gap-2 md:gap-3">
@@ -1005,7 +1005,7 @@
       </div>
 
       <!-- 메시지 영역 -->
-      <div id="chatbot-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div id="chatbot-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 min-h-0">
         <div class="flex items-start gap-3">
           <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
             <img src="./images/ai.png" alt="AI" class="w-full h-full object-contain p-1.5" />

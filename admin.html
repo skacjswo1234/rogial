@@ -356,13 +356,13 @@
             </div>
 
             <!-- 채팅 영역 (오른쪽) -->
-            <div id="chat-container" class="hidden absolute inset-0 md:relative md:col-span-2 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden h-full z-10 md:z-auto">
+            <div id="chat-container" class="hidden absolute inset-0 md:relative md:col-span-2 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden h-full max-h-[calc(100dvh-120px)] md:max-h-full z-10 md:z-auto">
               <div id="chat-header" class="p-3 md:p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50 min-h-[60px] flex items-center">
                 <p class="text-gray-500 text-xs md:text-sm text-center w-full">대화를 선택해주세요</p>
               </div>
               
               <!-- 메시지 표시 영역 -->
-              <div id="chat-messages" class="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 bg-gray-50">
+              <div id="chat-messages" class="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 bg-gray-50 min-h-0">
                 <!-- 메시지는 JavaScript로 동적 생성 -->
               </div>
 
@@ -2089,6 +2089,62 @@
     window.showMobileChatList = showMobileChatList;
     window.showMobileChat = showMobileChat;
     
+    // 모바일 키보드 대응: 채팅 컨테이너 높이 조정
+    function adjustChatContainerHeight() {
+      const chatContainer = document.getElementById('chat-container');
+      const messageInput = document.getElementById('message-input');
+      
+      if (!chatContainer || window.innerWidth >= 768) {
+        // 데스크톱에서는 높이 제한 제거
+        chatContainer.style.maxHeight = '';
+        return;
+      }
+      
+      // 모바일에서만 처리
+      if (window.visualViewport) {
+        // visualViewport 사용 (모던 브라우저)
+        const viewportHeight = window.visualViewport.height;
+        const windowHeight = window.innerHeight;
+        const keyboardHeight = windowHeight - viewportHeight;
+        
+        if (keyboardHeight > 150) {
+          // 키보드가 올라온 경우
+          const newHeight = viewportHeight - 120; // 상단 여백 120px
+          chatContainer.style.maxHeight = `${newHeight}px`;
+        } else {
+          // 키보드가 내려간 경우
+          chatContainer.style.maxHeight = 'calc(100dvh - 120px)';
+        }
+      } else {
+        // visualViewport 미지원 브라우저: 더 작은 높이 사용
+        chatContainer.style.maxHeight = 'calc(100dvh - 200px)';
+      }
+      
+      // 입력 필드가 보이도록 스크롤
+      if (messageInput && document.activeElement === messageInput) {
+        setTimeout(() => {
+          messageInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 300);
+      }
+    }
+    
+    // 모바일 키보드 이벤트 처리
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', adjustChatContainerHeight);
+      window.visualViewport.addEventListener('scroll', adjustChatContainerHeight);
+    }
+    
+    // 입력 필드 포커스/블러 이벤트
+    const messageInput = document.getElementById('message-input');
+    if (messageInput) {
+      messageInput.addEventListener('focus', () => {
+        setTimeout(adjustChatContainerHeight, 300);
+      });
+      messageInput.addEventListener('blur', () => {
+        setTimeout(adjustChatContainerHeight, 300);
+      });
+    }
+    
     // 윈도우 리사이즈 시 모바일/데스크톱 전환 처리
     let resizeTimeout;
     window.addEventListener('resize', () => {
@@ -2105,12 +2161,14 @@
           listContainer.classList.add('flex');
           listContainer.style.zIndex = '';
           chatContainer.style.zIndex = '';
+          chatContainer.style.maxHeight = '';
           if (currentChatInquiryId) {
             chatContainer.classList.remove('hidden');
             chatContainer.classList.add('flex');
           }
         } else {
           // 모바일: 채팅이 열려있으면 채팅 화면, 아니면 목록 화면
+          adjustChatContainerHeight();
           if (currentChatInquiryId) {
             showMobileChat();
           } else {
