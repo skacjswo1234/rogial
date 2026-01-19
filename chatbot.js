@@ -1,10 +1,23 @@
 // 로지알 실시간 상담 채팅
 
+// 고유 세션 ID 생성 (고객별 채팅방 구분용)
+function generateSessionId() {
+  // localStorage에서 기존 세션 ID 확인
+  let sessionId = localStorage.getItem('chatSessionId');
+  if (!sessionId) {
+    // 새 세션 ID 생성: 타임스탬프 + 랜덤 문자열
+    sessionId = 'chat_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
+    localStorage.setItem('chatSessionId', sessionId);
+  }
+  return sessionId;
+}
+
 // 현재 채팅 세션 정보
 let chatSession = {
   customerName: null,
   customerPhone: null,
   inquiryId: null,
+  sessionId: generateSessionId(), // 고객별 고유 세션 ID
   lastMessageId: 0
 };
 
@@ -29,13 +42,14 @@ async function sendChatbotMessage() {
   
   try {
     // 실시간 메시지 전송
+    // inquiry_id가 없으면 sessionId를 사용하여 고객별 채팅방 구분
     const response = await fetch('/api/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        inquiry_id: chatSession.inquiryId,
+        inquiry_id: chatSession.inquiryId || chatSession.sessionId, // inquiry_id가 없으면 sessionId 사용
         sender_type: 'customer',
         sender_name: chatSession.customerName || '고객',
         message: message
@@ -116,7 +130,9 @@ function connectMessageStream() {
   }
 
   // SSE 연결
-  const streamUrl = `/api/messages/stream?last_message_id=${chatSession.lastMessageId}${chatSession.inquiryId ? `&inquiry_id=${chatSession.inquiryId}` : ''}`;
+  // inquiry_id가 없으면 sessionId 사용
+  const inquiryId = chatSession.inquiryId || chatSession.sessionId;
+  const streamUrl = `/api/messages/stream?last_message_id=${chatSession.lastMessageId}${inquiryId ? `&inquiry_id=${inquiryId}` : ''}`;
   messageEventSource = new EventSource(streamUrl);
 
   messageEventSource.onmessage = (event) => {
@@ -158,7 +174,9 @@ function connectMessageStream() {
 // 기존 메시지 로드
 async function loadChatHistory() {
   try {
-    const url = `/api/messages?limit=50${chatSession.inquiryId ? `&inquiry_id=${chatSession.inquiryId}` : ''}`;
+    // inquiry_id가 없으면 sessionId 사용
+    const inquiryId = chatSession.inquiryId || chatSession.sessionId;
+    const url = `/api/messages?limit=50${inquiryId ? `&inquiry_id=${inquiryId}` : ''}`;
     const response = await fetch(url);
     const result = await response.json();
     

@@ -50,13 +50,13 @@ CREATE TABLE IF NOT EXISTS links (
 -- 실시간 메신저 메시지 테이블
 CREATE TABLE IF NOT EXISTS messages (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  inquiry_id INTEGER, -- 문의 ID (선택적)
+  inquiry_id TEXT, -- 문의 ID 또는 세션 ID (선택적, TEXT로 변경하여 세션 ID 지원)
   sender_type TEXT NOT NULL, -- 'customer' 또는 'admin'
   sender_name TEXT NOT NULL,
   message TEXT NOT NULL,
   is_read INTEGER DEFAULT 0, -- 0: 읽지 않음, 1: 읽음
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  FOREIGN KEY (inquiry_id) REFERENCES inquiries(id) ON DELETE SET NULL
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  -- FOREIGN KEY 제약조건 제거 (TEXT 타입이므로)
 );
 
 -- 메시지 인덱스 생성

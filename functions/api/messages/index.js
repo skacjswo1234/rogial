@@ -37,12 +37,13 @@ export async function onRequestPost(context) {
     const koreaTimeString = koreaTime.toISOString().replace('T', ' ').substring(0, 19);
 
     // 메시지 저장
+    // inquiry_id가 숫자 문자열이면 숫자로, 아니면 문자열 그대로 저장
     const insertQuery = env['rogial-db'].prepare(
       `INSERT INTO messages (inquiry_id, sender_type, sender_name, message, is_read, created_at)
        VALUES (?, ?, ?, ?, 0, ?)
        RETURNING *`
     ).bind(
-      inquiry_id || null,
+      inquiry_id ? String(inquiry_id) : null, // 문자열로 변환하여 저장
       sender_type,
       sender_name,
       message,
@@ -91,10 +92,17 @@ export async function onRequestGet(context) {
     let query = 'SELECT * FROM messages WHERE 1=1';
     const params = [];
 
-    if (inquiry_id) {
-      query += ' AND inquiry_id = ?';
-      params.push(inquiry_id);
+    if (inquiry_id !== null && inquiry_id !== undefined && inquiry_id !== '') {
+      // inquiry_id가 'null' 문자열이면 NULL인 메시지만 조회
+      if (inquiry_id === 'null') {
+        query += ' AND inquiry_id IS NULL';
+      } else {
+        // inquiry_id를 문자열로 변환하여 비교 (숫자와 세션 ID 모두 지원)
+        query += ' AND inquiry_id = ?';
+        params.push(String(inquiry_id));
+      }
     }
+    // inquiry_id 파라미터가 없으면 모든 메시지 조회 (필터 없음)
 
     if (sender_type) {
       query += ' AND sender_type = ?';

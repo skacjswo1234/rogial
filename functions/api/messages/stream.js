@@ -33,7 +33,7 @@ export async function onRequestGet(context) {
 
           if (inquiry_id) {
             query += ' AND (inquiry_id = ? OR inquiry_id IS NULL)';
-            params.push(inquiry_id);
+            params.push(String(inquiry_id)); // 문자열로 변환하여 비교
           }
 
           query += ' ORDER BY created_at ASC';

@@ -1189,10 +1189,11 @@
         if (result.success) {
           allMessages = result.data || [];
           
-          // inquiry_id별로 그룹화
+          // inquiry_id별로 그룹화 (세션 ID와 inquiry_id 모두 지원)
           const messagesByInquiry = {};
           allMessages.forEach(msg => {
-            const key = msg.inquiry_id || 'general';
+            // inquiry_id가 있으면 그대로 사용, 없으면 'general'
+            const key = msg.inquiry_id ? String(msg.inquiry_id) : 'general';
             if (!messagesByInquiry[key]) {
               messagesByInquiry[key] = [];
             }
@@ -1228,9 +1229,12 @@
           : latestMessage.message;
         const time = formatTime(latestMessage.created_at);
         
+        // inquiryId가 'general'이면 null로, 숫자면 그대로, 아니면 문자열로 처리
+        const chatId = inquiryId === 'general' ? null : (isNaN(inquiryId) ? `'${inquiryId}'` : inquiryId);
+        
         html += `
           <div 
-            onclick="openChat(${inquiryId || 'null'})"
+            onclick="openChat(${chatId === null ? 'null' : chatId})"
             class="p-3 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
               currentChatInquiryId == inquiryId 
                 ? 'bg-primary-50 border-primary-300' 
@@ -1251,29 +1255,52 @@
 
     // 채팅 열기
     async function openChat(inquiryId) {
+      // 'general' 문자열을 null로 변환
+      if (inquiryId === 'general' || inquiryId === null) {
+        inquiryId = null;
+      }
+      
       currentChatInquiryId = inquiryId;
       
       // 채팅 헤더 업데이트
       const chatHeader = document.getElementById('chat-header');
       const chatInputArea = document.getElementById('chat-input-area');
       
-      if (inquiryId) {
-        // 문의 정보 가져오기
-        try {
-          const response = await fetch(`/api/inquiries/${inquiryId}`);
-          const result = await response.json();
-          if (result.success) {
-            chatHeader.innerHTML = `
-              <div class="flex items-center justify-between">
-                <div>
-                  <h3 class="font-bold text-gray-900">${escapeHtml(result.data.name)}</h3>
-                  <p class="text-xs text-gray-600">${escapeHtml(result.data.phone)} · ${escapeHtml(result.data.region)}</p>
+      // inquiryId가 숫자면 문의 정보 조회, 세션 ID면 고객 이름만 표시
+      if (inquiryId && inquiryId !== 'general') {
+        // 숫자인지 확인 (실제 inquiry_id)
+        if (!isNaN(inquiryId) && !inquiryId.toString().startsWith('chat_')) {
+          // 문의 정보 가져오기
+          try {
+            const response = await fetch(`/api/inquiries/${inquiryId}`);
+            const result = await response.json();
+            if (result.success) {
+              chatHeader.innerHTML = `
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="font-bold text-gray-900">${escapeHtml(result.data.name)}</h3>
+                    <p class="text-xs text-gray-600">${escapeHtml(result.data.phone)} · ${escapeHtml(result.data.region)}</p>
+                  </div>
                 </div>
-              </div>
-            `;
+              `;
+            } else {
+              // 세션 ID인 경우 메시지에서 고객 이름 가져오기
+              const firstMessage = allMessages.find(m => m.inquiry_id == inquiryId && m.sender_type === 'customer');
+              const customerName = firstMessage ? firstMessage.sender_name : '고객';
+              chatHeader.innerHTML = `<p class="text-gray-900 font-bold">${escapeHtml(customerName)}님과의 대화</p>`;
+            }
+          } catch (error) {
+            console.error('문의 정보 로드 오류:', error);
+            // 세션 ID인 경우 메시지에서 고객 이름 가져오기
+            const firstMessage = allMessages.find(m => m.inquiry_id == inquiryId && m.sender_type === 'customer');
+            const customerName = firstMessage ? firstMessage.sender_name : '고객';
+            chatHeader.innerHTML = `<p class="text-gray-900 font-bold">${escapeHtml(customerName)}님과의 대화</p>`;
           }
-        } catch (error) {
-          chatHeader.innerHTML = '<p class="text-gray-900 font-bold">고객과의 대화</p>';
+        } else {
+          // 세션 ID인 경우 (chat_로 시작하거나 문자열)
+          const firstMessage = allMessages.find(m => m.inquiry_id == inquiryId && m.sender_type === 'customer');
+          const customerName = firstMessage ? firstMessage.sender_name : '고객';
+          chatHeader.innerHTML = `<p class="text-gray-900 font-bold">${escapeHtml(customerName)}님과의 대화</p>`;
         }
       } else {
         chatHeader.innerHTML = '<p class="text-gray-900 font-bold">일반 문의</p>';
@@ -1291,7 +1318,10 @@
     // 채팅 메시지 로드
     async function loadChatMessages(inquiryId) {
       try {
-        const url = `/api/messages?limit=100${inquiryId ? `&inquiry_id=${inquiryId}` : ''}`;
+        // inquiryId가 'general'이면 null로 처리
+        const queryId = (inquiryId === 'general' || inquiryId === null) ? null : inquiryId;
+        // null인 경우 'null' 문자열로 전달
+        const url = `/api/messages?limit=100${queryId === null ? '&inquiry_id=null' : `&inquiry_id=${queryId}`}`;
         const response = await fetch(url);
         const result = await response.json();
         
@@ -1355,7 +1385,12 @@
         const input = document.getElementById('message-input');
         const message = input.value.trim();
         
-        if (!message || !currentChatInquiryId) return;
+        if (!message) return;
+        
+        // inquiry_id가 null이거나 'general'이면 null로 전송
+        const inquiryId = (currentChatInquiryId === 'general' || currentChatInquiryId === null) 
+          ? null 
+          : currentChatInquiryId;
         
         try {
           const response = await fetch('/api/messages', {
@@ -1364,7 +1399,7 @@
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              inquiry_id: currentChatInquiryId,
+              inquiry_id: inquiryId,
               sender_type: 'admin',
               sender_name: '상담원',
               message: message
@@ -1376,6 +1411,10 @@
           if (result.success) {
             input.value = '';
             lastMessageId = Math.max(lastMessageId, result.data.id);
+            
+            // allMessages에 추가
+            allMessages.push(result.data);
+            
             // 메시지 목록 새로고침
             loadMessagesList();
             // 채팅 메시지 새로고침
@@ -1405,13 +1444,30 @@
             const message = data.data;
             lastMessageId = Math.max(lastMessageId, message.id);
             
+            // allMessages에 추가 (중복 체크)
+            const existingIndex = allMessages.findIndex(m => m.id === message.id);
+            if (existingIndex === -1) {
+              allMessages.push(message);
+            } else {
+              allMessages[existingIndex] = message;
+            }
+            
             // 현재 열려있는 채팅이면 메시지 추가
-            if (currentChatInquiryId == message.inquiry_id || (!currentChatInquiryId && !message.inquiry_id)) {
-              const messages = allMessages.filter(m => 
-                (currentChatInquiryId ? m.inquiry_id == currentChatInquiryId : !m.inquiry_id)
+            const currentId = (currentChatInquiryId === 'general' || currentChatInquiryId === null) ? null : currentChatInquiryId;
+            const messageInquiryId = message.inquiry_id || null;
+            
+            if (currentId == messageInquiryId) {
+              const messages = allMessages.filter(m => {
+                const mInquiryId = m.inquiry_id || null;
+                return currentId === null ? mInquiryId === null : mInquiryId == currentId;
+              });
+              
+              // 중복 제거 (id 기준)
+              const uniqueMessages = messages.filter((m, index, self) => 
+                index === self.findIndex(msg => msg.id === m.id)
               );
-              messages.push(message);
-              renderChatMessages(messages);
+              
+              renderChatMessages(uniqueMessages);
               
               // 읽음 처리
               if (message.sender_type === 'customer') {
@@ -1453,14 +1509,20 @@
     // 모든 메시지 읽음 처리
     async function markMessagesAsRead(inquiryId) {
       try {
+        const queryId = (inquiryId === 'general' || inquiryId === null) ? null : inquiryId;
         const unreadMessages = allMessages.filter(m => 
           m.sender_type === 'customer' && 
           !m.is_read && 
-          (inquiryId ? m.inquiry_id == inquiryId : !m.inquiry_id)
+          (queryId === null ? !m.inquiry_id : m.inquiry_id == queryId)
         );
         
         for (const msg of unreadMessages) {
           await markMessageAsRead(msg.id);
+          // allMessages 업데이트
+          const index = allMessages.findIndex(m => m.id === msg.id);
+          if (index !== -1) {
+            allMessages[index].is_read = 1;
+          }
         }
         
         // 목록 새로고침
