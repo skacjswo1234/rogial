@@ -282,9 +282,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const minimizeButton = document.getElementById('chatbot-minimize');
   const chatbotInput = document.getElementById('chatbot-input');
   
+  console.log('챗봇 초기화:', {
+    toggleButton: !!toggleButton,
+    chatbotWindow: !!chatbotWindow,
+    chatbotIcon: !!chatbotIcon,
+    chatbotCloseIcon: !!chatbotCloseIcon
+  });
+  
   // 초기 상태 확인: 챗봇 창이 숨겨져 있는지 확인
   if (chatbotWindow) {
     chatbotWindow.classList.add('hidden');
+    console.log('챗봇 창 초기 상태:', {
+      hasHidden: chatbotWindow.classList.contains('hidden'),
+      display: window.getComputedStyle(chatbotWindow).display
+    });
   }
   
   // 모바일 키보드 이벤트 처리 (챗봇이 열려있을 때만)
@@ -318,11 +329,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (toggleButton && chatbotWindow) {
     toggleButton.addEventListener('click', () => {
       const isHidden = chatbotWindow.classList.contains('hidden');
+      console.log('챗봇 토글 클릭:', { isHidden, chatbotWindow });
       
       if (isHidden) {
         chatbotWindow.classList.remove('hidden');
         chatbotIcon.classList.add('hidden');
         chatbotCloseIcon.classList.remove('hidden');
+        
+        console.log('챗봇 창 열림:', {
+          hasHidden: chatbotWindow.classList.contains('hidden'),
+          display: window.getComputedStyle(chatbotWindow).display,
+          position: window.getComputedStyle(chatbotWindow).position
+        });
         
         // 챗봇 열 때 스트림 연결
         connectMessageStream();
@@ -344,6 +362,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
+  } else {
+    console.error('챗봇 요소를 찾을 수 없습니다:', { toggleButton, chatbotWindow });
   }
   
   if (minimizeButton && chatbotWindow) {

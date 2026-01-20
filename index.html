@@ -935,8 +935,19 @@
     </div>
   </footer>
 
-  <!-- Fixed Bottom Right Buttons (Desktop) -->
-  <div class="hidden md:flex fixed bottom-6 right-6 z-40 flex-col-reverse gap-3">
+  <!-- Fixed Bottom Bar (Mobile & Desktop) -->
+  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-2xl">
+    <div class="flex items-center justify-center gap-3 md:gap-4 px-3 md:px-6 py-2.5 md:py-3">
+      <!-- Contact Button -->
+      <a id="kakao-link" href="http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-" target="_blank"
+        class="flex-1 px-3 md:px-4 py-2.5 md:py-3 bg-primary-500 text-white rounded-full shadow-lg flex items-center justify-center gap-2 transition-all font-bold text-sm md:text-base hover:bg-primary-600">
+        💬 바로문의하기
+      </a>
+    </div>
+  </div>
+
+  <!-- Fixed Bottom Right Buttons (Top & Chatbot) -->
+  <div class="fixed bottom-20 md:bottom-20 right-4 md:right-6 z-50 flex flex-col-reverse gap-3">
     <!-- Top Button -->
     <a href="#home" id="top-button"
       class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 opacity-50 pointer-events-none"
@@ -945,47 +956,19 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
       </svg>
     </a>
-    <!-- Contact Button -->
-    <a id="desktop-kakao-link" href="http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-" target="_blank"
-      class="px-4 py-2 bg-primary-500 text-white rounded-full shadow-lg hover:shadow-xl flex items-center gap-2 transition-all hover:scale-105 font-bold text-sm hover:bg-primary-600">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-      </svg>
-      바로문의하기
-    </a>
-  </div>
-
-  <!-- Fixed Bottom Bar (Mobile) -->
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-2xl">
-    <div class="flex items-center justify-center gap-4 px-4 py-3">
-      <!-- Top Button -->
-      <a href="#home" id="top-button-mobile"
-        class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all opacity-50 pointer-events-none"
-        title="맨 위로">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
-        </svg>
-      </a>
-      <!-- Contact Button -->
-      <a id="mobile-kakao-link" href="http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-" target="_blank"
-        class="flex-1 px-4 py-3 bg-primary-500 text-white rounded-full shadow-lg flex items-center justify-center gap-2 transition-all font-bold text-sm hover:bg-primary-600">
-        💬 바로문의하기
-      </a>
-    </div>
-  </div>
-
-  <!-- AI 챗봇 -->
-  <div id="chatbot-container" class="fixed bottom-6 right-6 md:bottom-6 md:right-6 z-50">
-    <!-- 챗봇 버튼 (모바일: 하단 바 위에 위치) -->
-    <button id="chatbot-toggle" class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 fixed bottom-20 md:bottom-6 right-4 md:right-6 overflow-hidden">
+    <!-- Chatbot Button -->
+    <button id="chatbot-toggle" class="w-12 h-12 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 overflow-hidden">
       <img id="chatbot-icon" src="./images/ai.png" alt="AI 챗봇" class="w-full h-full object-contain p-2" />
-      <svg id="chatbot-close-icon" class="w-7 h-7 md:w-8 md:h-8 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg id="chatbot-close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
+  </div>
 
+  <!-- AI 챗봇 창 -->
+  <div id="chatbot-container" class="fixed bottom-0 right-0 z-50 pointer-events-none">
     <!-- 챗봇 창 (모바일: 전체 화면, 데스크톱: 고정 크기) -->
-    <div id="chatbot-window" class="hidden fixed md:absolute bottom-0 md:bottom-20 right-0 md:right-0 w-full md:w-96 h-[calc(100dvh-100px)] max-h-[calc(100dvh-100px)] md:h-[600px] bg-white rounded-t-2xl md:rounded-2xl shadow-2xl border-2 border-primary-100 flex flex-col overflow-hidden md:max-h-[600px]">
+    <div id="chatbot-window" class="hidden fixed md:absolute bottom-32 right-6 w-full md:w-96 h-[calc(100dvh-140px)] max-h-[calc(100dvh-140px)] md:h-[600px] bg-white rounded-t-2xl md:rounded-2xl shadow-2xl border-2 border-primary-100 flex flex-col overflow-hidden md:max-h-[600px] pointer-events-auto">
       <!-- 헤더 -->
       <div class="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-3 md:p-4 flex items-center justify-between flex-shrink-0">
         <div class="flex items-center gap-2 md:gap-3">

@@ -314,7 +314,6 @@ document.querySelectorAll('.faq-item').forEach((item) => {
 
 // Fixed buttons scroll behavior
 const topButton = document.getElementById('top-button');
-const topButtonMobile = document.getElementById('top-button-mobile');
 
 const updateTopButtons = () => {
   const scrolled = window.scrollY;
@@ -323,11 +322,6 @@ const updateTopButtons = () => {
   if (topButton) {
     topButton.style.opacity = isVisible ? '1' : '0.5';
     topButton.style.pointerEvents = isVisible ? 'auto' : 'none';
-  }
-  
-  if (topButtonMobile) {
-    topButtonMobile.style.opacity = isVisible ? '1' : '0.5';
-    topButtonMobile.style.pointerEvents = isVisible ? 'auto' : 'none';
   }
 };
 
@@ -394,6 +388,13 @@ videoElements.forEach((video) => {
 async function loadKakaoLink() {
   try {
     const response = await fetch('/api/links/kakao');
+    
+    // 404 에러 등은 기본 링크 유지
+    if (!response.ok) {
+      console.log('카카오톡 링크 API를 사용할 수 없습니다. 기본 링크를 사용합니다.');
+      return;
+    }
+    
     const result = await response.json();
 
     if (result.success && result.data && result.data.url) {
@@ -405,21 +406,17 @@ async function loadKakaoLink() {
         heroLink.href = kakaoUrl;
       }
       
-      // 데스크톱 하단 버튼
-      const desktopLink = document.getElementById('desktop-kakao-link');
-      if (desktopLink) {
-        desktopLink.href = kakaoUrl;
-      }
-      
-      // 모바일 하단 버튼
-      const mobileLink = document.getElementById('mobile-kakao-link');
-      if (mobileLink) {
-        mobileLink.href = kakaoUrl;
+      // 하단 바 버튼 (모바일/데스크톱 공통)
+      const kakaoLink = document.getElementById('kakao-link');
+      if (kakaoLink) {
+        kakaoLink.href = kakaoUrl;
       }
     }
   } catch (error) {
-    console.error('카카오톡 링크 로드 오류:', error);
-    // 에러 발생 시 기본 링크 유지
+    // 네트워크 오류나 JSON 파싱 오류는 조용히 처리 (기본 링크 유지)
+    if (error.name !== 'SyntaxError') {
+      console.log('카카오톡 링크 로드 중 오류가 발생했습니다. 기본 링크를 사용합니다.');
+    }
   }
 }
 

@@ -142,6 +142,16 @@ body, p, span, div, h1, h2, h3, h4, h5, h6, a, button, label {
   overflow: hidden;
 }
 
+/* 챗봇 창 기본 스타일 */
+#chatbot-window.hidden {
+  display: none !important;
+}
+
+#chatbot-window:not(.hidden) {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
 /* 모바일 키보드 대응 */
 @media (max-width: 768px) {
   /* hidden 클래스가 없을 때만 flex 적용 */
@@ -152,8 +162,6 @@ body, p, span, div, h1, h2, h3, h4, h5, h6, a, button, label {
     right: 0 !important;
     width: 100% !important;
     border-radius: 1rem 1rem 0 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
   }
   
   #chat-container:not(.hidden) {
@@ -165,11 +173,6 @@ body, p, span, div, h1, h2, h3, h4, h5, h6, a, button, label {
     border-radius: 0.75rem !important;
     display: flex !important;
     flex-direction: column !important;
-  }
-  
-  /* hidden 클래스가 있을 때는 display: none 유지 */
-  #chatbot-window.hidden {
-    display: none !important;
   }
   
   #chat-container.hidden {
@@ -189,5 +192,32 @@ body, p, span, div, h1, h2, h3, h4, h5, h6, a, button, label {
     flex: 0 0 auto !important;
     position: relative !important;
     z-index: 10 !important;
+  }
+}
+
+/* PC 버전 챗봇 창 */
+@media (min-width: 768px) {
+  #chatbot-container {
+    position: fixed !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+    pointer-events: none !important;
+  }
+  
+  #chatbot-window {
+    pointer-events: auto !important;
+  }
+  
+  #chatbot-window:not(.hidden) {
+    display: flex !important;
+    flex-direction: column !important;
+    position: absolute !important;
+    bottom: 8rem !important;
+    right: 1.5rem !important;
+  }
+  
+  #chatbot-window.hidden {
+    display: none !important;
   }
 }
