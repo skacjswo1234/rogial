@@ -197,14 +197,15 @@
 <body class="bg-white font-paperlogy antialiased overflow-x-hidden">
   <!-- Navigation -->
   <nav id="navbar"
-    class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur border-b border-white/40 transition-all duration-300">
+    class="fixed top-0 w-full z-50 bg-transparent transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <div class="flex items-center space-x-3">
-          <div class="w-14 h-14 rounded-full overflow-hidden shadow-glow flex items-center justify-center bg-white">
+      <div class="flex items-center justify-between h-20 md:h-16">
+        <!-- 모바일: 로고 + 회사명 (크기 조정) -->
+        <div class="flex items-center space-x-2 md:space-x-3">
+          <div class="w-10 h-10 md:w-14 md:h-14 rounded-full overflow-hidden shadow-glow flex items-center justify-center">
             <img src="./logo.PNG" alt="로지알 로고" class="w-full h-full object-contain" />
           </div>
-          <span class="text-2xl sm:text-3xl font-black text-gradient">주식회사 로지알</span>
+          <span class="text-lg md:text-2xl sm:text-3xl font-black text-gradient">주식회사 로지알</span>
         </div>
         <div class="hidden md:flex items-center space-x-8 text-sm font-semibold text-gray-700">
           <a href="#home" class="hover:text-primary-500 transition-colors">홈</a>
@@ -220,15 +221,22 @@
             제작 문의
           </a>
         </div>
-        <button id="mobile-menu-btn" class="md:hidden w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg">
-          <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        <!-- 모바일: 제작문의 버튼 + 메뉴 버튼 -->
+        <div class="flex md:hidden items-center gap-2">
+          <a id="kakao-link" href="http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-" target="_blank"
+            class="h-10 px-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all font-semibold text-xs hover:bg-primary-600">
+            제작문의
+          </a>
+          <button id="mobile-menu-btn" class="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg">
+            <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
     <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 shadow-lg">
-      <div class="px-6 py-4 space-y-3 text-gray-700 font-semibold">
+      <div class="px-6 py-4 space-y-3 text-gray-700 font-semibold text-center">
         <a href="#home" class="block hover:text-primary-500">홈</a>
         <a href="#about" class="block hover:text-primary-500">소개</a>
         <a href="#work-types" class="block hover:text-primary-500">작업 종류</a>
@@ -240,9 +248,9 @@
   </nav>
 
   <!-- Hero -->
-  <section id="home" class="relative min-h-screen flex items-center overflow-hidden pt-20">
-    <div class="absolute inset-0 bg-gradient-to-br from-primary-100 via-white to-accent-100"></div>
-    <div class="absolute top-20 left-8 w-64 h-64 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+  <section id="home" class="relative min-h-screen flex items-center overflow-hidden pt-20 md:pt-20">
+    <div class="absolute inset-0 top-0 bg-gradient-to-br from-primary-100 via-white to-accent-100"></div>
+    <div class="absolute top-0 left-8 w-64 h-64 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
     <div class="absolute bottom-10 right-8 w-72 h-72 bg-accent-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"
       style="animation-delay: 0.7s;"></div>
 
@@ -935,31 +943,23 @@
     </div>
   </footer>
 
-  <!-- Fixed Bottom Bar (Mobile & Desktop) -->
-  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-2xl">
-    <div class="flex items-center justify-center gap-3 md:gap-4 px-3 md:px-6 py-2.5 md:py-3">
-      <!-- Contact Button -->
-      <a id="kakao-link" href="http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-" target="_blank"
-        class="flex-1 px-3 md:px-4 py-2.5 md:py-3 bg-primary-500 text-white rounded-full shadow-lg flex items-center justify-center gap-2 transition-all font-bold text-sm md:text-base hover:bg-primary-600">
-        💬 바로문의하기
-      </a>
-    </div>
-  </div>
 
-  <!-- Fixed Bottom Right Buttons (Top & Chatbot) -->
-  <div class="fixed bottom-20 md:bottom-20 right-4 md:right-6 z-50 flex flex-col gap-3">
-    <!-- Top Button (온라인상담 위에 배치) -->
+  <!-- Fixed Bottom Right Buttons (Top, 온라인상담, 내부상담 - 세로 배치, 같은 크기) -->
+  <div class="fixed bottom-16 md:bottom-24 right-3 md:right-6 z-50 flex flex-col gap-3 md:gap-3 items-center">
+    <!-- Top Button (가장 위) -->
     <a href="#home" id="top-button"
-      class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 opacity-50 pointer-events-none"
+      class="w-11 h-11 md:w-14 md:h-14 bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all hover:scale-110"
       title="맨 위로">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-5 h-5 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
       </svg>
     </a>
-    <!-- Chatbot Button (온라인상담) -->
-    <button id="chatbot-toggle" class="px-4 py-2 md:px-5 md:py-2.5 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 font-semibold text-sm md:text-base whitespace-nowrap">
-      <span id="chatbot-icon">온라인상담</span>
-      <svg id="chatbot-close-icon" class="w-5 h-5 hidden ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Chatbot Button (온라인상담) - 중간 -->
+    <button id="chatbot-toggle" class="w-11 h-11 md:w-14 md:h-14 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 px-1"
+      title="온라인상담">
+      <span id="chatbot-icon" class="text-[9px] md:text-[10px] font-semibold leading-tight text-center whitespace-pre-line">온라인
+  상담</span>
+      <svg id="chatbot-close-icon" class="w-5 h-5 md:w-6 md:h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
@@ -1069,41 +1069,53 @@
       }
       
       if (channelButtonParent) {
-        // 온라인상담 버튼 위치 확인
+        // 온라인상담 버튼 위치 확인 (내부상담은 온라인상담 아래에 배치)
         const chatbotToggle = document.getElementById('chatbot-toggle');
         if (chatbotToggle) {
           const chatbotRect = chatbotToggle.getBoundingClientRect();
           const chatbotBottom = window.innerHeight - chatbotRect.bottom;
           const chatbotRight = window.innerWidth - chatbotRect.right;
           
-          // 온라인상담 버튼 위에 배치 (버튼 높이 + gap 고려)
+          // 온라인상담 버튼 아래에 배치 (버튼 높이 + gap 고려)
           const buttonHeight = chatbotRect.height;
-          const gap = 12; // 버튼 간 간격
-          const newBottom = chatbotBottom + buttonHeight + gap;
+          const gap = window.innerWidth > 768 ? 12 : 8; // PC는 gap-3 (12px), 모바일은 gap-2 (8px)
+          const newBottom = chatbotBottom - buttonHeight - gap;
           
-          // 위치 조정
+          // 위치 조정 - 온라인상담 아래에 배치
           channelButtonParent.style.position = 'fixed';
           channelButtonParent.style.bottom = newBottom + 'px';
           channelButtonParent.style.right = chatbotRight + 'px';
           channelButtonParent.style.left = 'auto';
           channelButtonParent.style.zIndex = '1000';
           channelButtonParent.style.margin = '0';
+          // 버튼 크기도 동일하게 (PC: 56px, 모바일: 44px)
+          if (window.innerWidth > 768) {
+            channelButtonParent.style.width = '56px';
+            channelButtonParent.style.height = '56px';
+          } else {
+            channelButtonParent.style.width = '44px';
+            channelButtonParent.style.height = '44px';
+          }
         } else {
           // 온라인상담 버튼을 찾지 못한 경우 기본 위치
           if (window.innerWidth > 768) {
-            // PC: 온라인상담 버튼이 bottom-20 (80px)이므로 그 위에 배치
+            // PC: top(80px) + top 높이(56px) + gap(12px) + 온라인상담(56px) + gap(12px) = 216px
             channelButtonParent.style.position = 'fixed';
-            channelButtonParent.style.bottom = '140px'; // 80px + 버튼 높이(약 40px) + gap(20px)
-            channelButtonParent.style.right = '24px'; // md:right-6 = 24px
+            channelButtonParent.style.bottom = '216px';
+            channelButtonParent.style.right = '16px';
             channelButtonParent.style.left = 'auto';
             channelButtonParent.style.zIndex = '1000';
+            channelButtonParent.style.width = '56px';
+            channelButtonParent.style.height = '56px';
           } else {
-            // 모바일: 온라인상담 버튼이 bottom-20 (80px)이므로 그 위에 배치
+            // 모바일: top(64px) + top 높이(44px) + gap(8px) + 온라인상담(44px) + gap(8px) = 168px
             channelButtonParent.style.position = 'fixed';
-            channelButtonParent.style.bottom = '130px'; // 80px + 버튼 높이(약 30px) + gap(20px)
-            channelButtonParent.style.right = '16px'; // right-4 = 16px
+            channelButtonParent.style.bottom = '168px';
+            channelButtonParent.style.right = '16px';
             channelButtonParent.style.left = 'auto';
             channelButtonParent.style.zIndex = '1000';
+            channelButtonParent.style.width = '44px';
+            channelButtonParent.style.height = '44px';
           }
         }
       }
@@ -1141,7 +1153,7 @@
   
   <!-- ChannelIO 기본 버튼 위치 조정 -->
   <style>
-    /* ChannelIO 기본 버튼 위치 조정 - 온라인상담 버튼 위에 배치 */
+    /* ChannelIO 기본 버튼 위치 조정 - top 버튼 위에 배치 */
     button[type="button"]:has(.ChatButtonContainer__Container-ch-front__sc-qgvnh9-0),
     button[type="button"]:has(.cgHhTF),
     button[type="button"]:has(.IconButtonView__Background-ch-front__sc-vtu014-0),
@@ -1152,25 +1164,29 @@
       margin: 0 !important;
     }
     
-    /* PC 버전 */
+    /* PC 버전 - 온라인상담 아래에 배치 */
     @media (min-width: 768px) {
       button[type="button"]:has(.ChatButtonContainer__Container-ch-front__sc-qgvnh9-0),
       button[type="button"]:has(.cgHhTF),
       button[type="button"]:has(.IconButtonView__Background-ch-front__sc-vtu014-0),
       button[type="button"]:has(.kHLUXX) {
-        bottom: 140px !important;
-        right: 24px !important;
+        bottom: 216px !important; /* top(80px) + top(56px) + gap(12px) + 온라인상담(56px) + gap(12px) */
+        right: 16px !important;
+        width: 56px !important;
+        height: 56px !important;
       }
     }
     
-    /* 모바일 버전 */
+    /* 모바일 버전 - 온라인상담 아래에 배치 */
     @media (max-width: 767px) {
       button[type="button"]:has(.ChatButtonContainer__Container-ch-front__sc-qgvnh9-0),
       button[type="button"]:has(.cgHhTF),
       button[type="button"]:has(.IconButtonView__Background-ch-front__sc-vtu014-0),
       button[type="button"]:has(.kHLUXX) {
-        bottom: 130px !important;
+        bottom: 168px !important; /* top(64px) + top(44px) + gap(8px) + 온라인상담(44px) + gap(8px) */
         right: 16px !important;
+        width: 44px !important;
+        height: 44px !important;
       }
     }
     

@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isHidden) {
         chatbotWindow.classList.remove('hidden');
         if (chatbotIcon) {
-          chatbotIcon.textContent = '닫기';
+          chatbotIcon.style.display = 'none';
         }
         if (chatbotCloseIcon) {
           chatbotCloseIcon.classList.remove('hidden');
@@ -422,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         chatbotWindow.classList.add('hidden');
         if (chatbotIcon) {
-          chatbotIcon.textContent = '온라인상담';
+          chatbotIcon.style.display = 'block';
         }
         if (chatbotCloseIcon) {
           chatbotCloseIcon.classList.add('hidden');
@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
     minimizeButton.addEventListener('click', () => {
       chatbotWindow.classList.add('hidden');
       if (chatbotIcon) {
-        chatbotIcon.textContent = '온라인상담';
+        chatbotIcon.style.display = 'block';
       }
       if (chatbotCloseIcon) {
         chatbotCloseIcon.classList.add('hidden');

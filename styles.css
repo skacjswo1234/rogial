@@ -73,6 +73,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* 헤더 배경 완전 투명 처리 */
+#navbar {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
 .product-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
