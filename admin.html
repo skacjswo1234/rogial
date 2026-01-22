@@ -121,7 +121,7 @@
           onclick="switchView('messages'); closeMobileSidebar();" 
           id="tab-messages"
           class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200 relative">
-          💬 실시간 메시지
+          💬 온라인상담
           <span id="unread-count" class="hidden absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">0</span>
         </button>
         <button 
@@ -177,7 +177,7 @@
           onclick="switchView('messages'); closeMobileSidebar();" 
           id="mobile-tab-messages"
           class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200 relative">
-          💬 실시간 메시지
+          💬 온라인상담
           <span id="mobile-unread-count" class="hidden absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">0</span>
         </button>
         <button 
@@ -319,11 +319,11 @@
           </div>
         </div>
 
-        <!-- 실시간 메시지 뷰 -->
+        <!-- 온라인상담 뷰 -->
         <div id="messages-view" class="hidden">
           <!-- 헤더 -->
           <div class="mb-4 md:mb-6 pt-2 md:pt-4 md:pt-0">
-            <h2 class="text-xl md:text-2xl lg:text-3xl font-black text-gray-900">실시간 메시지</h2>
+            <h2 class="text-xl md:text-2xl lg:text-3xl font-black text-gray-900">온라인상담</h2>
             <p class="text-gray-600 mt-1 text-sm md:text-base font-semibold">고객과 실시간으로 채팅할 수 있습니다.</p>
           </div>
 
@@ -1229,7 +1229,7 @@
       });
     }
 
-    // ========== 실시간 메시지 기능 ==========
+    // ========== 온라인상담 기능 ==========
     
     // 메시지 목록 로드
     async function loadMessagesList() {
@@ -1850,7 +1850,7 @@
       });
     }
 
-    // SSE 연결 (실시간 메시지 수신)
+    // SSE 연결 (온라인상담 메시지 수신)
     function connectMessageStream() {
       if (messageEventSource) {
         messageEventSource.close();

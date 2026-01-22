@@ -398,8 +398,12 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (isHidden) {
         chatbotWindow.classList.remove('hidden');
-        chatbotIcon.classList.add('hidden');
-        chatbotCloseIcon.classList.remove('hidden');
+        if (chatbotIcon) {
+          chatbotIcon.textContent = '닫기';
+        }
+        if (chatbotCloseIcon) {
+          chatbotCloseIcon.classList.remove('hidden');
+        }
         
         console.log('챗봇 창 열림:', {
           hasHidden: chatbotWindow.classList.contains('hidden'),
@@ -417,8 +421,12 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(adjustChatbotHeight, 100);
       } else {
         chatbotWindow.classList.add('hidden');
-        chatbotIcon.classList.remove('hidden');
-        chatbotCloseIcon.classList.add('hidden');
+        if (chatbotIcon) {
+          chatbotIcon.textContent = '온라인상담';
+        }
+        if (chatbotCloseIcon) {
+          chatbotCloseIcon.classList.add('hidden');
+        }
         
         // 스트림 연결 종료
         if (messageEventSource) {
@@ -434,8 +442,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (minimizeButton && chatbotWindow) {
     minimizeButton.addEventListener('click', () => {
       chatbotWindow.classList.add('hidden');
-      chatbotIcon.classList.remove('hidden');
-      chatbotCloseIcon.classList.add('hidden');
+      if (chatbotIcon) {
+        chatbotIcon.textContent = '온라인상담';
+      }
+      if (chatbotCloseIcon) {
+        chatbotCloseIcon.classList.add('hidden');
+      }
       
       // 스트림 연결 종료
       if (messageEventSource) {

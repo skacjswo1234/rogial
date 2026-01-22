@@ -947,8 +947,8 @@
   </div>
 
   <!-- Fixed Bottom Right Buttons (Top & Chatbot) -->
-  <div class="fixed bottom-20 md:bottom-20 right-4 md:right-6 z-50 flex flex-col-reverse gap-3">
-    <!-- Top Button -->
+  <div class="fixed bottom-20 md:bottom-20 right-4 md:right-6 z-50 flex flex-col gap-3">
+    <!-- Top Button (온라인상담 위에 배치) -->
     <a href="#home" id="top-button"
       class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 opacity-50 pointer-events-none"
       title="맨 위로">
@@ -956,10 +956,10 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
       </svg>
     </a>
-    <!-- Chatbot Button -->
-    <button id="chatbot-toggle" class="w-12 h-12 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 overflow-hidden">
-      <img id="chatbot-icon" src="./images/ai.png" alt="AI 챗봇" class="w-full h-full object-contain p-2" />
-      <svg id="chatbot-close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Chatbot Button (온라인상담) -->
+    <button id="chatbot-toggle" class="px-4 py-2 md:px-5 md:py-2.5 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 font-semibold text-sm md:text-base whitespace-nowrap">
+      <span id="chatbot-icon">온라인상담</span>
+      <svg id="chatbot-close-icon" class="w-5 h-5 hidden ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
@@ -1028,5 +1028,160 @@
 
   <script src="./main.js"></script>
   <script src="./chatbot.js"></script>
+  
+  <!-- ChannelIO 내부상담 챗봇 -->
+  <script>
+    (function(){var w=window;if(w.ChannelIO){return w.console.error("ChannelIO script included twice.");}var ch=function(){ch.c(arguments);};ch.q=[];ch.c=function(args){ch.q.push(args);};w.ChannelIO=ch;function l(){if(w.ChannelIOInitialized){return;}w.ChannelIOInitialized=true;var s=document.createElement("script");s.type="text/javascript";s.async=true;s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";var x=document.getElementsByTagName("script")[0];if(x.parentNode){x.parentNode.insertBefore(s,x);}}if(document.readyState==="complete"){l();}else{w.addEventListener("DOMContentLoaded",l);w.addEventListener("load",l);}})();
+
+    // ChannelIO 초기화
+    ChannelIO('boot', {
+      "pluginKey": "dca72127-8c77-47ef-89ab-1f85b8aa60ef",
+      "language": "ko",
+      "appearance": "light",
+      "zIndex": 1000
+    });
+    
+    // ChannelIO 기본 버튼 위치 조정 함수
+    function adjustChannelIOButtonPosition() {
+      // ChannelIO 버튼 찾기 - button 태그나 ChatButtonContainer 클래스
+      const channelButton = document.querySelector('button[type="button"] .ChatButtonContainer__Container-ch-front__sc-qgvnh9-0, button[type="button"] .cgHhTF, [data-channel-plugin], [class*="ChatButtonContainer"]');
+      
+      // 버튼의 부모 button 태그 찾기
+      let channelButtonParent = null;
+      if (channelButton) {
+        channelButtonParent = channelButton.closest('button[type="button"]');
+      }
+      
+      // button 태그를 찾지 못한 경우 다른 선택자로 시도
+      if (!channelButtonParent) {
+        const buttons = document.querySelectorAll('button[type="button"]');
+        buttons.forEach(btn => {
+          // 온라인상담 버튼이나 다른 버튼이 아닌 경우
+          if (btn.id !== 'chatbot-toggle' && 
+              btn.id !== 'top-button' &&
+              btn.id !== 'channelio-internal-consultation' &&
+              (btn.querySelector('.ChatButtonContainer') || 
+               btn.querySelector('.IconButtonView') ||
+               btn.querySelector('.kHLUXX'))) {
+            channelButtonParent = btn;
+          }
+        });
+      }
+      
+      if (channelButtonParent) {
+        // 온라인상담 버튼 위치 확인
+        const chatbotToggle = document.getElementById('chatbot-toggle');
+        if (chatbotToggle) {
+          const chatbotRect = chatbotToggle.getBoundingClientRect();
+          const chatbotBottom = window.innerHeight - chatbotRect.bottom;
+          const chatbotRight = window.innerWidth - chatbotRect.right;
+          
+          // 온라인상담 버튼 위에 배치 (버튼 높이 + gap 고려)
+          const buttonHeight = chatbotRect.height;
+          const gap = 12; // 버튼 간 간격
+          const newBottom = chatbotBottom + buttonHeight + gap;
+          
+          // 위치 조정
+          channelButtonParent.style.position = 'fixed';
+          channelButtonParent.style.bottom = newBottom + 'px';
+          channelButtonParent.style.right = chatbotRight + 'px';
+          channelButtonParent.style.left = 'auto';
+          channelButtonParent.style.zIndex = '1000';
+          channelButtonParent.style.margin = '0';
+        } else {
+          // 온라인상담 버튼을 찾지 못한 경우 기본 위치
+          if (window.innerWidth > 768) {
+            // PC: 온라인상담 버튼이 bottom-20 (80px)이므로 그 위에 배치
+            channelButtonParent.style.position = 'fixed';
+            channelButtonParent.style.bottom = '140px'; // 80px + 버튼 높이(약 40px) + gap(20px)
+            channelButtonParent.style.right = '24px'; // md:right-6 = 24px
+            channelButtonParent.style.left = 'auto';
+            channelButtonParent.style.zIndex = '1000';
+          } else {
+            // 모바일: 온라인상담 버튼이 bottom-20 (80px)이므로 그 위에 배치
+            channelButtonParent.style.position = 'fixed';
+            channelButtonParent.style.bottom = '130px'; // 80px + 버튼 높이(약 30px) + gap(20px)
+            channelButtonParent.style.right = '16px'; // right-4 = 16px
+            channelButtonParent.style.left = 'auto';
+            channelButtonParent.style.zIndex = '1000';
+          }
+        }
+      }
+    }
+    
+    // 페이지 로드 후 반복적으로 위치 조정
+    function startAdjustingChannelIOButton() {
+      adjustChannelIOButtonPosition();
+      // MutationObserver로 DOM 변경 감지
+      const observer = new MutationObserver(function(mutations) {
+        adjustChannelIOButtonPosition();
+      });
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style', 'class', 'id']
+      });
+    }
+    
+    // 여러 시점에서 실행
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startAdjustingChannelIOButton);
+    } else {
+      startAdjustingChannelIOButton();
+    }
+    window.addEventListener('load', startAdjustingChannelIOButton);
+    
+    // 추가로 주기적으로 체크
+    setInterval(adjustChannelIOButtonPosition, 500);
+    
+    // 윈도우 리사이즈 시에도 위치 조정
+    window.addEventListener('resize', adjustChannelIOButtonPosition);
+  </script>
+  
+  <!-- ChannelIO 기본 버튼 위치 조정 -->
+  <style>
+    /* ChannelIO 기본 버튼 위치 조정 - 온라인상담 버튼 위에 배치 */
+    button[type="button"]:has(.ChatButtonContainer__Container-ch-front__sc-qgvnh9-0),
+    button[type="button"]:has(.cgHhTF),
+    button[type="button"]:has(.IconButtonView__Background-ch-front__sc-vtu014-0),
+    button[type="button"]:has(.kHLUXX) {
+      position: fixed !important;
+      left: auto !important;
+      z-index: 1000 !important;
+      margin: 0 !important;
+    }
+    
+    /* PC 버전 */
+    @media (min-width: 768px) {
+      button[type="button"]:has(.ChatButtonContainer__Container-ch-front__sc-qgvnh9-0),
+      button[type="button"]:has(.cgHhTF),
+      button[type="button"]:has(.IconButtonView__Background-ch-front__sc-vtu014-0),
+      button[type="button"]:has(.kHLUXX) {
+        bottom: 140px !important;
+        right: 24px !important;
+      }
+    }
+    
+    /* 모바일 버전 */
+    @media (max-width: 767px) {
+      button[type="button"]:has(.ChatButtonContainer__Container-ch-front__sc-qgvnh9-0),
+      button[type="button"]:has(.cgHhTF),
+      button[type="button"]:has(.IconButtonView__Background-ch-front__sc-vtu014-0),
+      button[type="button"]:has(.kHLUXX) {
+        bottom: 130px !important;
+        right: 16px !important;
+      }
+    }
+    
+    /* :has() 선택자를 지원하지 않는 브라우저를 위한 대체 */
+    [data-channel-plugin],
+    [class*="ChatButtonContainer"] {
+      position: fixed !important;
+      left: auto !important;
+      z-index: 1000 !important;
+      margin: 0 !important;
+    }
+  </style>
 </body>
 </html>
