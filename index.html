@@ -965,10 +965,10 @@
     </button>
   </div>
 
-  <!-- AI 챗봇 창 -->
-  <div id="chatbot-container" class="fixed bottom-0 right-0 z-50 pointer-events-none">
-    <!-- 챗봇 창 (모바일: 전체 화면, 데스크톱: 고정 크기) -->
-    <div id="chatbot-window" class="hidden fixed md:absolute bottom-32 right-6 w-full md:w-96 h-[calc(100dvh-140px)] max-h-[calc(100dvh-140px)] md:h-[600px] bg-white rounded-t-2xl md:rounded-2xl shadow-2xl border-2 border-primary-100 flex flex-col overflow-hidden md:max-h-[600px] pointer-events-auto">
+  <!-- AI 챗봇 모달 -->
+  <div id="chatbot-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <!-- 챗봇 창 (모바일: 전체 화면에 가깝게, 데스크톱: 중앙 배치) -->
+    <div id="chatbot-window" class="w-full max-w-lg md:w-[500px] h-[85vh] md:h-[600px] max-h-[85vh] md:max-h-[600px] bg-white rounded-2xl shadow-2xl border-2 border-primary-100 flex flex-col overflow-hidden relative">
       <!-- 헤더 -->
       <div class="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-3 md:p-4 flex items-center justify-between flex-shrink-0">
         <div class="flex items-center gap-2 md:gap-3">
@@ -980,9 +980,9 @@
             <p class="text-xs text-white/90 hidden md:block">상담원이 실시간으로 답변합니다</p>
           </div>
         </div>
-        <button id="chatbot-minimize" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all">
+        <button id="chatbot-close" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>

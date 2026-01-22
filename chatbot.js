@@ -144,9 +144,9 @@ function connectMessageStream() {
         const message = data.data;
         chatSession.lastMessageId = Math.max(chatSession.lastMessageId, message.id);
         
-        // 챗봇 창이 열려있고, 상담원 메시지인 경우에만 표시
-        const chatbotWindow = document.getElementById('chatbot-window');
-        if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
+        // 챗봇 모달이 열려있고, 상담원 메시지인 경우에만 표시
+        const chatbotModal = document.getElementById('chatbot-modal');
+        if (chatbotModal && !chatbotModal.classList.contains('hidden')) {
           if (message.sender_type === 'admin') {
             addMessage(message.message, 'bot', message.sender_name || '상담원');
           }
@@ -236,12 +236,13 @@ async function loadChatHistory() {
 
 // 모바일 키보드 대응: 챗봇 창 높이 조정
 function adjustChatbotHeight() {
+  const chatbotModal = document.getElementById('chatbot-modal');
   const chatbotWindow = document.getElementById('chatbot-window');
   const chatbotInput = document.getElementById('chatbot-input');
   const chatbotInputArea = chatbotInput ? chatbotInput.closest('.border-t') : null;
   
-  // 챗봇 창이 없거나 숨겨져 있으면 처리하지 않음
-  if (!chatbotWindow || chatbotWindow.classList.contains('hidden') || window.innerWidth >= 768) return;
+  // 챗봇 모달이 없거나 숨겨져 있으면 처리하지 않음
+  if (!chatbotModal || chatbotModal.classList.contains('hidden') || window.innerWidth >= 768) return;
   
   // 모바일에서만 처리
   if (window.visualViewport) {
@@ -315,40 +316,74 @@ function adjustChatbotHeight() {
   }
 }
 
-// 챗봇 초기화
-document.addEventListener('DOMContentLoaded', () => {
-  const toggleButton = document.getElementById('chatbot-toggle');
+// 챗봇 모달 닫기 함수
+function closeChatbotModal() {
+  const chatbotModal = document.getElementById('chatbot-modal');
   const chatbotWindow = document.getElementById('chatbot-window');
   const chatbotIcon = document.getElementById('chatbot-icon');
   const chatbotCloseIcon = document.getElementById('chatbot-close-icon');
-  const minimizeButton = document.getElementById('chatbot-minimize');
+  
+  if (chatbotModal) {
+    chatbotModal.classList.add('hidden');
+  }
+  if (chatbotWindow) {
+    chatbotWindow.classList.add('hidden');
+  }
+  if (chatbotIcon) {
+    chatbotIcon.style.display = 'block';
+  }
+  if (chatbotCloseIcon) {
+    chatbotCloseIcon.classList.add('hidden');
+  }
+  
+  // 스트림 연결 종료
+  if (messageEventSource) {
+    messageEventSource.close();
+    messageEventSource = null;
+  }
+  
+  // 높이 초기화
+  if (chatbotWindow) {
+    chatbotWindow.style.height = '';
+    chatbotWindow.style.maxHeight = '';
+  }
+}
+
+// 챗봇 초기화
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleButton = document.getElementById('chatbot-toggle');
+  const chatbotModal = document.getElementById('chatbot-modal');
+  const chatbotWindow = document.getElementById('chatbot-window');
+  const chatbotIcon = document.getElementById('chatbot-icon');
+  const chatbotCloseIcon = document.getElementById('chatbot-close-icon');
+  const closeButton = document.getElementById('chatbot-close');
   const chatbotInput = document.getElementById('chatbot-input');
   
   console.log('챗봇 초기화:', {
     toggleButton: !!toggleButton,
+    chatbotModal: !!chatbotModal,
     chatbotWindow: !!chatbotWindow,
     chatbotIcon: !!chatbotIcon,
     chatbotCloseIcon: !!chatbotCloseIcon
   });
   
-  // 초기 상태 확인: 챗봇 창이 숨겨져 있는지 확인
+  // 초기 상태 확인: 챗봇 모달이 숨겨져 있는지 확인
+  if (chatbotModal) {
+    chatbotModal.classList.add('hidden');
+  }
   if (chatbotWindow) {
     chatbotWindow.classList.add('hidden');
-    console.log('챗봇 창 초기 상태:', {
-      hasHidden: chatbotWindow.classList.contains('hidden'),
-      display: window.getComputedStyle(chatbotWindow).display
-    });
   }
   
   // 모바일 키보드 이벤트 처리 (챗봇이 열려있을 때만)
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
-      if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
+      if (chatbotModal && !chatbotModal.classList.contains('hidden')) {
         adjustChatbotHeight();
       }
     });
     window.visualViewport.addEventListener('scroll', () => {
-      if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
+      if (chatbotModal && !chatbotModal.classList.contains('hidden')) {
         adjustChatbotHeight();
       }
     });
@@ -357,12 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 입력 필드 포커스/블러 이벤트 (챗봇이 열려있을 때만)
   if (chatbotInput) {
     chatbotInput.addEventListener('focus', () => {
-      if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
-        // 즉시 높이 조정
-        setTimeout(adjustChatbotHeight, 100);
-        // 추가로 300ms 후 다시 조정 (키보드 애니메이션 완료 후)
-        setTimeout(adjustChatbotHeight, 400);
-        
+      if (chatbotModal && !chatbotModal.classList.contains('hidden')) {
         // 모바일에서 입력 영역이 보이도록 보장
         if (window.innerWidth < 768) {
           setTimeout(() => {
@@ -374,29 +404,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
-    chatbotInput.addEventListener('blur', () => {
-      if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
-        setTimeout(adjustChatbotHeight, 300);
-      }
-    });
-    
-    // 입력 필드 클릭 시에도 처리 (일부 브라우저에서 포커스 이벤트가 제대로 발생하지 않는 경우)
-    chatbotInput.addEventListener('touchstart', () => {
-      if (chatbotWindow && !chatbotWindow.classList.contains('hidden') && window.innerWidth < 768) {
-        setTimeout(() => {
-          chatbotInput.focus();
-          adjustChatbotHeight();
-        }, 100);
+  }
+  
+  // 모달 배경 클릭 시 닫기
+  if (chatbotModal) {
+    chatbotModal.addEventListener('click', (e) => {
+      // 모달 배경을 클릭한 경우에만 닫기 (내부 창 클릭은 제외)
+      if (e.target === chatbotModal) {
+        closeChatbotModal();
       }
     });
   }
   
-  if (toggleButton && chatbotWindow) {
+  // 닫기 버튼 클릭 시
+  if (closeButton) {
+    closeButton.addEventListener('click', closeChatbotModal);
+  }
+  
+  if (toggleButton && chatbotModal) {
     toggleButton.addEventListener('click', () => {
-      const isHidden = chatbotWindow.classList.contains('hidden');
-      console.log('챗봇 토글 클릭:', { isHidden, chatbotWindow });
+      const isHidden = chatbotModal.classList.contains('hidden');
+      console.log('챗봇 토글 클릭:', { isHidden, chatbotModal });
       
       if (isHidden) {
+        // 모달 열기
+        chatbotModal.classList.remove('hidden');
         chatbotWindow.classList.remove('hidden');
         if (chatbotIcon) {
           chatbotIcon.style.display = 'none';
@@ -405,10 +437,9 @@ document.addEventListener('DOMContentLoaded', () => {
           chatbotCloseIcon.classList.remove('hidden');
         }
         
-        console.log('챗봇 창 열림:', {
-          hasHidden: chatbotWindow.classList.contains('hidden'),
-          display: window.getComputedStyle(chatbotWindow).display,
-          position: window.getComputedStyle(chatbotWindow).position
+        console.log('챗봇 모달 열림:', {
+          hasHidden: chatbotModal.classList.contains('hidden'),
+          display: window.getComputedStyle(chatbotModal).display
         });
         
         // 챗봇 열 때 스트림 연결
@@ -416,49 +447,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 기존 메시지 로드 (메시지가 없으면 안내 메시지만 표시)
         loadChatHistory();
-        
-        // 높이 조정
-        setTimeout(adjustChatbotHeight, 100);
       } else {
-        chatbotWindow.classList.add('hidden');
-        if (chatbotIcon) {
-          chatbotIcon.style.display = 'block';
-        }
-        if (chatbotCloseIcon) {
-          chatbotCloseIcon.classList.add('hidden');
-        }
-        
-        // 스트림 연결 종료
-        if (messageEventSource) {
-          messageEventSource.close();
-          messageEventSource = null;
-        }
+        // 모달 닫기
+        closeChatbotModal();
       }
     });
   } else {
-    console.error('챗봇 요소를 찾을 수 없습니다:', { toggleButton, chatbotWindow });
-  }
-  
-  if (minimizeButton && chatbotWindow) {
-    minimizeButton.addEventListener('click', () => {
-      chatbotWindow.classList.add('hidden');
-      if (chatbotIcon) {
-        chatbotIcon.style.display = 'block';
-      }
-      if (chatbotCloseIcon) {
-        chatbotCloseIcon.classList.add('hidden');
-      }
-      
-      // 스트림 연결 종료
-      if (messageEventSource) {
-        messageEventSource.close();
-        messageEventSource = null;
-      }
-      
-      // 높이 초기화
-      chatbotWindow.style.height = '';
-      chatbotWindow.style.maxHeight = '';
-    });
+    console.error('챗봇 요소를 찾을 수 없습니다:', { toggleButton, chatbotModal });
   }
   
   // 전역 함수로 등록
