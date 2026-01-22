@@ -238,6 +238,7 @@ async function loadChatHistory() {
 function adjustChatbotHeight() {
   const chatbotWindow = document.getElementById('chatbot-window');
   const chatbotInput = document.getElementById('chatbot-input');
+  const chatbotInputArea = chatbotInput ? chatbotInput.closest('.border-t') : null;
   
   // 챗봇 창이 없거나 숨겨져 있으면 처리하지 않음
   if (!chatbotWindow || chatbotWindow.classList.contains('hidden') || window.innerWidth >= 768) return;
@@ -251,13 +252,49 @@ function adjustChatbotHeight() {
     
     if (keyboardHeight > 150) {
       // 키보드가 올라온 경우
-      const newHeight = viewportHeight - 100; // 상단 여백 100px
+      // 입력 영역 높이를 고려하여 챗봇 창 높이 조정
+      const inputAreaHeight = chatbotInputArea ? chatbotInputArea.offsetHeight : 80;
+      const headerHeight = 60; // 헤더 높이
+      const padding = 20; // 여백
+      const newHeight = viewportHeight - headerHeight - inputAreaHeight - padding;
+      
       chatbotWindow.style.height = `${newHeight}px`;
       chatbotWindow.style.maxHeight = `${newHeight}px`;
+      chatbotWindow.style.bottom = '0';
+      
+      // 입력 영역이 항상 보이도록 보장
+      if (chatbotInputArea) {
+        chatbotInputArea.style.position = 'sticky';
+        chatbotInputArea.style.bottom = '0';
+        chatbotInputArea.style.zIndex = '10';
+        chatbotInputArea.style.backgroundColor = 'white';
+      }
+      
+      // 메시지 영역 스크롤을 입력 영역 위로 조정
+      const messagesContainer = document.getElementById('chatbot-messages');
+      if (messagesContainer) {
+        messagesContainer.style.paddingBottom = '10px';
+        // 입력 영역이 보이도록 메시지 영역 스크롤
+        setTimeout(() => {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 100);
+      }
     } else {
       // 키보드가 내려간 경우
       chatbotWindow.style.height = '';
       chatbotWindow.style.maxHeight = '';
+      chatbotWindow.style.bottom = '';
+      
+      if (chatbotInputArea) {
+        chatbotInputArea.style.position = '';
+        chatbotInputArea.style.bottom = '';
+        chatbotInputArea.style.zIndex = '';
+      }
+      
+      const messagesContainer = document.getElementById('chatbot-messages');
+      if (messagesContainer) {
+        messagesContainer.style.paddingBottom = '';
+      }
     }
   } else {
     // visualViewport 미지원 브라우저: 더 작은 높이 사용
@@ -265,10 +302,15 @@ function adjustChatbotHeight() {
     chatbotWindow.style.maxHeight = 'calc(100dvh - 200px)';
   }
   
-  // 입력 필드가 보이도록 스크롤
+  // 입력 필드가 보이도록 스크롤 (추가 보장)
   if (chatbotInput && document.activeElement === chatbotInput) {
     setTimeout(() => {
-      chatbotInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      // 입력 영역이 화면에 보이도록 스크롤
+      if (chatbotInputArea) {
+        chatbotInputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+      // 또는 입력 필드 자체를 스크롤
+      chatbotInput.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
     }, 300);
   }
 }
@@ -316,12 +358,35 @@ document.addEventListener('DOMContentLoaded', () => {
   if (chatbotInput) {
     chatbotInput.addEventListener('focus', () => {
       if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
-        setTimeout(adjustChatbotHeight, 300);
+        // 즉시 높이 조정
+        setTimeout(adjustChatbotHeight, 100);
+        // 추가로 300ms 후 다시 조정 (키보드 애니메이션 완료 후)
+        setTimeout(adjustChatbotHeight, 400);
+        
+        // 모바일에서 입력 영역이 보이도록 보장
+        if (window.innerWidth < 768) {
+          setTimeout(() => {
+            const inputArea = chatbotInput.closest('.border-t');
+            if (inputArea) {
+              inputArea.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
+          }, 500);
+        }
       }
     });
     chatbotInput.addEventListener('blur', () => {
       if (chatbotWindow && !chatbotWindow.classList.contains('hidden')) {
         setTimeout(adjustChatbotHeight, 300);
+      }
+    });
+    
+    // 입력 필드 클릭 시에도 처리 (일부 브라우저에서 포커스 이벤트가 제대로 발생하지 않는 경우)
+    chatbotInput.addEventListener('touchstart', () => {
+      if (chatbotWindow && !chatbotWindow.classList.contains('hidden') && window.innerWidth < 768) {
+        setTimeout(() => {
+          chatbotInput.focus();
+          adjustChatbotHeight();
+        }, 100);
       }
     });
   }

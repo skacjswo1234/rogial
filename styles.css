@@ -188,10 +188,27 @@ body, p, span, div, h1, h2, h3, h4, h5, h6, a, button, label {
   }
   
   #chatbot-window > div:last-child,
-  #chat-input-area {
+  #chat-input-area,
+  #chatbot-input-area {
     flex: 0 0 auto !important;
-    position: relative !important;
+    position: sticky !important;
+    bottom: 0 !important;
     z-index: 10 !important;
+    background-color: white !important;
+    border-top: 2px solid #e5e7eb !important;
+  }
+  
+  /* 키보드가 올라올 때 입력 영역이 항상 보이도록 */
+  #chatbot-input-area {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  
+  /* 입력 필드와 버튼이 항상 보이도록 */
+  #chatbot-input,
+  #chatbot-send {
+    position: relative;
+    z-index: 11;
   }
 }
 
