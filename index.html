@@ -197,7 +197,7 @@
 <body class="bg-white font-paperlogy antialiased overflow-x-hidden">
   <!-- Navigation -->
   <nav id="navbar"
-    class="fixed top-0 w-full z-50 bg-transparent transition-all duration-300">
+    class="fixed top-0 w-full z-50 bg-white transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20 md:h-16">
         <!-- 모바일: 로고 + 회사명 (크기 조정) -->
@@ -944,7 +944,7 @@
   </footer>
 
 
-  <!-- Fixed Bottom Right Buttons (Top, 온라인상담, 내부상담 - 세로 배치, 같은 크기) -->
+  <!-- Fixed Bottom Right Buttons (Top, 내부상담 - 세로 배치) -->
   <div class="fixed bottom-16 md:bottom-24 right-3 md:right-6 z-50 flex flex-col gap-3 md:gap-3 items-center">
     <!-- Top Button (가장 위) -->
     <a href="#home" id="top-button"
@@ -954,80 +954,9 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
       </svg>
     </a>
-    <!-- Chatbot Button (온라인상담) - 중간 -->
-    <button id="chatbot-toggle" class="w-11 h-11 md:w-14 md:h-14 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-glow hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 px-1"
-      title="온라인상담">
-      <span id="chatbot-icon" class="text-[9px] md:text-[10px] font-semibold leading-tight text-center whitespace-pre-line">온라인
-  상담</span>
-      <svg id="chatbot-close-icon" class="w-5 h-5 md:w-6 md:h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-  </div>
-
-  <!-- AI 챗봇 모달 -->
-  <div id="chatbot-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <!-- 챗봇 창 (모바일: 전체 화면에 가깝게, 데스크톱: 중앙 배치) -->
-    <div id="chatbot-window" class="w-full max-w-lg md:w-[500px] h-[85vh] md:h-[600px] max-h-[85vh] md:max-h-[600px] bg-white rounded-2xl shadow-2xl border-2 border-primary-100 flex flex-col overflow-hidden relative">
-      <!-- 헤더 -->
-      <div class="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-3 md:p-4 flex items-center justify-between flex-shrink-0">
-        <div class="flex items-center gap-2 md:gap-3">
-          <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
-            <img src="./images/ai.png" alt="AI" class="w-full h-full object-contain p-1.5" />
-          </div>
-          <div>
-            <h3 class="font-bold text-base md:text-lg">로지알 실시간 상담</h3>
-            <p class="text-xs text-white/90 hidden md:block">상담원이 실시간으로 답변합니다</p>
-          </div>
-        </div>
-        <button id="chatbot-close" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-
-      <!-- 메시지 영역 -->
-      <div id="chatbot-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 min-h-0">
-        <div class="flex items-start gap-3">
-          <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
-            <img src="./images/ai.png" alt="AI" class="w-full h-full object-contain p-1.5" />
-          </div>
-          <div class="flex-1">
-            <div class="bg-white rounded-2xl rounded-tl-none p-4 shadow-sm border border-gray-200">
-              <p class="text-gray-800 text-sm">안녕하세요! 로지알 상담입니다. 👋<br>무엇이든 편하게 물어보세요. 상담원이 실시간으로 답변해드립니다.</p>
-            </div>
-            <p class="text-xs text-gray-500 mt-1 ml-2">방금</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 입력 영역 -->
-      <div class="p-2 md:p-4 border-t border-gray-200 bg-white flex-shrink-0 max-w-full overflow-hidden" id="chatbot-input-area">
-        <div class="flex gap-2 items-center min-w-0 w-full max-w-full">
-          <input 
-            type="text" 
-            id="chatbot-input" 
-            placeholder="메시지를 입력하세요..."
-            class="flex-1 min-w-0 max-w-full px-2 md:px-4 py-2 rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm overflow-hidden"
-            onkeypress="if(event.key === 'Enter') sendChatbotMessage()"
-          />
-          <button 
-            id="chatbot-send"
-            onclick="sendChatbotMessage()"
-            class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white flex items-center justify-center hover:shadow-lg transition-all flex-shrink-0 touch-manipulation">
-            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-            </svg>
-          </button>
-        </div>
-        <p class="text-xs text-gray-500 mt-2 text-center hidden md:block">상담원이 실시간으로 답변해드립니다</p>
-      </div>
-    </div>
   </div>
 
   <script src="./main.js"></script>
-  <script src="./chatbot.js"></script>
   
   <!-- ChannelIO 내부상담 챗봇 -->
   <script>
@@ -1056,9 +985,8 @@
       if (!channelButtonParent) {
         const buttons = document.querySelectorAll('button[type="button"]');
         buttons.forEach(btn => {
-          // 온라인상담 버튼이나 다른 버튼이 아닌 경우
-          if (btn.id !== 'chatbot-toggle' && 
-              btn.id !== 'top-button' &&
+          // top 버튼이 아닌 경우
+          if (btn.id !== 'top-button' &&
               btn.id !== 'channelio-internal-consultation' &&
               (btn.querySelector('.ChatButtonContainer') || 
                btn.querySelector('.IconButtonView') ||
@@ -1069,22 +997,22 @@
       }
       
       if (channelButtonParent) {
-        // 온라인상담 버튼 위치 확인 (내부상담은 온라인상담 아래에 배치)
-        const chatbotToggle = document.getElementById('chatbot-toggle');
-        if (chatbotToggle) {
-          const chatbotRect = chatbotToggle.getBoundingClientRect();
-          const chatbotBottom = window.innerHeight - chatbotRect.bottom;
-          const chatbotRight = window.innerWidth - chatbotRect.right;
+        // top 버튼 위치 확인 (내부상담은 top 버튼 아래에 배치)
+        const topButton = document.getElementById('top-button');
+        if (topButton) {
+          const topRect = topButton.getBoundingClientRect();
+          const topBottom = window.innerHeight - topRect.bottom;
+          const topRight = window.innerWidth - topRect.right;
           
-          // 온라인상담 버튼 아래에 배치 (버튼 높이 + gap 고려)
-          const buttonHeight = chatbotRect.height;
+          // top 버튼 아래에 배치 (버튼 높이 + gap 고려)
+          const buttonHeight = topRect.height;
           const gap = window.innerWidth > 768 ? 12 : 8; // PC는 gap-3 (12px), 모바일은 gap-2 (8px)
-          const newBottom = chatbotBottom - buttonHeight - gap;
+          const newBottom = topBottom - buttonHeight - gap;
           
-          // 위치 조정 - 온라인상담 아래에 배치
+          // 위치 조정 - top 버튼 아래에 배치
           channelButtonParent.style.position = 'fixed';
           channelButtonParent.style.bottom = newBottom + 'px';
-          channelButtonParent.style.right = chatbotRight + 'px';
+          channelButtonParent.style.right = topRight + 'px';
           channelButtonParent.style.left = 'auto';
           channelButtonParent.style.zIndex = '1000';
           channelButtonParent.style.margin = '0';
@@ -1097,20 +1025,20 @@
             channelButtonParent.style.height = '44px';
           }
         } else {
-          // 온라인상담 버튼을 찾지 못한 경우 기본 위치
+          // top 버튼을 찾지 못한 경우 기본 위치
           if (window.innerWidth > 768) {
-            // PC: top(80px) + top 높이(56px) + gap(12px) + 온라인상담(56px) + gap(12px) = 216px
+            // PC: top(80px) + top 높이(56px) + gap(12px) = 148px
             channelButtonParent.style.position = 'fixed';
-            channelButtonParent.style.bottom = '216px';
+            channelButtonParent.style.bottom = '148px';
             channelButtonParent.style.right = '16px';
             channelButtonParent.style.left = 'auto';
             channelButtonParent.style.zIndex = '1000';
             channelButtonParent.style.width = '56px';
             channelButtonParent.style.height = '56px';
           } else {
-            // 모바일: top(64px) + top 높이(44px) + gap(8px) + 온라인상담(44px) + gap(8px) = 168px
+            // 모바일: top(64px) + top 높이(44px) + gap(8px) = 116px
             channelButtonParent.style.position = 'fixed';
-            channelButtonParent.style.bottom = '168px';
+            channelButtonParent.style.bottom = '116px';
             channelButtonParent.style.right = '16px';
             channelButtonParent.style.left = 'auto';
             channelButtonParent.style.zIndex = '1000';
@@ -1164,26 +1092,26 @@
       margin: 0 !important;
     }
     
-    /* PC 버전 - 온라인상담 아래에 배치 */
+    /* PC 버전 - top 버튼 아래에 배치 */
     @media (min-width: 768px) {
       button[type="button"]:has(.ChatButtonContainer__Container-ch-front__sc-qgvnh9-0),
       button[type="button"]:has(.cgHhTF),
       button[type="button"]:has(.IconButtonView__Background-ch-front__sc-vtu014-0),
       button[type="button"]:has(.kHLUXX) {
-        bottom: 216px !important; /* top(80px) + top(56px) + gap(12px) + 온라인상담(56px) + gap(12px) */
+        bottom: 148px !important; /* top(80px) + top(56px) + gap(12px) */
         right: 16px !important;
         width: 56px !important;
         height: 56px !important;
       }
     }
     
-    /* 모바일 버전 - 온라인상담 아래에 배치 */
+    /* 모바일 버전 - top 버튼 아래에 배치 */
     @media (max-width: 767px) {
       button[type="button"]:has(.ChatButtonContainer__Container-ch-front__sc-qgvnh9-0),
       button[type="button"]:has(.cgHhTF),
       button[type="button"]:has(.IconButtonView__Background-ch-front__sc-vtu014-0),
       button[type="button"]:has(.kHLUXX) {
-        bottom: 168px !important; /* top(64px) + top(44px) + gap(8px) + 온라인상담(44px) + gap(8px) */
+        bottom: 116px !important; /* top(64px) + top(44px) + gap(8px) */
         right: 16px !important;
         width: 44px !important;
         height: 44px !important;

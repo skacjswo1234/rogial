@@ -118,13 +118,6 @@
           📋 문의리스트
         </button>
         <button 
-          onclick="switchView('messages'); closeMobileSidebar();" 
-          id="tab-messages"
-          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200 relative">
-          💬 온라인상담
-          <span id="unread-count" class="hidden absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">0</span>
-        </button>
-        <button 
           onclick="switchView('links'); closeMobileSidebar();" 
           id="tab-links"
           class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200">
@@ -172,13 +165,6 @@
           id="mobile-tab-inquiries"
           class="w-full text-left px-4 py-3 rounded-lg bg-primary-50 text-primary-700 font-semibold border border-primary-200 transition-all">
           📋 문의리스트
-        </button>
-        <button 
-          onclick="switchView('messages'); closeMobileSidebar();" 
-          id="mobile-tab-messages"
-          class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-all border border-transparent hover:border-primary-200 relative">
-          💬 온라인상담
-          <span id="mobile-unread-count" class="hidden absolute top-2 right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">0</span>
         </button>
         <button 
           onclick="switchView('links'); closeMobileSidebar();" 
@@ -319,75 +305,6 @@
           </div>
         </div>
 
-        <!-- 온라인상담 뷰 -->
-        <div id="messages-view" class="hidden">
-          <!-- 헤더 -->
-          <div class="mb-4 md:mb-6 pt-2 md:pt-4 md:pt-0">
-            <h2 class="text-xl md:text-2xl lg:text-3xl font-black text-gray-900">온라인상담</h2>
-            <p class="text-gray-600 mt-1 text-sm md:text-base font-semibold">고객과 실시간으로 채팅할 수 있습니다.</p>
-          </div>
-
-          <!-- 모바일: 목록/채팅 토글 버튼 -->
-          <div id="mobile-chat-toggle" class="md:hidden mb-3 flex gap-2">
-            <button 
-              id="show-list-btn"
-              onclick="showMobileChatList()"
-              class="flex-1 px-4 py-2 rounded-lg bg-primary-500 text-white font-semibold text-sm transition-all">
-              대화 목록
-            </button>
-            <button 
-              id="show-chat-btn"
-              onclick="showMobileChat()"
-              class="flex-1 px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold text-sm transition-all hidden">
-              채팅
-            </button>
-          </div>
-
-          <div id="messages-container" class="relative h-[calc(100vh-180px)] md:h-[calc(100vh-200px)] md:grid md:grid-cols-3 md:gap-6">
-            <!-- 메시지 목록 (왼쪽) -->
-            <div id="messages-list-container" class="absolute inset-0 md:relative md:col-span-1 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden h-full z-0 md:z-auto">
-              <div class="p-3 md:p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50">
-                <h3 class="font-bold text-gray-900 text-sm md:text-base">대화 목록</h3>
-              </div>
-              <div id="messages-list" class="flex-1 overflow-y-auto p-2 md:p-2 space-y-2">
-                <!-- 메시지 목록은 JavaScript로 동적 생성 -->
-                <div class="text-center py-8 text-gray-500 text-sm">로딩 중...</div>
-              </div>
-            </div>
-
-            <!-- 채팅 영역 (오른쪽) -->
-            <div id="chat-container" class="hidden absolute inset-0 md:relative md:col-span-2 bg-white rounded-xl shadow-lg border-2 border-primary-100 flex flex-col overflow-hidden h-full max-h-[calc(100dvh-120px)] md:max-h-full z-10 md:z-auto">
-              <div id="chat-header" class="p-3 md:p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50 min-h-[60px] flex items-center">
-                <p class="text-gray-500 text-xs md:text-sm text-center w-full">대화를 선택해주세요</p>
-              </div>
-              
-              <!-- 메시지 표시 영역 -->
-              <div id="chat-messages" class="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 bg-gray-50 min-h-0">
-                <!-- 메시지는 JavaScript로 동적 생성 -->
-              </div>
-
-              <!-- 메시지 입력 영역 -->
-              <div id="chat-input-area" class="hidden p-2 md:p-4 border-t border-gray-200 bg-white max-w-full overflow-hidden flex-shrink-0">
-                <form id="message-form" class="flex gap-2 items-center min-w-0 w-full max-w-full">
-                  <input 
-                    type="text" 
-                    id="message-input"
-                    placeholder="메시지를 입력하세요..."
-                    class="flex-1 min-w-0 max-w-full px-2 md:px-4 py-2 text-sm md:text-base rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all overflow-hidden"
-                    required
-                  />
-                  <button 
-                    type="submit"
-                    class="w-9 h-9 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 text-white flex items-center justify-center hover:shadow-lg transition-all flex-shrink-0 touch-manipulation">
-                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                    </svg>
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- 비밀번호 변경 뷰 -->
         <div id="password-view" class="hidden">
@@ -482,16 +399,10 @@
       window.location.href = './admin-login.html';
     }
 
-    let currentView = 'inquiries'; // 'inquiries', 'messages', 'links', or 'password'
+    let currentView = 'inquiries'; // 'inquiries', 'links', or 'password'
     let currentTab = 'all';
     let currentPage = 1;
     let allInquiries = [];
-    let currentChatInquiryId = null;
-    let messageEventSource = null;
-    let lastMessageId = 0;
-    let allMessages = [];
-    let currentChatMessages = []; // 현재 채팅방의 메시지 목록 (항상 유지)
-    let inquiryInfoCache = {}; // 문의 정보 캐시 (고객 구분용)
 
     const statusLabels = {
       'pending': '⏳ 대기 중',
@@ -514,7 +425,7 @@
       currentView = view;
       
       // 탭 활성화 상태 업데이트
-      const tabButtons = document.querySelectorAll('#tab-inquiries, #tab-messages, #tab-links, #tab-password, #mobile-tab-inquiries, #mobile-tab-inquiries, #mobile-tab-messages, #mobile-tab-links, #mobile-tab-password');
+      const tabButtons = document.querySelectorAll('#tab-inquiries, #tab-links, #tab-password, #mobile-tab-inquiries, #mobile-tab-links, #mobile-tab-password');
       tabButtons.forEach(btn => {
         btn.classList.remove('bg-primary-50', 'text-primary-700', 'border-primary-200', 'font-semibold');
         btn.classList.add('text-gray-700');
@@ -523,7 +434,6 @@
       // 활성 탭 설정
       const activeTabMap = {
         'inquiries': 'tab-inquiries',
-        'messages': 'tab-messages',
         'links': 'tab-links',
         'password': 'tab-password'
       };
@@ -537,7 +447,6 @@
       // 모바일 탭도 업데이트
       const mobileActiveTabMap = {
         'inquiries': 'mobile-tab-inquiries',
-        'messages': 'mobile-tab-messages',
         'links': 'mobile-tab-links',
         'password': 'mobile-tab-password'
       };
@@ -1229,9 +1138,8 @@
       });
     }
 
-    // ========== 온라인상담 기능 ==========
-    
-    // 메시지 목록 로드
+    // ========== 온라인상담 기능 제거됨 ==========
+    // 온라인상담 관련 모든 함수와 코드가 제거되었습니다.
     async function loadMessagesList() {
       try {
         const response = await fetch('/api/messages?sender_type=customer&limit=100');
@@ -2083,11 +1991,7 @@
 
     // 전역 함수로 등록 (HTML onclick에서 사용)
     window.switchView = switchView;
-    window.deleteChatRoom = deleteChatRoom;
-    window.openChat = openChat;
     window.closeMobileSidebar = closeMobileSidebar;
-    window.showMobileChatList = showMobileChatList;
-    window.showMobileChat = showMobileChat;
     
     // 모바일 키보드 대응: 채팅 컨테이너 높이 조정
     function adjustChatContainerHeight() {

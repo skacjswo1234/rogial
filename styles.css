@@ -75,8 +75,8 @@ html {
 
 /* 헤더 배경 완전 투명 처리 */
 #navbar {
-  background-color: transparent !important;
-  background: transparent !important;
+  background-color: white !important;
+  background: white !important;
 }
 
 .product-card {
