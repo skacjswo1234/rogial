@@ -944,13 +944,13 @@
   </footer>
 
 
-  <!-- Fixed Bottom Right Buttons (Top, 내부상담 - 세로 배치) -->
-  <div class="fixed bottom-16 md:bottom-24 right-3 md:right-6 z-50 flex flex-col gap-3 md:gap-3 items-center">
-    <!-- Top Button (가장 위) -->
+  <!-- Fixed Bottom Right Buttons: Top(위) / 해피톡(아래) 세로 배치 -->
+  <div id="fixed-buttons-wrapper" class="fixed z-[1001] flex flex-col-reverse items-center gap-3 md:gap-3 bottom-4 right-3 md:bottom-6 md:right-6">
+    <!-- Top Button (맨 위, 크기는 JS에서 해피톡과 동일하게 맞춤) -->
     <a href="#home" id="top-button"
-      class="w-11 h-11 md:w-14 md:h-14 bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all hover:scale-110"
+      class="bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all hover:scale-110 flex-shrink-0"
       title="맨 위로">
-      <svg class="w-5 h-5 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-5 h-5 md:w-6 md:h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
       </svg>
     </a>
@@ -958,173 +958,73 @@
 
   <script src="./main.js"></script>
   
-  <!-- ChannelIO 내부상담 챗봇 -->
+  <!-- Happytalk 내부상담 챗봇 (SDK가 버튼을 자동으로 표시함. 우리는 스타일/위치 건드리지 않음) -->
   <script>
-    (function(){var w=window;if(w.ChannelIO){return w.console.error("ChannelIO script included twice.");}var ch=function(){ch.c(arguments);};ch.q=[];ch.c=function(args){ch.q.push(args);};w.ChannelIO=ch;function l(){if(w.ChannelIOInitialized){return;}w.ChannelIOInitialized=true;var s=document.createElement("script");s.type="text/javascript";s.async=true;s.src="https://cdn.channel.io/plugin/ch-plugin-web.js";var x=document.getElementsByTagName("script")[0];if(x.parentNode){x.parentNode.insertBefore(s,x);}}if(document.readyState==="complete"){l();}else{w.addEventListener("DOMContentLoaded",l);w.addEventListener("load",l);}})();
-
-    // ChannelIO 초기화
-    ChannelIO('boot', {
-      "pluginKey": "dca72127-8c77-47ef-89ab-1f85b8aa60ef",
-      "language": "ko",
-      "appearance": "light",
-      "zIndex": 1000
-    });
-    
-    // ChannelIO 기본 버튼 위치 조정 함수
-    function adjustChannelIOButtonPosition() {
-      // ChannelIO 버튼 찾기 - button 태그나 ChatButtonContainer 클래스
-      const channelButton = document.querySelector('button[type="button"] .ChatButtonContainer__Container-ch-front__sc-qgvnh9-0, button[type="button"] .cgHhTF, [data-channel-plugin], [class*="ChatButtonContainer"]');
-      
-      // 버튼의 부모 button 태그 찾기
-      let channelButtonParent = null;
-      if (channelButton) {
-        channelButtonParent = channelButton.closest('button[type="button"]');
-      }
-      
-      // button 태그를 찾지 못한 경우 다른 선택자로 시도
-      if (!channelButtonParent) {
-        const buttons = document.querySelectorAll('button[type="button"]');
-        buttons.forEach(btn => {
-          // top 버튼이 아닌 경우
-          if (btn.id !== 'top-button' &&
-              btn.id !== 'channelio-internal-consultation' &&
-              (btn.querySelector('.ChatButtonContainer') || 
-               btn.querySelector('.IconButtonView') ||
-               btn.querySelector('.kHLUXX'))) {
-            channelButtonParent = btn;
-          }
+    var ht = null;
+    (function(id, scriptSrc, callback) {
+        var prevHt = document.getElementById(id);
+        if (prevHt) return;
+        var d = document,
+            tagName = 'script',
+            $script = d.createElement(tagName),
+            $element = d.getElementsByTagName(tagName)[0];
+        $script.id = id;
+        $script.async = true;
+        $script.src = scriptSrc;
+        if (callback) { $script.addEventListener('load', function (e) { callback(null, e); }, false); }
+        $element.parentNode.insertBefore($script, $element);
+    })('happytalkSDK', 'https://chat-static.happytalkio.com/sdk/happytalk.chat.v2.min.js', function() {
+        ht = new Happytalk({
+          siteId: '4000004419',
+          siteName: '주식회사 로지알',
+          categoryId: '208161',
+          divisionId: '208162'
         });
-      }
-      
-      if (channelButtonParent) {
-        // top 버튼 위치 확인 (내부상담은 top 버튼 아래에 배치)
-        const topButton = document.getElementById('top-button');
-        if (topButton) {
-          const topRect = topButton.getBoundingClientRect();
-          const topBottom = window.innerHeight - topRect.bottom;
-          const topRight = window.innerWidth - topRect.right;
-          
-          // top 버튼 아래에 배치 (버튼 높이 + gap 고려)
-          const buttonHeight = topRect.height;
-          const gap = window.innerWidth > 768 ? 12 : 8; // PC는 gap-3 (12px), 모바일은 gap-2 (8px)
-          const newBottom = topBottom - buttonHeight - gap;
-          
-          // 위치 조정 - top 버튼 아래에 배치
-          channelButtonParent.style.position = 'fixed';
-          channelButtonParent.style.bottom = newBottom + 'px';
-          channelButtonParent.style.right = topRight + 'px';
-          channelButtonParent.style.left = 'auto';
-          channelButtonParent.style.zIndex = '1000';
-          channelButtonParent.style.margin = '0';
-          // 버튼 크기도 동일하게 (PC: 56px, 모바일: 44px)
-          if (window.innerWidth > 768) {
-            channelButtonParent.style.width = '56px';
-            channelButtonParent.style.height = '56px';
-          } else {
-            channelButtonParent.style.width = '44px';
-            channelButtonParent.style.height = '44px';
-          }
-        } else {
-          // top 버튼을 찾지 못한 경우 기본 위치
-          if (window.innerWidth > 768) {
-            // PC: top(80px) + top 높이(56px) + gap(12px) = 148px
-            channelButtonParent.style.position = 'fixed';
-            channelButtonParent.style.bottom = '148px';
-            channelButtonParent.style.right = '16px';
-            channelButtonParent.style.left = 'auto';
-            channelButtonParent.style.zIndex = '1000';
-            channelButtonParent.style.width = '56px';
-            channelButtonParent.style.height = '56px';
-          } else {
-            // 모바일: top(64px) + top 높이(44px) + gap(8px) = 116px
-            channelButtonParent.style.position = 'fixed';
-            channelButtonParent.style.bottom = '116px';
-            channelButtonParent.style.right = '16px';
-            channelButtonParent.style.left = 'auto';
-            channelButtonParent.style.zIndex = '1000';
-            channelButtonParent.style.width = '44px';
-            channelButtonParent.style.height = '44px';
-          }
-        }
-      }
-    }
-    
-    // 페이지 로드 후 반복적으로 위치 조정
-    function startAdjustingChannelIOButton() {
-      adjustChannelIOButtonPosition();
-      // MutationObserver로 DOM 변경 감지
-      const observer = new MutationObserver(function(mutations) {
-        adjustChannelIOButtonPosition();
-      });
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'class', 'id']
-      });
-    }
-    
-    // 여러 시점에서 실행
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', startAdjustingChannelIOButton);
-    } else {
-      startAdjustingChannelIOButton();
-    }
-    window.addEventListener('load', startAdjustingChannelIOButton);
-    
-    // 추가로 주기적으로 체크
-    setInterval(adjustChannelIOButtonPosition, 500);
-    
-    // 윈도우 리사이즈 시에도 위치 조정
-    window.addEventListener('resize', adjustChannelIOButtonPosition);
+    });
   </script>
-  
-  <!-- ChannelIO 기본 버튼 위치 조정 -->
+
+  <!-- TOP / 해피톡 위치 (모바일만 조정) -->
   <style>
-    /* ChannelIO 기본 버튼 위치 조정 - top 버튼 위에 배치 */
-    button[type="button"]:has(.ChatButtonContainer__Container-ch-front__sc-qgvnh9-0),
-    button[type="button"]:has(.cgHhTF),
-    button[type="button"]:has(.IconButtonView__Background-ch-front__sc-vtu014-0),
-    button[type="button"]:has(.kHLUXX) {
-      position: fixed !important;
-      left: auto !important;
-      z-index: 1000 !important;
-      margin: 0 !important;
+    #fixed-buttons-wrapper {
+      position: fixed;
+      z-index: 1001;
+      right: 28px;
+      bottom: 120px;
     }
-    
-    /* PC 버전 - top 버튼 아래에 배치 */
-    @media (min-width: 768px) {
-      button[type="button"]:has(.ChatButtonContainer__Container-ch-front__sc-qgvnh9-0),
-      button[type="button"]:has(.cgHhTF),
-      button[type="button"]:has(.IconButtonView__Background-ch-front__sc-vtu014-0),
-      button[type="button"]:has(.kHLUXX) {
-        bottom: 148px !important; /* top(80px) + top(56px) + gap(12px) */
-        right: 16px !important;
-        width: 56px !important;
-        height: 56px !important;
-      }
+    #top-button {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    
-    /* 모바일 버전 - top 버튼 아래에 배치 */
+    /* 모바일: TOP 아이콘 위치 및 크기 (base보다 뒤에 와야 적용됨) */
     @media (max-width: 767px) {
-      button[type="button"]:has(.ChatButtonContainer__Container-ch-front__sc-qgvnh9-0),
-      button[type="button"]:has(.cgHhTF),
-      button[type="button"]:has(.IconButtonView__Background-ch-front__sc-vtu014-0),
-      button[type="button"]:has(.kHLUXX) {
-        bottom: 116px !important; /* top(64px) + top(44px) + gap(8px) */
-        right: 16px !important;
-        width: 44px !important;
-        height: 44px !important;
+      #fixed-buttons-wrapper {
+        right: 15px;   /* 오른쪽으로 */
+        bottom: 70px; /* 아래로 */
+      }
+      #top-button {
+        width: 42px !important;
+        height: 42px !important;
       }
     }
-    
-    /* :has() 선택자를 지원하지 않는 브라우저를 위한 대체 */
-    [data-channel-plugin],
-    [class*="ChatButtonContainer"] {
-      position: fixed !important;
-      left: auto !important;
-      z-index: 1000 !important;
-      margin: 0 !important;
+    @media (min-width: 768px) {
+      #fixed-buttons-wrapper {
+        right: 48px;
+        bottom: 140px;
+      }
+      #top-button {
+        width: 44px;
+        height: 44px;
+      }
+    }
+    /* 모바일: 해피톡 버튼 조금 더 오른쪽으로 */
+    @media (max-width: 767px) {
+      iframe[src*="happytalkio.com"],
+      iframe[src*="happytalk"] {
+        right: 6px !important;
+      }
     }
   </style>
 </body>
