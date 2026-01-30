@@ -958,32 +958,24 @@
 
   <script src="./main.js"></script>
   
-  <!-- Happytalk 내부상담 챗봇 (SDK가 버튼을 자동으로 표시함. 우리는 스타일/위치 건드리지 않음) -->
+  <!-- Chatwoot 채팅 위젯 -->
   <script>
-    var ht = null;
-    (function(id, scriptSrc, callback) {
-        var prevHt = document.getElementById(id);
-        if (prevHt) return;
-        var d = document,
-            tagName = 'script',
-            $script = d.createElement(tagName),
-            $element = d.getElementsByTagName(tagName)[0];
-        $script.id = id;
-        $script.async = true;
-        $script.src = scriptSrc;
-        if (callback) { $script.addEventListener('load', function (e) { callback(null, e); }, false); }
-        $element.parentNode.insertBefore($script, $element);
-    })('happytalkSDK', 'https://chat-static.happytalkio.com/sdk/happytalk.chat.v2.min.js', function() {
-        ht = new Happytalk({
-          siteId: '4000004419',
-          siteName: '주식회사 로지알',
-          categoryId: '208161',
-          divisionId: '208162'
+    (function(d,t) {
+      var BASE_URL="https://app.chatwoot.com";
+      var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+      g.src=BASE_URL+"/packs/js/sdk.js";
+      g.async = true;
+      s.parentNode.insertBefore(g,s);
+      g.onload=function(){
+        window.chatwootSDK.run({
+          websiteToken: 'xq9TCfotYm4wvbaWMmSGuQ5F',
+          baseUrl: BASE_URL
         });
-    });
+      };
+    })(document,"script");
   </script>
 
-  <!-- TOP / 해피톡 위치 (모바일만 조정) -->
+  <!-- TOP 버튼 위치 (모바일/PC) -->
   <style>
     #fixed-buttons-wrapper {
       position: fixed;
@@ -998,32 +990,26 @@
       align-items: center;
       justify-content: center;
     }
-    /* 모바일: TOP 아이콘 위치 및 크기 (base보다 뒤에 와야 적용됨) */
+    /* 모바일: TOP 아이콘 살짝 위로·왼쪽으로 */
     @media (max-width: 767px) {
       #fixed-buttons-wrapper {
-        right: 15px;   /* 오른쪽으로 */
-        bottom: 70px; /* 아래로 */
+        right: 24px;
+        bottom: 95px;
       }
       #top-button {
         width: 42px !important;
         height: 42px !important;
       }
     }
+    /* PC: TOP 아이콘 더 아래·약간 오른쪽, 크기 키움 */
     @media (min-width: 768px) {
       #fixed-buttons-wrapper {
-        right: 48px;
-        bottom: 140px;
+        right: 38px;
+        bottom: 108px;
       }
       #top-button {
-        width: 44px;
-        height: 44px;
-      }
-    }
-    /* 모바일: 해피톡 버튼 조금 더 오른쪽으로 */
-    @media (max-width: 767px) {
-      iframe[src*="happytalkio.com"],
-      iframe[src*="happytalk"] {
-        right: 6px !important;
+        width: 50px;
+        height: 50px;
       }
     }
   </style>
