@@ -38,6 +38,17 @@
 
     <div id="form-message" class="hidden mb-6 p-4 rounded-xl text-sm font-medium"></div>
 
+    <!-- 완료 모달 -->
+    <div id="success-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/50" aria-hidden="true">
+      <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-8 text-center">
+        <p class="text-lg font-bold text-gray-900 mb-2">접수 완료</p>
+        <p class="text-gray-600 text-sm mb-6">문의가 접수되었습니다.<br />담당자가 확인 후 연락드리겠습니다.</p>
+        <button type="button" id="modal-close" class="w-full py-3 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold hover:shadow-lg transition-all">
+          확인
+        </button>
+      </div>
+    </div>
+
     <div class="grid md:grid-cols-2 gap-8">
       <div class="space-y-4">
         <div class="p-4 rounded-2xl bg-gradient-to-br from-primary-500 to-accent-600 text-white shadow-lg">
@@ -90,11 +101,32 @@
     (function() {
       var form = document.getElementById('inquiry-form');
       var msgEl = document.getElementById('form-message');
+      var modal = document.getElementById('success-modal');
+      var modalClose = document.getElementById('modal-close');
+
       function showMessage(text, isError) {
         msgEl.textContent = text;
         msgEl.className = 'mb-6 p-4 rounded-xl text-sm font-medium ' + (isError ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800');
         msgEl.classList.remove('hidden');
       }
+      function showSuccessModal() {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+      function hideSuccessModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+
+      if (modalClose) {
+        modalClose.addEventListener('click', hideSuccessModal);
+      }
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) hideSuccessModal();
+      });
+
       form.addEventListener('submit', async function(e) {
         e.preventDefault();
         var data = new FormData(form);
@@ -118,8 +150,8 @@
           });
           var result = await response.json();
           if (response.ok && result.success) {
-            showMessage('접수되었습니다. 담당자가 연락드리겠습니다.', false);
             form.reset();
+            showSuccessModal();
           } else {
             showMessage(result.error || '전송에 실패했습니다.', true);
           }
