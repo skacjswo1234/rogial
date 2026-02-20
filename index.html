@@ -211,9 +211,8 @@
         </div>
         <div class="hidden md:flex space-x-3">
           <a href="http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-" target="_blank"
-            class="px-4 py-2 rounded-full border-2 border-gray-300 text-gray-800 font-semibold hover:border-primary-400 hover:shadow-glow transition-all duration-200 flex items-center gap-2">
-            <img src="./images/kakao.PNG" alt="" class="w-6 h-6 object-contain rounded-md" />
-            카톡 문의
+            class="inline-block hover:opacity-90 transition-opacity">
+            <img src="./images/kakao.PNG" alt="카카오톡 문의" class="h-12 w-auto object-contain rounded-lg block" />
           </a>
           <!-- 라인 문의 (보류)
           <a href="#" target="_blank" rel="noopener"
@@ -226,9 +225,8 @@
         <!-- 모바일: 카톡/라인 문의 버튼 + 메뉴 버튼 (줄바꿈 없음) -->
         <div class="flex md:hidden items-center gap-1.5 flex-shrink-0">
           <a href="http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-" target="_blank"
-            class="h-8 px-2.5 rounded-full border-2 border-gray-300 text-gray-800 shadow-lg flex items-center justify-center gap-1.5 transition-all font-semibold text-xs hover:border-primary-400 whitespace-nowrap">
-            <img src="./images/kakao.PNG" alt="" class="w-5 h-5 object-contain rounded-md" />
-            카톡 문의
+            class="inline-block hover:opacity-90 transition-opacity">
+            <img src="./images/kakao.PNG" alt="카카오톡 문의" class="h-11 w-auto object-contain rounded-lg block" />
           </a>
           <!-- 라인 문의 (보류)
           <a href="#" target="_blank" rel="noopener"
@@ -257,15 +255,13 @@
     </div>
   </nav>
 
-  <!-- 고정 하단 띠: 카카오톡 문의하기 (PC/모바일 동일) -->
-  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 py-3 px-4">
-    <div class="max-w-2xl mx-auto">
-      <a href="http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-" target="_blank"
-        class="w-full py-3 rounded-xl border-2 border-gray-300 text-gray-800 font-semibold text-base hover:border-primary-400 hover:shadow-glow transition-all duration-200 flex items-center justify-center gap-2">
-        <img src="./images/kakao.PNG" alt="" class="w-6 h-6 object-contain rounded-md" />
-        카카오톡 문의하기
-      </a>
-    </div>
+  <!-- 고정 하단: 모바일/PC 모두 적당한 크기 -->
+  <div class="fixed bottom-0 left-0 right-0 z-40 w-full">
+    <a href="http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-" target="_blank"
+      class="block w-full md:max-w-2xl md:mx-auto py-1.5 px-3 md:py-2 md:px-4 hover:opacity-95 transition-opacity">
+      <img src="./images/kakao.PNG" alt="카카오톡 문의하기"
+        class="block w-full h-auto object-contain max-h-[6rem] md:max-h-20" />
+    </a>
   </div>
 
   <!-- 본문 하단 여백: 고정 띠 높이만큼 -->
