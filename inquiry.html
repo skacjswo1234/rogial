@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>문의하기 | 로지알</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./styles.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { paperlogy: ['Paperlogy', 'sans-serif'] },
+          colors: {
+            primary: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12' },
+            accent: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb' },
+          },
+          boxShadow: { glow: '0 10px 50px rgba(249, 115, 22, 0.25)' },
+        },
+      },
+    };
+  </script>
+</head>
+<body class="bg-gray-50 font-paperlogy antialiased">
+  <nav class="bg-white border-b border-gray-200">
+    <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2">
+        <img src="./logo.PNG" alt="로지알" class="w-10 h-10 rounded-full object-contain" />
+        <span class="font-bold text-gray-800">주식회사 로지알</span>
+      </a>
+      <a href="index.html" class="text-sm font-semibold text-primary-600 hover:text-primary-700">← 홈으로</a>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-4 py-12">
+    <h1 class="text-2xl md:text-3xl font-black text-gray-900 mb-2">문의하기</h1>
+    <p class="text-gray-600 mb-8">입력해 주신 내용은 담당자가 확인 후 연락드립니다.</p>
+
+    <div id="form-message" class="hidden mb-6 p-4 rounded-xl text-sm font-medium"></div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="space-y-4">
+        <div class="p-4 rounded-2xl bg-gradient-to-br from-primary-500 to-accent-600 text-white shadow-lg">
+          <p class="text-sm uppercase tracking-widest text-white/90 font-bold">상담 시간</p>
+          <p class="text-white/90 font-semibold mt-2">10:00 ~ 20:00(연중무휴)</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-gradient-to-br from-primary-500 to-accent-600 text-white shadow-lg">
+          <p class="text-sm text-white/90 mb-2">📦 재료 무료 배송 · 완성품 수거</p>
+          <p class="text-sm text-white/90 mb-2">💳 검수 후 계좌로 안전 정산</p>
+          <p class="text-sm text-white/90">📞 담당자 1:1 안내</p>
+        </div>
+      </div>
+
+      <form id="inquiry-form" class="space-y-4 bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+      <input type="text" name="name" placeholder="성함" required
+        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" />
+      <input type="tel" name="phone" placeholder="연락처" required
+        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" />
+      <input type="text" name="region" placeholder="거주 지역" required
+        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" />
+      <select name="work-type" required
+        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all">
+        <option value="">신청 재료 (작업 종류) 선택</option>
+        <option value="장난감부품버클캡">🧸 장난감 부품 버클캡 (단가 100원)</option>
+        <option value="폰케이스스티커">📱 폰케이스 스티커 (단가 1,000원)</option>
+        <option value="단추부자재">⚪ 단추부자재 (단가 300원)</option>
+        <option value="머리핀">🎀 머리핀 (단가 200원)</option>
+        <option value="커넥터">🦋 커넥터 (단가 400원)</option>
+        <option value="꽃꽂이">🌸 꽃꽂이 (단가 200원)</option>
+        <option value="열쇠고리">🔐 열쇠고리 (단가 200원)</option>
+        <option value="스티커">🌈 스티커 (단가 100원)</option>
+      </select>
+      <input type="number" name="min-quantity" placeholder="최소 수량 (개)" min="1"
+        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all" />
+      <textarea name="message" rows="4" placeholder="문의 내용 (가능 시간대 등)"
+        class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all resize-none"></textarea>
+      <div class="flex items-start gap-2 text-sm text-gray-700">
+        <input type="checkbox" id="privacy" required class="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" />
+        <label for="privacy">개인정보 수집 및 이용에 동의합니다. 입력해 주신 정보는 부업 안내 및 상담, 작업 배정 안내 목적에만 사용되며 제3자에게 판매·공유되지 않습니다.</label>
+      </div>
+      <button type="submit"
+        class="w-full px-5 py-3 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 text-white font-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
+        무료 상담·신청하기
+      </button>
+    </form>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      var form = document.getElementById('inquiry-form');
+      var msgEl = document.getElementById('form-message');
+      function showMessage(text, isError) {
+        msgEl.textContent = text;
+        msgEl.className = 'mb-6 p-4 rounded-xl text-sm font-medium ' + (isError ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800');
+        msgEl.classList.remove('hidden');
+      }
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        var data = new FormData(form);
+        var payload = {
+          name: data.get('name'),
+          phone: data.get('phone'),
+          region: data.get('region'),
+          workType: data.get('work-type'),
+          minQuantity: data.get('min-quantity') ? parseInt(data.get('min-quantity'), 10) : null,
+          message: data.get('message')
+        };
+        var btn = form.querySelector('button[type="submit"]');
+        var origText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '전송 중...';
+        try {
+          var response = await fetch('/api/inquiries', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          var result = await response.json();
+          if (response.ok && result.success) {
+            showMessage('접수되었습니다. 담당자가 연락드리겠습니다.', false);
+            form.reset();
+          } else {
+            showMessage(result.error || '전송에 실패했습니다.', true);
+          }
+        } catch (err) {
+          showMessage('네트워크 오류가 발생했습니다.', true);
+        }
+        btn.disabled = false;
+        btn.textContent = origText;
+      });
+    })();
+  </script>
+</body>
+</html>
