@@ -399,18 +399,10 @@ async function loadKakaoLink() {
 
     if (result.success && result.data && result.data.url) {
       const kakaoUrl = result.data.url;
-      
-      // 히어로 섹션 버튼
-      const heroLink = document.getElementById('hero-kakao-link');
-      if (heroLink) {
-        heroLink.href = kakaoUrl;
-      }
-      
-      // 하단 바 버튼 (모바일/데스크톱 공통)
-      const kakaoLink = document.getElementById('kakao-link');
-      if (kakaoLink) {
-        kakaoLink.href = kakaoUrl;
-      }
+      // 관리자에서 설정한 카카오 링크를 모든 카카오 버튼에 적용
+      document.querySelectorAll('.js-kakao-link').forEach((el) => {
+        el.href = kakaoUrl;
+      });
     }
   } catch (error) {
     // 네트워크 오류나 JSON 파싱 오류는 조용히 처리 (기본 링크 유지)
