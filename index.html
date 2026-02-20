@@ -257,31 +257,21 @@
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section id="home" class="relative min-h-screen flex items-center overflow-hidden pt-20 md:pt-20">
-    <div class="absolute inset-0 top-0 bg-gradient-to-br from-primary-100 via-white to-accent-100"></div>
-    <div class="absolute top-0 left-8 w-64 h-64 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
-    <div class="absolute bottom-10 right-8 w-72 h-72 bg-accent-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"
-      style="animation-delay: 0.7s;"></div>
-
-    <div class="relative z-10 max-w-7xl mx-auto px-6 py-20 text-center">
-      <div class="flex flex-col sm:flex-row gap-4 justify-center animate-slideUp">
-        <a id="hero-kakao-link" href="http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-" target="_blank"
-          class="px-8 py-4 rounded-full border-2 border-gray-300 text-gray-800 font-semibold text-lg hover:border-primary-400 hover:shadow-glow transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2">
-          <img src="./images/kakao.PNG" alt="" class="w-8 h-8 object-contain rounded-md" />
-          카카오톡 문의하기
-        </a>
-        <!-- 라인 문의하기 (보류)
-        <a id="hero-line-link" href="#" target="_blank" rel="noopener"
-          class="px-8 py-4 rounded-full border-2 border-gray-300 text-gray-800 font-semibold text-lg hover:border-primary-400 hover:shadow-glow transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2">
-          <img src="./images/line.PNG" alt="" class="w-6 h-6 object-contain" />
-          라인 문의하기
-        </a>
-        -->
-      </div>
+  <!-- 고정 하단 띠: 카카오톡 문의하기 (PC/모바일 동일) -->
+  <div class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 py-3 px-4">
+    <div class="max-w-2xl mx-auto">
+      <a href="http://qr.kakao.com/talk/YdyC00gdQ0tDYCJqW7lHKSF7ffg-" target="_blank"
+        class="w-full py-3 rounded-xl border-2 border-gray-300 text-gray-800 font-semibold text-base hover:border-primary-400 hover:shadow-glow transition-all duration-200 flex items-center justify-center gap-2">
+        <img src="./images/kakao.PNG" alt="" class="w-6 h-6 object-contain rounded-md" />
+        카카오톡 문의하기
+      </a>
     </div>
-  </section>
+  </div>
 
+  <!-- 본문 하단 여백: 고정 띠 높이만큼 -->
+  <div class="h-20 md:h-20" aria-hidden="true"></div>
+
+  <div id="home" class="scroll-mt-20" aria-hidden="true"></div>
   <!-- About -->
   <section id="about" class="py-20 md:py-24 bg-white">
     <div class="max-w-6xl mx-auto px-6">
